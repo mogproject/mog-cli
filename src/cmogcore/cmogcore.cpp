@@ -5,12 +5,11 @@ BOOST_PYTHON_MODULE(cmogcore){
   using namespace boost::python;
   using namespace mog::core;
 
-  class_<BitBoard>("BitBoard")
+  class_<bitboard::BitBoard>("BitBoard")
     .def(init<u64, u64>())
-    .def(init<BitBoard>())
     .def(self == self)
-    .def("get", &BitBoard::get)
-    .def("set", &BitBoard::set)
+    .def("get", &bitboard::get)
+    .def("set", &bitboard::set)
     ;
 
 }

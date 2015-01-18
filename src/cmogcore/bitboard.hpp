@@ -7,41 +7,31 @@
 
 namespace mog {
   namespace core {
-    class BitBoard {
-     public:
-      u64 x[2];
+    namespace bitboard {
+      struct BitBoard {
+        u64 lo, hi;
+        constexpr BitBoard(u64 lo = 0ULL, u64 hi = 0ULL): lo(lo), hi(hi) {}
 
-      BitBoard() {
-        x[0] = x[1] = 0ULL;
+        constexpr bool operator==(BitBoard const& rhs) const {
+          return lo == rhs.lo && hi == rhs.hi;
+        }
+      };
+
+      constexpr bool get(BitBoard const& bb, int index) {
+        // assert(0 <= index && index < 81);
+        return index < 54 ? (bb.lo >> index) & 1 : (bb.hi >> (index - 54)) & 1;
       }
 
-      BitBoard(u64 lo, u64 hi) {
-        x[0] = lo & MASK54;
-        x[1] = hi & MASK27;
+      constexpr BitBoard set(BitBoard const& bb, int index) {
+        // assert(0 <= index && index < 81);
+        return BitBoard(
+          index < 54 ? (bb.lo | (1ULL << index)) : bb.lo,
+          index < 54 ? bb.hi : (bb.hi | 1ULL << (index - 54))
+        );
       }
 
-      BitBoard(BitBoard const& obj) {
-        x[0] = obj.x[0];
-        x[1] = obj.x[1];
-      }
-
-      bool operator==(BitBoard const& rhs) const {
-        return x[0] == rhs.x[0] && x[1] == rhs.x[1];
-      }
-
-      bool get(int index) const {
-        assert(0 <= index && index < 81);
-        return (x[index / 54] >> (index % 54)) & 1;
-      }
-
-      BitBoard set(int index) {
-        assert(0 <= index && index < 81);
-        x[index / 54] |= 1LL << (index % 54);
-        return *this;
-      }
-    };
-
-    // TODO: constexpr flip_bb()
+      // TODO: constexpr flip_bb()
+    }
   }
 }
 

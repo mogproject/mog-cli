@@ -12,5 +12,4 @@ class TestBitBoard(unittest.TestCase):
         self.assertTrue(all(full.get(i) for i in range(81)))
 
     def test_set(self):
-        bb = BitBoard(empty)
-        self.assertEqual(bb.set(0), BitBoard(1, 0))
+        self.assertEqual(empty.set(0), BitBoard(1, 0))

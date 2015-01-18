@@ -16,6 +16,9 @@ clean:
 run:
 	cd src && $(PYTHON) mogcli/mogcli.py
 
+console:
+	cd src && $(PYTHON)
+
 upload:
 	$(PYTHON) setup.py sdist upload
 
