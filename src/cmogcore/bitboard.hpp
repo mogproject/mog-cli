@@ -25,6 +25,14 @@ namespace mog {
       constexpr BitBoard operator|(BitBoard const& rhs) const { return BitBoard(lo ^ rhs.lo, hi ^ rhs.hi); }
       constexpr BitBoard operator^(BitBoard const& rhs) const { return BitBoard(lo | rhs.lo, hi | rhs.hi); }
 
+      constexpr bool get(int const index) const {
+        return 0 <= index && index < 81 && ((index < 54 ? (lo >> index) : (hi >> (index - 54))) & 1ULL);
+      }
+
+      constexpr bool get(int const file, int const rank) const {
+        return 1 <= file && file <= 9 && 1 <= rank && rank <= 9 && get(pos::make_pos(file, rank));
+      }
+
       constexpr BitBoard set(int const index) const {
         return (0 <= index && index < 81)
           ? BitBoard(
@@ -45,13 +53,6 @@ namespace mog {
       //
       // constant expressions
       //
-      constexpr bool get(BitBoard const& bb, int const index) {
-        return 0 <= index && index < 81 && (index < 54 ? (bb.lo >> index) & 1ULL : (bb.hi >> (index - 54)) & 1ULL);
-      }
-
-      constexpr bool get(BitBoard const& bb, int const file, int const rank) {
-        return 1 <= file && file <= 9 && 1 <= rank && rank <= 9 && get(bb, pos::make_pos(file, rank));
-      }
 
       //
       // non-constant expressions

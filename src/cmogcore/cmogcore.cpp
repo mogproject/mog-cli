@@ -16,8 +16,8 @@ BOOST_PYTHON_MODULE(cmogcore){
     .def(self | self)
     .def(self ^ self)
     .def("__repr__", &bitboard::repr)
-    .def("get", (bool (*)(BitBoard const&, int const))&bitboard::get)
-    .def("get", (bool (*)(BitBoard const&, int const, int const))&bitboard::get)
+    .def("get", static_cast<bool (BitBoard::*)(int const) const>(&BitBoard::get))
+    .def("get", static_cast<bool (BitBoard::*)(int const, int const) const>(&BitBoard::get))
     .def("set", static_cast<BitBoard (BitBoard::*)(int const) const>(&BitBoard::set))
     .def("set", static_cast<BitBoard (BitBoard::*)(int const, int const) const>(&BitBoard::set))
     ;
