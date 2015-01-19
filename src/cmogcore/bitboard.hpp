@@ -22,8 +22,8 @@ namespace mog {
 
       constexpr bool operator==(BitBoard const& rhs) const { return lo == rhs.lo && hi == rhs.hi; }
       constexpr BitBoard operator&(BitBoard const& rhs) const { return BitBoard(lo & rhs.lo, hi & rhs.hi); }
-      constexpr BitBoard operator|(BitBoard const& rhs) const { return BitBoard(lo ^ rhs.lo, hi ^ rhs.hi); }
-      constexpr BitBoard operator^(BitBoard const& rhs) const { return BitBoard(lo | rhs.lo, hi | rhs.hi); }
+      constexpr BitBoard operator|(BitBoard const& rhs) const { return BitBoard(lo | rhs.lo, hi | rhs.hi); }
+      constexpr BitBoard operator^(BitBoard const& rhs) const { return BitBoard(lo ^ rhs.lo, hi ^ rhs.hi); }
 
       constexpr bool get(int const index) const {
         return 0 <= index && index < 81 && ((index < 54 ? (lo >> index) : (hi >> (index - 54))) & 1ULL);
