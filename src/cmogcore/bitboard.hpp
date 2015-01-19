@@ -46,13 +46,11 @@ namespace mog {
       // constant expressions
       //
       constexpr bool get(BitBoard const& bb, int const index) {
-        return (0 <= index && index < 81)
-          ? index < 54 ? (bb.lo >> index) & 1ULL : (bb.hi >> (index - 54)) & 1ULL
-          : false;
+        return 0 <= index && index < 81 && (index < 54 ? (bb.lo >> index) & 1ULL : (bb.hi >> (index - 54)) & 1ULL);
       }
 
       constexpr bool get(BitBoard const& bb, int const file, int const rank) {
-        return 1 <= file && file <= 9 && 1 <= rank && rank <= 9 ? get(bb, pos::make_pos(file, rank)) : false;
+        return 1 <= file && file <= 9 && 1 <= rank && rank <= 9 && get(bb, pos::make_pos(file, rank));
       }
 
       //
