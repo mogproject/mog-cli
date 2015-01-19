@@ -7,7 +7,6 @@ class BitBoard(cmogcore.BitBoard):
         r = [''.join(reversed(s[i * 9: (i + 1) * 9])) for i in range(9)]
         return '\n'.join(r)
 
-
 # constant bitboards
 empty = BitBoard(0, 0)
 full = BitBoard(0xffffffffffffffff, 0xffffffffffffffff)

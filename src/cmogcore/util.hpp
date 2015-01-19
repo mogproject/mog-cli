@@ -30,8 +30,8 @@ namespace mog {
     namespace pos {
       int const HAND = -1;
 
-      inline int make_pos(int const file, int const rank) {
-        assert(1 <= file && file <=9 && 1 <= rank && rank <= 9);
+      constexpr inline int make_pos(int const file, int const rank) {
+//        assert(1 <= file && file <=9 && 1 <= rank && rank <= 9);
         return rank * 9 + file - 10;
       }
     }

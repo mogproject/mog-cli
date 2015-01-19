@@ -3,7 +3,8 @@
 
 namespace mog {
   namespace core {
-
+    namespace bitboard {
+    }
   }
 }
 

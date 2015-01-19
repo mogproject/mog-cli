@@ -11,5 +11,13 @@ class TestBitBoard(unittest.TestCase):
         self.assertFalse(any(empty.get(i) for i in range(81)))
         self.assertTrue(all(full.get(i) for i in range(81)))
 
+    def test_get_invalid_range(self):
+        self.assertFalse(empty.get(-1))
+        self.assertFalse(empty.get(81))
+        self.assertFalse(empty.get(10000))
+        self.assertFalse(full.get(-1))
+        self.assertFalse(full.get(81))
+        self.assertFalse(full.get(10000))
+
     def test_set(self):
         self.assertEqual(empty.set(0), BitBoard(1, 0))
