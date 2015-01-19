@@ -1,15 +1,15 @@
 CC = gcc
 PYTHON = python3
 
+.PHONY: all install test clean run console upload pep8
 all:
-	$(PYTHON) setup.py build
+	CC=$(CC) $(PYTHON) setup.py build
 
 install:
-	$(PYTHON) setup.py install
+	CC=$(CC) $(PYTHON) setup.py install
 
-test:
-	# call pep8 before test
-	$(PYTHON) setup.py test
+test: pep8
+	CC=$(CC) $(PYTHON) setup.py test
 
 clean:
 	rm -f -r build/*
