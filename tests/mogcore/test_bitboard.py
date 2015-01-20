@@ -22,6 +22,10 @@ class TestBitBoard(unittest.TestCase):
     def test_set(self):
         self.assertEqual(empty.set(0), BitBoard(1, 0))
         self.assertEqual(empty.set(80), BitBoard(0, 0, 0, 0, 0, 0, 0, 0, 0o400))
+        self.assertEqual(empty.set(52), BitBoard(0, 0, 0, 0, 0, 0o200, 0, 0, 0))
+        self.assertEqual(empty.set(53), BitBoard(0, 0, 0, 0, 0, 0o400, 0, 0, 0))
+        self.assertEqual(empty.set(54), BitBoard(0, 0, 0, 0, 0, 0, 0o001, 0, 0))
+        self.assertEqual(empty.set(55), BitBoard(0, 0, 0, 0, 0, 0, 0o002, 0, 0))
         self.assertEqual(full.set(0), full)
         self.assertEqual(full.set(80), full)
 

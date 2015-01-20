@@ -30,34 +30,22 @@ namespace mog {
       constexpr BitBoard operator~() const { return BitBoard(~lo, ~hi); }
 
       constexpr bool get(int const index) const {
-        return 0 <= index && index < 81 && ((index < 54 ? (lo >> index) : (hi >> (index - 54))) & 1ULL);
+        return (rshift(lo, index) | rshift(hi, index - 54)) & 1ULL;
       }
 
-      constexpr bool get(int const file, int const rank) const {
-        return 1 <= file && file <= 9 && 1 <= rank && rank <= 9 && get(pos::make_pos(file, rank));
-      }
+      constexpr bool get(int const file, int const rank) const { return get(pos::make_pos(file, rank)); }
 
       constexpr BitBoard set(int const index) const {
-        return (0 <= index && index < 81)
-          ? index < 54 ? BitBoard(lo | (1ULL << index), hi)
-                       : BitBoard(lo, hi | 1ULL << (index - 54))
-          : *this;
+        return BitBoard(lo | lshift(1ULL, index), hi | lshift(1ULL, index - 54));
       }
 
-      constexpr BitBoard set(int const file, int const rank) const {
-        return (1 <= file && file <= 9 && 1 <= rank && rank <= 9) ? set(pos::make_pos(file, rank)) : *this;
-      }
+      constexpr BitBoard set(int const file, int const rank) const { return set(pos::make_pos(file, rank)); }
 
       constexpr BitBoard reset(int const index) const {
-        return (0 <= index && index < 81)
-          ? index < 54 ? BitBoard(lo & ~(1ULL << index), hi)
-                       : BitBoard(lo, hi & ~(1ULL << (index - 54)))
-          : *this;
+        return BitBoard(lo & ~lshift(1ULL, index), hi & ~lshift(1ULL, index - 54));
       }
 
-      constexpr BitBoard reset(int const file, int const rank) const {
-        return (1 <= file && file <= 9 && 1 <= rank && rank <= 9) ? reset(pos::make_pos(file, rank)) : *this;
-      }
+      constexpr BitBoard reset(int const file, int const rank) const { return reset(pos::make_pos(file, rank)); }
 
       /**
        * Shift all bits to down.
