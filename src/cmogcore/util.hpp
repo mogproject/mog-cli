@@ -8,6 +8,10 @@ namespace mog {
     u64 const MASK27 = 0x0000000007ffffffULL;
     u64 const MASK54 = 0x003fffffffffffffULL;
 
+    // Universal shift functions
+    constexpr inline u64 lshift(u64 const u, int const n) { return -64 < n && n < 64 ? n < 0 ? u >> -n : u << n : 0ULL; }
+    constexpr inline u64 rshift(u64 const u, int const n) { return -64 < n && n < 64 ? n < 0 ? u << -n : u >> n : 0ULL; }
+
     // Turn
     namespace turn {
       int const BLACK = 0;

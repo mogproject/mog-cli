@@ -9,6 +9,9 @@
 
 namespace mog {
   namespace core {
+    /**
+     * Immutable bitboard structure
+     */
     struct BitBoard {
       u64 lo, hi;
 
@@ -24,6 +27,7 @@ namespace mog {
       constexpr BitBoard operator&(BitBoard const& rhs) const { return BitBoard(lo & rhs.lo, hi & rhs.hi); }
       constexpr BitBoard operator|(BitBoard const& rhs) const { return BitBoard(lo | rhs.lo, hi | rhs.hi); }
       constexpr BitBoard operator^(BitBoard const& rhs) const { return BitBoard(lo ^ rhs.lo, hi ^ rhs.hi); }
+      constexpr BitBoard operator~() const { return BitBoard(~lo, ~hi); }
 
       constexpr bool get(int const index) const {
         return 0 <= index && index < 81 && ((index < 54 ? (lo >> index) : (hi >> (index - 54))) & 1ULL);
@@ -35,9 +39,8 @@ namespace mog {
 
       constexpr BitBoard set(int const index) const {
         return (0 <= index && index < 81)
-          ? BitBoard(
-            index < 54 ? (lo | (1ULL << index)) : lo,
-            index < 54 ? hi : (hi | 1ULL << (index - 54)))
+          ? index < 54 ? BitBoard(lo | (1ULL << index), hi)
+                       : BitBoard(lo, hi | 1ULL << (index - 54))
           : *this;
       }
 
@@ -45,8 +48,53 @@ namespace mog {
         return (1 <= file && file <= 9 && 1 <= rank && rank <= 9) ? set(pos::make_pos(file, rank)) : *this;
       }
 
+      constexpr BitBoard reset(int const index) const {
+        return (0 <= index && index < 81)
+          ? index < 54 ? BitBoard(lo & ~(1ULL << index), hi)
+                       : BitBoard(lo, hi & ~(1ULL << (index - 54)))
+          : *this;
+      }
 
-      // TODO: implement unary_~, reset, shiftUp, shiftDown, shiftRight, shiftDown, flipHorizontal, flipVertical, spreadAllFile
+      constexpr BitBoard reset(int const file, int const rank) const {
+        return (1 <= file && file <= 9 && 1 <= rank && rank <= 9) ? reset(pos::make_pos(file, rank)) : *this;
+      }
+
+      /**
+       * Shift all bits to down.
+       * @param n shift width
+       *
+       *          e.g. n=2
+       *          *********       ---------
+       *          -*-----*-       ---------
+       *          *--***-**       *********
+       *          ------*--       -*-----*-
+       *          -*-------   =>  *--***-**
+       *          --*----*-       ------*--
+       *          *******-*       -*-------
+       *          -------*-       --*----*-
+       *          *********       *******-*
+       */
+      constexpr BitBoard shift_down(int const n) const {
+        return BitBoard(lshift(lo, n * 9) | lshift(hi, (n + 6) * 9), lshift(hi, n * 9) | lshift(lo, (n - 6) * 9));
+      }
+      /**
+       * Shift all bits to up.
+       * @param n shift width
+       *
+       *          e.g. n=2
+       *          *********       *--***-**
+       *          -*-----*-       ------*--
+       *          *--***-**       -*-------
+       *          ------*--       --*----*-
+       *          -*-------   =>  *******-*
+       *          --*----*-       -------*-
+       *          *******-*       *********
+       *          -------*-       ---------
+       *          *********       ---------
+       */
+      constexpr BitBoard shift_up(int const n) const { return -9 < n && n < 9 ? shift_down(-n) : BitBoard(); }
+
+      // TODO: implement shiftRight, shiftDown, flipHorizontal, flipVertical, spreadAllFile
     };
 
     namespace bitboard {
@@ -65,7 +113,8 @@ namespace mog {
         for (auto i = 0; i < 9; ++i) {
           auto x = ((i < 6 ? bb.lo : bb.hi) >> (i % 6 * 9)) & 0x1ffULL;
           s << std::setfill('0') << std::setw(3) << std::oct << x;
-          if (i != 8) s << '.';
+          if (i == 2 || i == 5) s << ',';
+          if (i % 3 != 2) s << '.';
         }
         s << ")";
         return s.str();
