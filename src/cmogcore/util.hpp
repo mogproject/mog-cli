@@ -1,16 +1,19 @@
 #ifndef MOG_CORE_UTIL_HPP_INCLUDED
 #define MOG_CORE_UTIL_HPP_INCLUDED
 
-#include <cassert>
+#include "util/transform.hpp"
 
 namespace mog {
   namespace core {
+    typedef signed long long s64;
+    typedef unsigned long long u64;
+
     u64 const MASK27 = 0x0000000007ffffffULL;
     u64 const MASK54 = 0x003fffffffffffffULL;
 
     // Universal shift functions
-    constexpr inline u64 lshift(u64 const u, int const n) { return -64 < n && n < 64 ? n < 0 ? u >> -n : u << n : 0ULL; }
-    constexpr inline u64 rshift(u64 const u, int const n) { return -64 < n && n < 64 ? n < 0 ? u << -n : u >> n : 0ULL; }
+    inline constexpr u64 lshift(u64 const u, int const n) { return -64 < n && n < 64 ? n < 0 ? u >> -n : u << n : 0ULL; }
+    inline constexpr u64 rshift(u64 const u, int const n) { return -64 < n && n < 64 ? n < 0 ? u << -n : u >> n : 0ULL; }
 
     // Turn
     namespace turn {
@@ -34,7 +37,7 @@ namespace mog {
     namespace pos {
       int const HAND = -1;
 
-      constexpr inline int make_pos(int const file, int const rank) {
+      inline constexpr int make_pos(int const file, int const rank) {
         return (1 <= file && file <= 9 && 1 <= rank && rank <= 9) ? rank * 9 + file - 10 : -1;
       }
     }

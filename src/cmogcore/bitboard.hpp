@@ -4,7 +4,6 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include "typedef.hpp"
 #include "util.hpp"
 
 namespace mog {
@@ -46,6 +45,14 @@ namespace mog {
       }
 
       constexpr BitBoard reset(int const file, int const rank) const { return reset(pos::make_pos(file, rank)); }
+
+      constexpr BitBoard set_repeat(int const file_origin, int const rank_origin,
+                                    int const file_offset, int const rank_offset, int const length) const {
+        return length <= 0 || file_origin < 1 || 9 < file_origin || rank_origin < 1 || 9 < rank_origin
+          ? *this
+          : set(file_origin + file_offset, rank_origin + rank_offset)
+              .set_repeat(file_origin + file_offset, rank_origin + rank_offset, file_offset, rank_offset, length - 1);
+      }
 
       /**
        * Shift all bits to down.

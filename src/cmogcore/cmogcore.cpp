@@ -28,7 +28,6 @@ BOOST_PYTHON_MODULE(cmogcore){
     ;
 
   class_<Attack>("Attack")
-    .def_readonly("xxx", &attack::xxx)
+    .def("get_attack", static_cast<BitBoard (*)(int, int, int)>(&attack::get_attack))
     ;
 }
-
