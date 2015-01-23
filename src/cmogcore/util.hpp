@@ -17,12 +17,30 @@ namespace mog {
 
     // Turn
     namespace turn {
+      template <int N>
+      struct Turn { static int const value = N; };
+
+      struct Black: Turn<1> {};
+      struct White: Turn<-1> {};
+
       int const BLACK = 0;
       int const WHITE = -1;
     }
 
     // Piece Type
     namespace ptype {
+      template <int N>
+      struct PType { static int const value = N; };
+
+      struct King: PType<0> {};
+      struct Rook: PType<1> {};
+      struct Bishop: PType<2> {};
+      struct Lance: PType<3> {};
+      struct Gold: PType<4> {};
+      struct Silver: PType<5> {};
+      struct Knight: PType<6> {};
+      struct Pawn: PType<7> {};
+
       int const KING = 0;
       int const ROOK = 1;
       int const BISHOP = 2;
