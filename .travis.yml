@@ -1,0 +1,11 @@
+---
+language: python
+python:
+  - "3.4"
+install:
+  - brew install boost-python --with-python3
+  - pip install coveralls
+script:
+  - coverage run --source=src make test
+after_success:
+  - coveralls
