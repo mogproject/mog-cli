@@ -8,8 +8,8 @@ namespace mog {
     typedef signed long long s64;
     typedef unsigned long long u64;
 
-    u64 const MASK27 = 0x0000000007ffffffULL;
-    u64 const MASK54 = 0x003fffffffffffffULL;
+    u64 const MASK27 = 0000000000777777777ULL;
+    u64 const MASK54 = 0777777777777777777ULL;
 
     // Universal shift functions
     inline constexpr u64 lshift(u64 const u, int const n) { return -64 < n && n < 64 ? n < 0 ? u >> -n : u << n : 0ULL; }

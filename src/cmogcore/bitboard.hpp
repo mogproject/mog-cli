@@ -55,51 +55,190 @@ namespace mog {
       }
 
       /**
+       * Make u64 value spreading file bits to each rank
+       *
+       * e.g.
+       *   n       * 01001001001001001
+       * abcdefghi      abcdefghi
+       * ---------      abcdefghi
+       * ---------  =>  abcdefghi
+       * ---------      abcdefghi
+       * ---------      abcdefghi
+       * ---------      abcdefghi
+       */
+      inline static constexpr u64 files(int n) { return 0001001001001001001ULL * n; }
+
+      /**
+       * Make u64 value spreading rank bits to each file
+       *
+       * e.g.
+       *   n       * 0x101010101010 & 01001001001001001 * 0777
+       * ---abcdef      f--abcdef      --------f      fffffffff
+       * ---------      ef--abcde      --------e      eeeeeeeee
+       * ---------  =>  def--abcd  =>  --------d  =>  ddddddddd
+       * ---------      cdef--abc      --------c      ccccccccc
+       * ---------      bcdef--ab      --------b      bbbbbbbbb
+       * ---------      --------a      --------a      aaaaaaaaa
+       */
+      inline static constexpr u64 ranks(int n) { return ((0x10101010101ULL * n) & 0001001001001001001ULL) * 0777; }
+
+      /**
+       * Shift all bits to left.
+       * @param n shift width
+       *
+       * e.g. n=2
+       * *********      *******--
+       * -*-----*-      -----*---
+       * *--***-**      -***-**--
+       * ------*--      ----*----
+       * -*-------  =>  ---------
+       * --*----*-      *----*---
+       * *******-*      *****-*--
+       * -------*-      -----*---
+       * *********      *******--
+       */
+      constexpr BitBoard shift_left(int const n) const { return _shift_left(0, n); }
+
+      constexpr BitBoard _shift_left(int step, int n, u64 x = 0) const {
+        return step == 0
+          ? _shift_left(1, n, files(rshift(0777, n) & 0777))
+          : BitBoard(lshift(lo & x, n), lshift(hi & x, n));
+      }
+
+      /**
+       * Shift all bits to right.
+       * @param n shift width
+       *
+       * e.g. n=2
+       * *********      --*******
+       * -*-----*-      ---*-----
+       * *--***-**      --*--***-
+       * ------*--      --------*
+       * -*-------  =>  ---*-----
+       * --*----*-      ----*----
+       * *******-*      --*******
+       * -------*-      ---------
+       * *********      --*******
+       */
+      constexpr BitBoard shift_right(int const n) const { return -9 < n && n < 9 ? shift_left(-n) : BitBoard(); }
+
+      /**
        * Shift all bits to down.
        * @param n shift width
        *
-       *          e.g. n=2
-       *          *********       ---------
-       *          -*-----*-       ---------
-       *          *--***-**       *********
-       *          ------*--       -*-----*-
-       *          -*-------   =>  *--***-**
-       *          --*----*-       ------*--
-       *          *******-*       -*-------
-       *          -------*-       --*----*-
-       *          *********       *******-*
+       * e.g. n=2
+       * *********      ---------
+       * -*-----*-      ---------
+       * *--***-**      *********
+       * ------*--      -*-----*-
+       * -*-------  =>  *--***-**
+       * --*----*-      ------*--
+       * *******-*      -*-------
+       * -------*-      --*----*-
+       * *********      *******-*
        */
       constexpr BitBoard shift_down(int const n) const {
         return BitBoard(lshift(lo, n * 9) | lshift(hi, (n + 6) * 9), lshift(hi, n * 9) | lshift(lo, (n - 6) * 9));
       }
+
       /**
        * Shift all bits to up.
        * @param n shift width
        *
-       *          e.g. n=2
-       *          *********       *--***-**
-       *          -*-----*-       ------*--
-       *          *--***-**       -*-------
-       *          ------*--       --*----*-
-       *          -*-------   =>  *******-*
-       *          --*----*-       -------*-
-       *          *******-*       *********
-       *          -------*-       ---------
-       *          *********       ---------
+       *  e.g. n=2
+       *  *********      *--***-**
+       *  -*-----*-      ------*--
+       *  *--***-**      -*-------
+       *  ------*--      --*----*-
+       *  -*-------  =>  *******-*
+       *  --*----*-      -------*-
+       *  *******-*      *********
+       *  -------*-      ---------
+       *  *********      ---------
        */
       constexpr BitBoard shift_up(int const n) const { return -9 < n && n < 9 ? shift_down(-n) : BitBoard(); }
 
-      // TODO: implement shiftRight, shiftDown, flipHorizontal, flipVertical, spreadAllFile
+      /**
+       * Flip a bitboard vertically about the centre rank.
+       * Rank 1 is mapped to rank 9 and vice versa.
+       *
+       * e.g.
+       * *********      *********
+       * -*-----*-      -------*-
+       * *--***-**      *******-*
+       * ------*--      --*----*-
+       * -*-------  =>  -*-------
+       * --*----*-      ------*--
+       * *******-*      *--***-**
+       * -------*-      -*-----*-
+       * *********      *********
+       */
+      constexpr BitBoard flip_vertical() const { return _flip_vertical(0); }
+
+      constexpr BitBoard _flip_vertical(int step, u64 x = 0ULL) const {
+        return step == 0  // x := rank 654321 -> 4__1__ + _5__2_ + __6__3 = 456123
+          ? _flip_vertical(1, ((lo & ranks(011)) << 18) + (lo & ranks(022)) + ((lo >> 18) & ranks(011)))
+          // lo: (987 -> ____9 + ___8_ + 987__ = 98789 -> 789) + 456___ = 456789, hi: 123
+          : BitBoard(((hi & ranks(001)) << 18) + (hi & ranks(002)) + (hi >> 18) + (x & ranks(070)), x);
+      }
+
+      /**
+       * Flip a bitboard horizontally about the center file.
+       * File 1 is mapped to file 9 and vice versa.
+       *
+       * e.g.
+       * *********      *********
+       * -*-----*-      -*-----*-
+       * *--***-**      **-***--*
+       * ------*--      --*------
+       * -*-------  =>  -------*-
+       * --*----*-      -*----*--
+       * *******-*      *-*******
+       * -------*-      -*-------
+       * *********      *********
+       */
+      constexpr BitBoard flip_horizontal() const { return BitBoard(_flip_horizontal(0, lo), _flip_horizontal(0, hi)); }
+
+      constexpr u64 _flip_horizontal(int step, u64 x, u64 y = 0ULL) const {
+        return step == 0  // y := file 987654321 -> _9_7__4_2 + 8_6__3_1_ = 8967_3412
+          ? _flip_horizontal(1, x, ((x & files(0512)) >> 1) + ((x & files(0245)) << 1))
+          : step == 1  // file (8967_3412 -> __89__34) + (8967_3412 -> 67___12) = 6789_1234
+            ? _flip_horizontal(2, x, ((y & files(0614)) >> 2) + ((y & files(0143)) << 2))
+            // file (6789_1234 -> _____6789) + ____5____ + (6789_1234 -> 1234_____) = 123456789
+            : ((y & files(0740)) >> 5) + (x & files(0020)) + ((y & files(0017)) << 5);
+      }
+
+      /**
+       * Spread each bit to all file-direction.
+       *
+       * IMPORTANT: This method is assuming that there are no two or more bits in same file.
+       *
+       * e.g.
+       * ---------      ****-*--*
+       * ---------      ****-*--*
+       * ---------      ****-*--*
+       * ---------      ****-*--*
+       * ---*-----  =>  ****-*--*
+       * *-*--*--*      ****-*--*
+       * -*-------      ****-*--*
+       * ---------      ****-*--*
+       * ---------      ****-*--*
+       */
+      constexpr BitBoard spread_all_file() const {
+        return _spread_all_file(files((((lo | hi) * 02002002002002002000ULL) >> 55) & 0777ULL));
+      }
+
+      constexpr BitBoard _spread_all_file(u64 x) const {
+        return BitBoard(x, x);
+      }
+
+      /** Flip vertical if the turn is white */
+      constexpr BitBoard flip_by_turn(int turn) const {
+        return turn ? flip_vertical() : *this;
+      }
     };
 
     namespace bitboard {
-      //
-      // constant expressions
-      //
-
-      //
-      // non-constant expressions
-      //
 
       /** represent as nine octets */
       std::string repr(BitBoard const& bb) {

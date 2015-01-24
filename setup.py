@@ -22,6 +22,7 @@ setup(
     install_requires=[
     ],
     tests_require=[
+        'hypothesis'
     ],
     package_dir={'': SRC_DIR},
     packages=find_packages(SRC_DIR),
