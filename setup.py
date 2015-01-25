@@ -12,10 +12,6 @@ def get_version():
 
 source_files = ['src/cmogcore/%s.cpp' % s for s in ['cmogcore']]
 
-if sys.version_info.major == 3 and platform.dist()[0] == 'fedora':
-    boost_library = 'boost_python3'
-else:
-    boost_library = 'boost_python'
 
 setup(
     name='mog-cli',
@@ -42,7 +38,7 @@ setup(
             sources=source_files,
             include_dirs=['/usr/local/include/boost'],
             library_dirs=['/usr/lib', '/usr/local/lib'],
-            libraries=[boost_library],
+            libraries=['boost_python3'],
             extra_compile_args=['-std=c++11', '-pthread', '-Wall'],
             extra_link_args=['-pthread'],
         )
