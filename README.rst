@@ -4,7 +4,7 @@ mog-cli
 
 Command Line Interface for Playing Shogi Games
 
-.. image:: https://travis-ci.org/mogproject/mog-cli.svg
+.. image:: https://travis-ci.org/mogproject/mog-cli.svg?branch=master
    :target: https://travis-ci.org/mogproject/mog-cli
    :alt: Build Status
 
