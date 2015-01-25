@@ -52,7 +52,7 @@ function run_bootstrap() {
 
 function run_b2() {
     cd ${work_dir} && ./b2 --build-dir=build-${py_cmd} --stagedir=stage-${py_cmd} python=${TRAVIS_PYTHON_VERSION} \
-        --prefix=/usr --libdir=/usr/lib -d2 -j2 --layout=tagged --user-config=${config_path} threading=multi \
+        --prefix=/usr --libdir=/usr/lib -d2 -j2 --layout=tagged --user-config=${config_path} threading=single \
         link=shared address-model=32_64 architecture=x86 pch=off cxxflags='-std=c++11 -Wno-unused-local-typedefs'
     return $?
 }
