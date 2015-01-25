@@ -43,15 +43,14 @@ function make_user_config() {
 
 function run_bootstrap() {
     # see https://github.com/Homebrew/homebrew/blob/master/Library/Formula/boost-python.rb#L77-78
-    sed -e 's/using python/#using python/g' ${work_dir}/bootstrap.sh > ${work_dir}/bootstrap-x.sh || return 1
-
-    cd ${work_dir} && /bin/sh ./bootstrap-x.sh --prefix=/usr --libdir=/usr/lib --with-libraries=python \
+    sed -i 's/using python/#using python/g' ${work_dir}/bootstrap.sh || return 1
+    ${work_dir}/bootstrap.sh --prefix=/usr --libdir=/usr/lib --with-libraries=python \
         --with-python=${py_cmd} --with-python-root=${py_prefix}
     return $?
 }
 
 function run_b2() {
-    cd ${work_dir} && ./b2 --build-dir=build-${py_cmd} --stagedir=stage-${py_cmd} python=${TRAVIS_PYTHON_VERSION} \
+    ${work_dir}/b2 --build-dir=build-${py_cmd} --stagedir=stage-${py_cmd} python=${TRAVIS_PYTHON_VERSION} \
         --prefix=/usr --libdir=/usr/lib -d2 -j2 --layout=tagged --user-config=${config_path} threading=single \
         link=shared address-model=32_64 architecture=x86 pch=off cxxflags='-std=c++11 -Wno-unused-local-typedefs'
     return $?
