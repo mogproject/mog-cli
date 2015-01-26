@@ -228,6 +228,7 @@ namespace mog {
         return _spread_all_file(files((((lo | hi) * 02002002002002002000ULL) >> 55) & 0777ULL));
       }
 
+      // TODO: rename(refactor) to be nicer
       constexpr BitBoard _spread_all_file(u64 x) const {
         return BitBoard(x, x);
       }

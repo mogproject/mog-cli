@@ -11,127 +11,33 @@ namespace mog {
       //
       // direct piece types
       //
-      constexpr BitBoard attack_bb_king(int const file, int const rank) {
-        return BitBoard()
-          .set(file - 1, rank - 1).set(file, rank - 1).set(file + 1, rank - 1)
-          .set(file - 1, rank).set(file + 1, rank)
-          .set(file - 1, rank + 1).set(file, rank + 1).set(file + 1, rank + 1);
+
+      // attack bitboard for black on position 55
+      constexpr BitBoard center_king = BitBoard(0, 0, 0, 0070, 0050, 0070, 0, 0, 0);
+      constexpr BitBoard center_gold = BitBoard(0, 0, 0, 0070, 0050, 0020, 0, 0, 0);
+      constexpr BitBoard center_silver = BitBoard(0, 0, 0, 0070, 0000, 0050, 0, 0, 0);
+      constexpr BitBoard center_knight = BitBoard(0, 0, 0050, 0, 0, 0, 0, 0, 0);
+      constexpr BitBoard center_pawn = BitBoard(0, 0, 0, 0020, 0, 0, 0, 0, 0);
+
+      constexpr BitBoard ptype_to_center_bb[] = {
+        // king         rook        bishop      lance       gold         silver         knight         pawn
+        center_king, BitBoard(), BitBoard(), BitBoard(), center_gold, center_silver, center_knight, center_pawn,
+        center_king, BitBoard(), BitBoard(), center_gold, BitBoard(), center_gold, center_gold, center_gold,
+      };
+
+      inline constexpr BitBoard make_attack_bb(int const owner, int const ptype, int const file, int const rank) {
+        return ptype_to_center_bb[ptype].flip_by_turn(owner).shift_left(file - 5).shift_down(rank - 5);
       }
 
-      // TODO: refactor to keep DRY
-      constexpr BitBoard attack_bb_gold_black(int const file, int const rank) {
-        return BitBoard()
-          .set(file - 1, rank - 1).set(file, rank - 1).set(file + 1, rank - 1)
-          .set(file - 1, rank).set(file + 1, rank)
-          .set(file, rank + 1);
+      constexpr BitBoard __make_attack_bb_1(int const n, int const index) {
+        return make_attack_bb(n / 16, n % 16, pos::get_file(index), pos::get_rank(index));
       }
 
-      constexpr BitBoard attack_bb_gold_white(int const file, int const rank) {
-        return BitBoard()
-          .set(file, rank - 1)
-          .set(file - 1, rank).set(file + 1, rank)
-          .set(file - 1, rank + 1).set(file, rank + 1).set(file + 1, rank + 1);
+      constexpr std::array<BitBoard, 81> __make_attack_bb_2(int const n) {
+        return util::transform_bind1<81>(__make_attack_bb_1, n);
       }
 
-      constexpr BitBoard attack_bb_silver_black(int const file, int const rank) {
-        return BitBoard()
-          .set(file - 1, rank - 1).set(file, rank - 1).set(file + 1, rank - 1)
-          .set(file - 1, rank + 1).set(file + 1, rank + 1);
-      }
-
-      constexpr BitBoard attack_bb_silver_white(int const file, int const rank) {
-        return BitBoard()
-          .set(file - 1, rank - 1).set(file + 1, rank - 1)
-          .set(file - 1, rank + 1).set(file, rank + 1).set(file + 1, rank + 1);
-      }
-
-      constexpr BitBoard attack_bb_knight_black(int const file, int const rank) {
-        return BitBoard().set(file - 1, rank - 2).set(file + 1, rank - 2);
-      }
-
-      constexpr BitBoard attack_bb_knight_white(int const file, int const rank) {
-        return BitBoard().set(file - 1, rank + 2).set(file + 1, rank + 2);
-      }
-
-      constexpr BitBoard attack_bb_pawn_black(int const file, int const rank) {
-        return BitBoard().set(file, rank - 1);
-      }
-
-      constexpr BitBoard attack_bb_pawn_white(int const file, int const rank) {
-        return BitBoard().set(file, rank + 1);
-      }
-
-      constexpr BitBoard attack_bb_king(int const index) {
-        return attack_bb_king(index % 9 + 1, index / 9 + 1);
-      }
-
-      constexpr BitBoard attack_bb_gold_black(int const index) {
-        return attack_bb_gold_black(index % 9 + 1, index / 9 + 1);
-      }
-
-      constexpr BitBoard attack_bb_gold_white(int const index) {
-        return attack_bb_gold_white(index % 9 + 1, index / 9 + 1);
-      }
-
-      constexpr BitBoard attack_bb_silver_black(int const index) {
-        return attack_bb_silver_black(index % 9 + 1, index / 9 + 1);
-      }
-
-      constexpr BitBoard attack_bb_silver_white(int const index) {
-        return attack_bb_silver_white(index % 9 + 1, index / 9 + 1);
-      }
-      constexpr BitBoard attack_bb_knight_black(int const index) {
-        return attack_bb_knight_black(index % 9 + 1, index / 9 + 1);
-      }
-
-      constexpr BitBoard attack_bb_knight_white(int const index) {
-        return attack_bb_knight_white(index % 9 + 1, index / 9 + 1);
-      }
-
-      constexpr BitBoard attack_bb_pawn_black(int const index) {
-        return attack_bb_pawn_black(index % 9 + 1, index / 9 + 1);
-      }
-
-      constexpr BitBoard attack_bb_pawn_white(int const index) {
-        return attack_bb_pawn_white(index % 9 + 1, index / 9 + 1);
-      }
-
-      // TODO: refactor to keep DRY
-      constexpr auto bb_table_direct = std::array<std::array<BitBoard, 81>, 32> {{
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_king        )),  // king
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_king        )),  // rook
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_king        )),  // bishop
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_king        )),  // lance
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_gold_black  )),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_silver_black)),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_knight_black)),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_pawn_black  )),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_king        )),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_king        )),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_king        )),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_gold_black  )),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_king        )),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_gold_black  )),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_gold_black  )),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_gold_black  )),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_king        )),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_king        )),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_king        )),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_king        )),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_gold_white  )),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_silver_white)),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_knight_white)),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_pawn_white  )),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_king        )),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_king        )),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_king        )),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_gold_white  )),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_king        )),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_gold_white  )),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_gold_white  )),
-        util::transform<81>(static_cast<BitBoard (*)(int)>(attack::attack_bb_gold_white  )),
-      }};
-
+      constexpr auto bb_table_direct = util::transform<32>(__make_attack_bb_2);
     }
   }
 }

@@ -17,14 +17,14 @@ namespace mog {
 
     // Turn
     namespace turn {
-      template <int N>
-      struct Turn { static int const value = N; };
-
-      struct Black: Turn<1> {};
-      struct White: Turn<-1> {};
+//      template <int N>
+//      struct Turn { static int const value = N; };
+//
+//      struct Black: Turn<0> {};
+//      struct White: Turn<1> {};
 
       int const BLACK = 0;
-      int const WHITE = -1;
+      int const WHITE = 1;
     }
 
     // Piece Type
@@ -58,6 +58,9 @@ namespace mog {
       inline constexpr int make_pos(int const file, int const rank) {
         return (1 <= file && file <= 9 && 1 <= rank && rank <= 9) ? rank * 9 + file - 10 : -1;
       }
+
+      inline constexpr int get_file(int const index) { return index % 9 + 1; }
+      inline constexpr int get_rank(int const index) { return index / 9 + 1; }
     }
   }
 }
