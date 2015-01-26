@@ -2,7 +2,7 @@ import unittest
 from cmogcore import Attack, BitBoard
 
 
-class TestAttack(unittest.TestCase):
+class TestAttackDirect(unittest.TestCase):
     def test_get_attack_king(self):
         self.assertEqual(Attack.get_attack(0, 0, 0), BitBoard(0o002, 0o003, 0, 0, 0, 0, 0, 0, 0))
         self.assertEqual(Attack.get_attack(0, 0, 40), BitBoard(0, 0, 0, 0o070, 0o050, 0o070, 0, 0, 0))

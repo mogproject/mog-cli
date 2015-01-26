@@ -1,34 +1,9 @@
 import unittest
-import random
 from mogcore.bitboard import BitBoard, full, empty
+from .gen_bitboard import gen_bitboard, gen_pawns
 
 
 class TestBitBoard(unittest.TestCase):
-    @staticmethod
-    def gen_bitboard(n):
-        for num in range(n):
-            if num == 0:
-                yield BitBoard(0, 0)
-            if num == 1:
-                yield BitBoard(0o777777777777777777, 0o777777777)
-            else:
-                yield BitBoard(random.randint(0, 0o777777777777777777), random.randint(0, 0o777777777))
-
-    @staticmethod
-    def gen_pawns(n):
-        for num in range(n):
-            if num == 0:
-                yield BitBoard(0, 0)
-            if num == 1:
-                yield BitBoard(0o777, 0, 0, 0, 0, 0, 0, 0, 0)
-            if num == 2:
-                yield BitBoard(0, 0, 0, 0, 0, 0, 0, 0, 0o777)
-            else:
-                bb = BitBoard()
-                for f in range(9):
-                    if random.randint(0, 1):
-                        bb.set(f, random.randint(1, 9))
-                yield bb
 
     def test_str(self):
         self.assertEqual(str(empty), '\n'.join(['-' * 9] * 9))
@@ -83,23 +58,23 @@ class TestBitBoard(unittest.TestCase):
         self.assertEqual(~full, empty)
 
     def test_not_prop(self):
-        for bb in self.gen_bitboard(100):
+        for bb in gen_bitboard(100):
             self.assertEqual(~~bb, bb)
 
     def test_and_prop(self):
-        for bb in self.gen_bitboard(100):
+        for bb in gen_bitboard(100):
             self.assertEqual(bb & bb, bb)
             self.assertEqual(bb & empty, empty)
             self.assertEqual(bb & full, bb)
 
     def test_or_prop(self):
-        for bb in self.gen_bitboard(100):
+        for bb in gen_bitboard(100):
             self.assertEqual(bb | bb, bb)
             self.assertEqual(bb | empty, bb)
             self.assertEqual(bb | full, full)
 
     def test_xor_prop(self):
-        for bb in self.gen_bitboard(100):
+        for bb in gen_bitboard(100):
             self.assertEqual(bb ^ bb, empty)
             self.assertEqual(bb ^ empty, bb)
             self.assertEqual(bb ^ full, ~bb)
@@ -135,7 +110,7 @@ class TestBitBoard(unittest.TestCase):
         self.assertEqual(full.shift_left(2147483647), empty)
 
     def test_shift_left_prop(self):
-        for bb in self.gen_bitboard(100):
+        for bb in gen_bitboard(100):
             self.assertEqual(bb.shift_left(-9), empty)
             self.assertEqual(bb.shift_left(9), empty)
             self.assertEqual(bb.shift_left(3) & BitBoard(0o007007007007007007, 0o007007007), empty)
@@ -171,7 +146,7 @@ class TestBitBoard(unittest.TestCase):
         self.assertEqual(full.shift_right(2147483647), empty)
 
     def test_shift_left_right(self):
-        for bb in self.gen_bitboard(100):
+        for bb in gen_bitboard(100):
             self.assertEqual(bb.shift_right(-9), empty)
             self.assertEqual(bb.shift_right(9), empty)
             self.assertEqual(bb.shift_right(3) & BitBoard(0o700700700700700700, 0o700700700), empty)
@@ -207,7 +182,7 @@ class TestBitBoard(unittest.TestCase):
         self.assertEqual(full.shift_down(2147483647), empty)
 
     def test_shift_down_prop(self):
-        for bb in self.gen_bitboard(100):
+        for bb in gen_bitboard(100):
             self.assertEqual(bb.shift_down(-9), empty)
             self.assertEqual(bb.shift_down(9), empty)
             self.assertEqual(bb.shift_down(3) & BitBoard(0o777, 0), empty)
@@ -243,7 +218,7 @@ class TestBitBoard(unittest.TestCase):
         self.assertEqual(full.shift_up(2147483647), empty)
 
     def test_shift_up_prop(self):
-        for bb in self.gen_bitboard(100):
+        for bb in gen_bitboard(100):
             self.assertEqual(bb.shift_up(-9), empty)
             self.assertEqual(bb.shift_up(9), empty)
             self.assertEqual(bb.shift_up(3) & BitBoard(0, 0o777), empty)
@@ -255,7 +230,7 @@ class TestBitBoard(unittest.TestCase):
         self.assertEqual(BitBoard(1, 0, 0, 0, 0, 0, 0, 0, 0).flip_vertical(), BitBoard(0, 0, 0, 0, 0, 0, 0, 0, 1))
 
     def test_flip_vertical_prop(self):
-        for bb in self.gen_bitboard(100):
+        for bb in gen_bitboard(100):
             self.assertEqual(bb.flip_vertical().flip_vertical(), bb)
 
     def test_flip_horizontal(self):
@@ -265,7 +240,7 @@ class TestBitBoard(unittest.TestCase):
         self.assertEqual(BitBoard(1, 0, 0, 0, 0, 0, 0, 0, 0).flip_horizontal(), BitBoard(0o400, 0, 0, 0, 0, 0, 0, 0, 0))
 
     def test_flip_horizontal_prop(self):
-        for bb in self.gen_bitboard(100):
+        for bb in gen_bitboard(100):
             self.assertEqual(bb.flip_horizontal().flip_horizontal(), bb)
 
     def test_spread_all_file(self):
@@ -275,5 +250,5 @@ class TestBitBoard(unittest.TestCase):
         self.assertEqual(BitBoard(1, 2, 4, 0o10, 0o20, 0o40, 0o100, 0o200, 0o400).spread_all_file(), full)
 
     def test_spread_all_file_prop(self):
-        for bb in self.gen_pawns(100):
+        for bb in gen_pawns(100):
             self.assertEqual(bb.spread_all_file() & bb, bb)

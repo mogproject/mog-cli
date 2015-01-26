@@ -31,7 +31,11 @@ namespace mog {
     // Piece Type
     namespace ptype {
       template <int N>
-      struct PType { static int const value = N; };
+      struct PType {
+        static constexpr int value = N;
+
+        static constexpr bool is_promoted = N >> 3;
+      };
 
       struct King: PType<0> {};
       struct Rook: PType<1> {};
