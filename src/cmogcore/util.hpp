@@ -2,6 +2,7 @@
 #define MOG_CORE_UTIL_HPP_INCLUDED
 
 #include "util/transform.hpp"
+#include "util/bind.hpp"
 
 namespace mog {
   namespace core {

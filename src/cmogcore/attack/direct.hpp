@@ -30,11 +30,11 @@ namespace mog {
       }
 
       constexpr BitBoard __make_attack_bb_1(int const n, int const index) {
-        return make_attack_bb(n / 16, n % 16, pos::get_file(index), pos::get_rank(index));
+        return make_attack_bb(n >> 4, n & 0xf, pos::get_file(index), pos::get_rank(index));
       }
 
       constexpr std::array<BitBoard, 81> __make_attack_bb_2(int const n) {
-        return util::transform_bind1<81>(__make_attack_bb_1, n);
+        return util::transform<81>(util::bind1st(&__make_attack_bb_1, n));
       }
 
       constexpr auto bb_table_direct = util::transform<32>(__make_attack_bb_2);
