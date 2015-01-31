@@ -18,7 +18,7 @@ namespace mog {
 
       /** attack bitboard for ranged pieces on board */
       BitBoard get_attack(int owner, int ptype, int index, BitBoard const& occ) {
-        return BitBoard();
+        return attack::bb_table_ranged[__flags(owner, ptype)][index](occ);
       };
 
       /** attack bitboard for pawn from hand */
