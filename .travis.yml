@@ -25,7 +25,7 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get -qq install clang; fi
 #  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get -qq install build-essential ${CXX}; fi
 #  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get -qq install build-essential libstdc++-4.9-dev g++-4.9; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get -qq install build-essential; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get -qq install build-essential libstdc++-4.9-dev; fi
 
 install:
   # LINUX
