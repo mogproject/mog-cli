@@ -24,7 +24,7 @@ before_install:
 
 install:
   - sudo apt-get -qq install build-essential
-  - sudo apt-get -qq --allow-unauthenficated install libstdc++-${LIBSTDC_VERSION}-dev
+  - sudo apt-get -qq --allow-unauthenticated install libstdc++-${LIBSTDC_VERSION}-dev
   - sudo apt-get -qq --allow-unauthenticated install clang-${CLANG_VERSION}
   - scripts/install_boost_python.sh
   - sudo ln -s /tmp/boost_${BOOST_VERSION//[.]/_}/boost /usr/local/include/boost
