@@ -34,7 +34,10 @@ install:
 
 script:
   - clang++ --version
-  - make clean build
+  - clang-3.5 --version
+  - clang++-3.5 --version
+#  - make clean build
+  - CC=clang-3.5 CXX=clang-3.5 python3 setup.py build
   - coverage run --source=src setup.py test
 
 after_success:
