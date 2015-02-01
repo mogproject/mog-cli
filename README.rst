@@ -26,6 +26,8 @@ Dependencies
 
 * Python >= 3.2
 * Boost C++ Library >= 1.57.0
+* clang >= 3.5
+* libstdc++ >= 4.9
 
 ------------
 Installation

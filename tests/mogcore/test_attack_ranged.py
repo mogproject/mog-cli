@@ -1,6 +1,8 @@
 import unittest
 from cmogcore import Attack, BitBoard
+import mogcore
 from mogcore.bitboard import full, empty
+from .gen_bitboard import gen_bitboard, gen_index
 
 
 class TestAttackRanged(unittest.TestCase):
@@ -31,3 +33,14 @@ class TestAttackRanged(unittest.TestCase):
         self.assertEqual(Attack.get_attack(0, 3, 71, full), BitBoard(0, 0, 0, 0, 0, 0, 0o400, 0, 0))
         self.assertEqual(Attack.get_attack(0, 3, 54, full), BitBoard(0, 0, 0, 0, 0, 0o001, 0, 0, 0))
         self.assertEqual(Attack.get_attack(0, 3, 80, full), BitBoard(0, 0, 0, 0, 0, 0, 0, 0o400, 0))
+
+    def test_get_attack_lance_black_prop(self):
+        for bb in gen_bitboard(100):
+            for i in gen_index(100):
+                atk = mogcore.BitBoard.wrap(Attack.get_attack(0, 3, i, bb))
+
+                # should be same file
+                self.assertTrue(all(x % 9 == i % 9 for x in atk.indices()), 'bb=%r, i=%s' % (bb, i))
+
+                # should be upper rank
+                self.assertTrue(all(x / 9 < i / 9 for x in atk.indices()), 'bb=%r, i=%s' % (bb, i))

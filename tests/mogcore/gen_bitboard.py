@@ -26,3 +26,13 @@ def gen_pawns(n):
                 if random.randint(0, 1):
                     bb.set(f, random.randint(1, 9))
             yield bb
+
+
+def gen_index(n):
+    for num in range(n):
+        if num == 0:
+            yield 0
+        if num == 1:
+            yield 80
+        else:
+            yield random.randint(0, 80)
