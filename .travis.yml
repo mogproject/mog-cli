@@ -39,6 +39,7 @@ install:
   - pip install coveralls
 
 script:
+  - clang++ --version
   - make clean build
   - coverage run --source=src setup.py test
 
