@@ -2,8 +2,8 @@ CC = gcc
 CXX = g++
 PYTHON = python3
 
-.PHONY: all install test clean run console upload pep8
-all:
+.PHONY: build install test clean run console upload pep8
+build:
 	CC=$(CC) CXX=$(CXX) $(PYTHON) setup.py build
 
 install:

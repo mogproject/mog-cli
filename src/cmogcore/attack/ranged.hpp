@@ -1,8 +1,10 @@
 #ifndef MOG_CORE_ATTACK_RANGED_HPP_INCLUDED
 #define MOG_CORE_ATTACK_RANGED_HPP_INCLUDED
 
-#include "../util.hpp"
-#include "../bitboard.hpp"
+#include "ranged_common.hpp"
+#include "ranged_lance.hpp"
+//#include "ranged_bishop.hpp"
+//#include "ranged_look.hpp"
 
 namespace mog {
   namespace core {
@@ -11,28 +13,21 @@ namespace mog {
       // ranged piece types
       //
       namespace ranged {
-        typedef BitBoard (*MagicCalculator)(BitBoard const&);
+        //
+        // Create array of functions.
+        //
+        constexpr std::array<MagicCalculator, 81> atk_blance = {{ BOOST_PP_ENUM(81, FUNC_NAME, attack_black_lance_) }};
+        constexpr std::array<MagicCalculator, 81> atk_wlance = {{ BOOST_PP_ENUM(81, FUNC_NAME, attack_white_lance_) }};
 
-        inline constexpr BitBoard f(BitBoard const& occ) {
-          // todo: implement
-          return BitBoard();
-        }
-
-        inline constexpr MagicCalculator make_attack_bb(int const owner, int const ptype, int const file, int const rank) {
-          return &f;
-        }
-
-        constexpr MagicCalculator __make_attack_bb_1(int const n, int const index) {
-          return make_attack_bb(n >> 4, n & 0xf, pos::get_file(index), pos::get_rank(index));
-        }
-
-        constexpr std::array<MagicCalculator, 81> __make_attack_bb_2(int const n) {
-          return util::transform<81>(util::bind1st(&__make_attack_bb_1, n));
-        }
+        constexpr std::array<std::array<ranged::MagicCalculator, 81>, 32> bb_table_ranged = {{
+          empty, empty, empty, atk_blance, empty, empty, empty,  empty,
+          empty, empty, empty, empty,      empty, empty, empty,  empty,
+          empty, empty, empty, atk_wlance, empty, empty, empty,  empty,
+          empty, empty, empty, empty,      empty, empty, empty,  empty,
+        }};
       }
 
-      constexpr auto bb_table_ranged = util::transform<32>(ranged::__make_attack_bb_2);
-
+      constexpr auto bb_table_ranged = ranged::bb_table_ranged;
     }
   }
 }

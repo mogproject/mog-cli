@@ -3,6 +3,7 @@
 
 #include "util/transform.hpp"
 #include "util/bind.hpp"
+#include "util/preprocessor.hpp"
 
 namespace mog {
   namespace core {
@@ -15,6 +16,29 @@ namespace mog {
     // Universal shift functions
     inline constexpr u64 lshift(u64 const u, int const n) { return -64 < n && n < 64 ? n < 0 ? u >> -n : u << n : 0ULL; }
     inline constexpr u64 rshift(u64 const u, int const n) { return -64 < n && n < 64 ? n < 0 ? u << -n : u >> n : 0ULL; }
+
+    // Number of Trailing Zeros
+    // todo: to be more efficient
+    inline constexpr int ntz(u64 n, int sofar = 0) {
+      return n == 0 ? 64 : (n & 1ULL) ? sofar : ntz(n >> 1, sofar + 1);
+    }
+
+    // Number of Leading Zeros
+    // todo: to be more efficient
+    inline constexpr int nlz(u64 n, int sofar = 0) {
+      return n == 0 ? 64 : (n & 0x8000000000000000ULL) ? sofar : nlz(n << 1, sofar + 1);
+    }
+
+    // Most Significant Bit (in compile time)
+    //     If n is 0, return -1.
+    inline constexpr int msb_ct(u64 n) { return 63 - nlz(n); }
+
+//    inline int msb(unsigned long n) {
+//      int msb;
+//      asm("bsrl %1,%0" : "=r"(msb) : "r"(n));
+//      return msb;
+//    }
+
 
     // Turn
     namespace turn {

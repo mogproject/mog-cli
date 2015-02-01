@@ -240,6 +240,7 @@ namespace mog {
     };
 
     namespace bitboard {
+      static constexpr BitBoard EMPTY = BitBoard();
 
       /** represent as nine octets */
       std::string repr(BitBoard const& bb) {
