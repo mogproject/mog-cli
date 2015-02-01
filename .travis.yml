@@ -14,7 +14,7 @@ env:
   global:
     - BOOST_VERSION=1.57.0
   matrix:
-    - CC=gcc-4.8 CXX=g++-4.8
+    - CC=gcc-4.9 CXX=g++-4.9
 
 before_install:
   # LINUX
