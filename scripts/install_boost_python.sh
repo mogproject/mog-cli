@@ -5,7 +5,6 @@
 # Prereq:
 #     These environment variables should be set.
 #
-#     CXX                      e.g. g++-4.8
 #     TRAVIS_PYTHON_VERSION    e.g. 3.4 
 #     BOOST_VERSION            e.g. 1.57.0
 #
@@ -30,7 +29,6 @@ function download_source() {
 function make_user_config() {
     {
         echo "using gcc : : ${CXX} ; "
-        echo "using darwin : : ${CXX} ; "
         echo "using python"
         echo "  : ${TRAVIS_PYTHON_VERSION}"
         echo "  : ${py_cmd}"

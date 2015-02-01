@@ -13,14 +13,15 @@ python:
 env:
   global:
     - BOOST_VERSION=1.57.0
-  matrix:
-    - CC=gcc-4.9 CXX=g++-4.9
+#  matrix:
+#    - CC=gcc-4.9 CXX=g++-4.9
 
 before_install:
   # LINUX
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get -qq update; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get -qq install build-essential ${CXX}; fi
+#  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get -qq install build-essential ${CXX}; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get -qq install build-essential libstdc++-4.9; fi
 
 install:
   # LINUX
