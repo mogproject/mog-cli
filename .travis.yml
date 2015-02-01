@@ -21,8 +21,7 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get -qq update; fi
 #  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get -qq install build-essential ${CXX}; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get -qq upgrade clang; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get -qq install build-essential libstdc++-4.9-dev g++-4.9; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get -qq install clang build-essential libstdc++-4.9-dev g++-4.9; fi
 
 install:
   # LINUX
