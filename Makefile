@@ -1,5 +1,5 @@
-CC = gcc
-CXX = g++
+CC = clang
+CXX = clang++
 PYTHON = python3
 
 .PHONY: build install test clean run console upload pep8
