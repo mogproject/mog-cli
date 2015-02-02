@@ -2,7 +2,8 @@
 #define MOG_CORE_ATTACK_RANGED_HPP_INCLUDED
 
 #include "ranged_common.hpp"
-#include "ranged_lance.hpp"
+#include "ranged_lance_black.hpp"
+#include "ranged_lance_white.hpp"
 //#include "ranged_bishop.hpp"
 //#include "ranged_look.hpp"
 

@@ -1,5 +1,5 @@
-#ifndef MOG_CORE_ATTACK_RANGED_LANCE_HPP_INCLUDED
-#define MOG_CORE_ATTACK_RANGED_LANCE_HPP_INCLUDED
+#ifndef MOG_CORE_ATTACK_RANGED_LANCE_BLACK_HPP_INCLUDED
+#define MOG_CORE_ATTACK_RANGED_LANCE_BLACK_HPP_INCLUDED
 
 #include <array>
 #include <boost/preprocessor.hpp>
@@ -32,31 +32,31 @@ namespace mog {
 /*
  * e.g.
  *   lo >> 9
- * --------a      --------b
- * --------b      ---------
+ * ---------      --------a
+ * --------a      ---------
  * ---------  =>  ---------
  * ---------      ---------
  * ---------      ---------
  * ---------      ---------
  */
-// todo: 'max_attack' should be constexpr (need array#operator[] to be constexpr)
+// todo: 'affected_bb' should be constexpr (need array#operator[] to be constexpr)
 #define BLACK_LANCE_RANK_3(z, n, text) inline BitBoard text##n(BitBoard const& occ) { \
           constexpr auto table = util::transform<1 << (pos::get_rank(n) - 2)>(util::bind1st(&make_blance_table, n)); \
-          auto max_attack = table[0]; \
-          return table[(occ & max_attack).lo >> BOOST_PP_ADD(POS_INDEX_TO_FILE(n), 8)]; \
+          auto affected_bb = table[0] & ~bitboard::rank1; \
+          return table[(occ & affected_bb).lo >> BOOST_PP_ADD(POS_INDEX_TO_FILE(n), 8)]; \
         }
 
 /*
  * e.g.
  *   lo * 0x0040100401004000ULL (2^54 + 2^44 + 2^34 + 2^24 + 2^14) >> 59
- * --------a      ---------      ----bcdef
- * --------b      ---a-----      ---------
- * --------c  =>  --ab-----  =>  ---------
+ * ---------      ---------      ----abcde
+ * --------a      ---------      ---------
+ * --------b  =>  ---a-----  =>  ---------
+ * --------c      --ab-----      ---------
  * --------d      -abc-----      ---------
  * --------e      abcd-----      ---------
- * --------f      bcde-----      ---------
- *                cdef----a
- *                        b
+ *                bcde-----
+ *                        a
  */
 /*
   for debug
@@ -69,7 +69,7 @@ namespace mog {
  */
 #define BLACK_LANCE_MAGIC_LOW(z, n, text) inline BitBoard text##n(BitBoard const& occ) { \
           constexpr auto table = util::transform<1 << (pos::get_rank(n) - 2)>(util::bind1st(&make_blance_table, n)); \
-          auto max_attack = table[0]; \
+          auto max_attack = table[0] & ~bitboard::rank1; \
           constexpr auto magic = 0x0040100401004000ULL >> (pos::get_file(n) - 1); \
           return table[((occ & max_attack).lo * magic) >> BOOST_PP_SUB(66, POS_INDEX_TO_RANK(n))]; \
         }
@@ -82,23 +82,23 @@ namespace mog {
 /*
  * e.g.
  *   lo * 0x0040100401004000ULL (2^54 + 2^44 + 2^34 + 2^24 + 1^14) >> 58
- * --------a      ---------      ---bcdef-
- * --------b      ---a-----      ---------
- * --------c  =>  --ab-----  =>  ---------
+ * ---------      ---------      ---abcde-
+ * --------a      ---------      ---------
+ * --------b  =>  ---a-----  =>  ---------
+ * --------c      --ab-----      ---------
  * --------d      -abc-----      ---------
  * --------e      abcd-----      ---------
- * --------f      bcde-----      ---------
- *                cdef----a
- *                        b
+ *                bcde-----
+ *                        a
  *
  *   hi
- * --------g                                    ---bcdefg
+ * --------f                                    ---abcdef
  * ---------                                =>  ---------
  * ---------                                    ---------
  */
 #define BLACK_LANCE_RANK_8(z, n, text) inline BitBoard text##n(BitBoard const& occ) { \
           constexpr auto table = util::transform<1 << (pos::get_rank(n) - 2)>(util::bind1st(&make_blance_table, n)); \
-          auto max_attack = table[0]; \
+          auto max_attack = table[0] & ~bitboard::rank1; \
           constexpr auto magic = 0x0040100401004000ULL >> (pos::get_file(n) - 1); \
           auto bb = occ & max_attack; \
           return table[((bb.lo * magic) >> 58) | (bb.hi >> BOOST_PP_SUB(POS_INDEX_TO_FILE(n), 1))]; \
@@ -107,28 +107,28 @@ namespace mog {
 /*
  * e.g.
  *   lo * 0x0040100401004000ULL (2^54 + 2^44 + 2^34 + 2^24 + 1^14) ... (a)
+ * ---------      ---------
  * --------a      ---------
- * --------b      ---a-----
- * --------c  =>  --ab-----
+ * --------b  =>  ---a-----
+ * --------c      --ab-----
  * --------d      -abc-----
  * --------e      abcd-----
- * --------f      bcde-----
- *                cdef----a
- *                        b
+ *                bcde-----
+ *                        a
  *
  *   hi * 0x0401000000000000ULL (2^58 + 2^48) + (a) >> 57
- * --------g      ---------      ---------      --bcdefgh
- * --------h      ---------      ---a-----      ---------
- * ---------  =>  ---------  =>  --ab-----  =>  ---------
+ * --------f      ---------      ---------      --abcdefg
+ * --------g      ---------      ---------      ---------
+ * ---------  =>  ---------  =>  ---a-----  =>  ---------
+ *                ---------      --ab-----      ---------
  *                ---------      -abc-----      ---------
- *                ---------      abcd-----      ---------
- *                -----g---      bcde-g---      ---------
- *                ----gh---      cdefgh--a      ---------
- *                        -              b              -
+ *                -----f---      abcd-f---      ---------
+ *                ----fg---      bcdefg---      ---------
+ *                        -              a              -
  */
 #define BLACK_LANCE_RANK_9(z, n, text) inline BitBoard text##n(BitBoard const& occ) { \
           constexpr auto table = util::transform<1 << (pos::get_rank(n) - 2)>(util::bind1st(&make_blance_table, n)); \
-          auto max_attack = table[0]; \
+          auto max_attack = table[0] & ~bitboard::rank1; \
           constexpr auto magic_lo = 0x0040100401004000ULL >> (pos::get_file(n) - 1); \
           constexpr auto magic_hi = 0x0401000000000000ULL >> (pos::get_file(n) - 1); \
           auto bb = occ & max_attack; \
@@ -137,18 +137,10 @@ namespace mog {
 
 #define MAKE_BLACK_LANCE(z, n, text) BOOST_PP_CAT(BLACK_LANCE_RANK_, POS_INDEX_TO_RANK(n))(z, n, text)
 
-// todo: refactor to be DRY
-#define WHITE_LANCE_STABLE(z, n, text) BitBoard text##n(BitBoard const& notuse) { \
-          constexpr auto bb = BitBoard().set_repeat(pos::get_file(n), pos::get_rank(n), 0, 1, 8); \
-          return bb; \
-        }
-
         BOOST_PP_REPEAT(81, MAKE_BLACK_LANCE, attack_black_lance_);
-        BOOST_PP_REPEAT(81, WHITE_LANCE_STABLE, attack_white_lance_);
-
       }
     }
   }
 }
 
-#endif  // MOG_CORE_ATTACK_RANGED_LANCE_HPP_INCLUDED
+#endif  // MOG_CORE_ATTACK_RANGED_LANCE_BLACK_HPP_INCLUDED

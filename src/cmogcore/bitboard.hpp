@@ -240,7 +240,30 @@ namespace mog {
     };
 
     namespace bitboard {
+      /** Empty board */
       static constexpr BitBoard EMPTY = BitBoard();
+
+      /** Ranks */
+      static constexpr BitBoard rank1 = BitBoard(0777, 0, 0, 0, 0, 0, 0, 0, 0);
+      static constexpr BitBoard rank2 = BitBoard(0, 0777, 0, 0, 0, 0, 0, 0, 0);
+      static constexpr BitBoard rank3 = BitBoard(0, 0, 0777, 0, 0, 0, 0, 0, 0);
+      static constexpr BitBoard rank4 = BitBoard(0, 0, 0, 0777, 0, 0, 0, 0, 0);
+      static constexpr BitBoard rank5 = BitBoard(0, 0, 0, 0, 0777, 0, 0, 0, 0);
+      static constexpr BitBoard rank6 = BitBoard(0, 0, 0, 0, 0, 0777, 0, 0, 0);
+      static constexpr BitBoard rank7 = BitBoard(0, 0, 0, 0, 0, 0, 0777, 0, 0);
+      static constexpr BitBoard rank8 = BitBoard(0, 0, 0, 0, 0, 0, 0, 0777, 0);
+      static constexpr BitBoard rank9 = BitBoard(0, 0, 0, 0, 0, 0, 0, 0, 0777);
+
+      /** Files */
+      static constexpr BitBoard file1 = BitBoard(0001, 0001, 0001, 0001, 0001, 0001, 0001, 0001, 0001);
+      static constexpr BitBoard file2 = BitBoard(0002, 0002, 0002, 0002, 0002, 0002, 0002, 0002, 0002);
+      static constexpr BitBoard file3 = BitBoard(0004, 0004, 0004, 0004, 0004, 0004, 0004, 0004, 0004);
+      static constexpr BitBoard file4 = BitBoard(0010, 0010, 0010, 0010, 0010, 0010, 0010, 0010, 0010);
+      static constexpr BitBoard file5 = BitBoard(0020, 0020, 0020, 0020, 0020, 0020, 0020, 0020, 0020);
+      static constexpr BitBoard file6 = BitBoard(0040, 0040, 0040, 0040, 0040, 0040, 0040, 0040, 0040);
+      static constexpr BitBoard file7 = BitBoard(0100, 0100, 0100, 0100, 0100, 0100, 0100, 0100, 0100);
+      static constexpr BitBoard file8 = BitBoard(0200, 0200, 0200, 0200, 0200, 0200, 0200, 0200, 0200);
+      static constexpr BitBoard file9 = BitBoard(0400, 0400, 0400, 0400, 0400, 0400, 0400, 0400, 0400);
 
       /** represent as nine octets */
       std::string repr(BitBoard const& bb) {
