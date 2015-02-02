@@ -22,7 +22,7 @@ before_install:
   - sudo apt-get update -qq
 
 install:
-  - sudo apt-get -qq build-essential
+  - sudo apt-get -qq install build-essential
   - sudo apt-get -qq --allow-unauthenticated install libstdc++-${LIBSTDC_VERSION}-dev
   - sudo apt-get -qq --allow-unauthenticated install clang-${CLANG_VERSION}
   - scripts/install_boost_python.sh
