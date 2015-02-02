@@ -13,7 +13,7 @@ namespace mog {
 
       /** attack bitboard for direct pieces on board */
       BitBoard get_attack(int owner, int ptype, int index) {
-        return attack::bb_table_direct[__flags(owner, ptype)][index];
+        return attack::bb_table_direct[(index << 5) + (owner << 4) + ptype];
       }
 
       /** attack bitboard for ranged pieces on board */

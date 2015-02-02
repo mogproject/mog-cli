@@ -4,6 +4,7 @@
 #include "util/transform.hpp"
 #include "util/bind.hpp"
 #include "util/preprocessor.hpp"
+#include "util/array.hpp"
 
 namespace mog {
   namespace core {

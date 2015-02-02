@@ -39,7 +39,7 @@ setup(
             include_dirs=['/usr/local/include/boost'],
             library_dirs=['/usr/lib', '/usr/local/lib'],
             libraries=['boost_python3'],
-            extra_compile_args=['-std=c++11', '-pthread', '-Wall'],
+            extra_compile_args=['-std=c++1y', '-pthread', '-Wall'],
             extra_link_args=['-pthread'],
         )
     ],
