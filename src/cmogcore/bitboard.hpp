@@ -240,8 +240,9 @@ namespace mog {
     };
 
     namespace bitboard {
-      /** Empty board */
+      /** Empty and full */
       static constexpr BitBoard EMPTY = BitBoard();
+      static constexpr BitBoard FULL = BitBoard(0777, 0777, 0777, 0777, 0777, 0777, 0777, 0777, 0777);
 
       /** Ranks */
       static constexpr BitBoard rank1 = BitBoard(0777, 0, 0, 0, 0, 0, 0, 0, 0);

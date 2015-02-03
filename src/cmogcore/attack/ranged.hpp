@@ -17,6 +17,12 @@ namespace mog {
         //
         // Create array of functions.
         //
+        constexpr BitBoard empty_magic(BitBoard const& notuse) { return bitboard::EMPTY; }
+
+        constexpr MagicCalculator empty_generator(int const n) { return &empty_magic; }
+
+        constexpr std::array<MagicCalculator, 81> empty = util::transform<81>(empty_generator);
+
         constexpr std::array<MagicCalculator, 81> atk_blance = {{ BOOST_PP_ENUM(81, FUNC_NAME, attack_black_lance_) }};
         constexpr std::array<MagicCalculator, 81> atk_wlance = {{ BOOST_PP_ENUM(81, FUNC_NAME, attack_white_lance_) }};
 

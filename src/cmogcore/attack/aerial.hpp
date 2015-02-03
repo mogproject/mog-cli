@@ -12,10 +12,10 @@ namespace mog {
       // aerial attacks
       //
       namespace aerial {
-        constexpr auto rank1 = BitBoard(0777ULL, 0ULL);
-        constexpr auto rank12 = BitBoard(0777777ULL, 0ULL);
-        constexpr auto empty = BitBoard(0ULL, 0ULL);
-        constexpr auto full = BitBoard(0xffffffffffffffffULL, 0xffffffffffffffffULL);
+        constexpr auto rank1 = bitboard::rank1;
+        constexpr auto rank12 = bitboard::rank1 | bitboard::rank2;
+        constexpr auto empty = bitboard::EMPTY;
+        constexpr auto full = bitboard::FULL;
 
         constexpr BitBoard bb_table_aerial_mask[] = {
           // king rook bishop lance  gold   silver knight  pawn
@@ -27,11 +27,12 @@ namespace mog {
           return ~bb_table_aerial_mask[ptype].flip_by_turn(owner);
         }
 
-        constexpr BitBoard __make_attack_bb(int const n) {
+        constexpr BitBoard generate_attack_bb(int const n) {
           return make_attack_bb(n >> 4, n & 0xf);
         }
       }
-      constexpr auto bb_table_aerial = util::transform<32>(aerial::__make_attack_bb);
+
+      constexpr auto bb_table_aerial = util::array::iterate<BitBoard, 2 * 16>(aerial::generate_attack_bb);
     }
   }
 }
