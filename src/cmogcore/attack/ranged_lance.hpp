@@ -1,5 +1,5 @@
-#ifndef MOG_CORE_ATTACK_RANGED_LANCE_BLACK_HPP_INCLUDED
-#define MOG_CORE_ATTACK_RANGED_LANCE_BLACK_HPP_INCLUDED
+#ifndef MOG_CORE_ATTACK_RANGED_LANCE_HPP_INCLUDED
+#define MOG_CORE_ATTACK_RANGED_LANCE_HPP_INCLUDED
 
 #include "../util.hpp"
 #include "../bitboard.hpp"
@@ -63,8 +63,8 @@ namespace mog {
         /**
          * LogicType = 0: Fixed
          */
-        template <int LogicType, int Index>
-        struct BlackLanceAttack {
+        template <int Owner, int LogicType, int Index>
+        struct LanceAttack {
           typedef LanceAttackBase<turn::BLACK, Index> Base;
 
           static BitBoard get_attack(BitBoard const& occ) {
@@ -86,7 +86,7 @@ namespace mog {
          * ---------      ---------
          */
         template <int Index>
-        struct BlackLanceAttack<1, Index> {
+        struct LanceAttack<turn::BLACK, 1, Index> {
           typedef LanceAttackBase<turn::BLACK, Index> Base;
 
           static BitBoard get_attack(BitBoard const& occ) {
@@ -111,13 +111,13 @@ namespace mog {
          *                        a
          */
         template <int Index>
-        struct BlackLanceAttack<2, Index> {
+        struct LanceAttack<turn::BLACK, 2, Index> {
           typedef LanceAttackBase<turn::BLACK, Index> Base;
 
           static BitBoard get_attack(BitBoard const& occ) {
             constexpr auto table = Base::make_table();
             constexpr auto affected_bb_lo = Base::affected_bb().lo;
-            constexpr auto magic = 0x0040100401004000ULL >> (pos::get_file(Index) - 1);
+            constexpr auto magic = 0x0040100401004000ULL >> (Base::file - 1);
             return table[((occ.lo & affected_bb_lo) * magic) >> (66 - Base::rank)];
           }
         };
@@ -142,7 +142,7 @@ namespace mog {
          * ---------                                    ---------
          */
         template <int Index>
-        struct BlackLanceAttack<3, Index> {
+        struct LanceAttack<turn::BLACK, 3, Index> {
           typedef LanceAttackBase<turn::BLACK, Index> Base;
 
           static BitBoard get_attack(BitBoard const& occ) {
@@ -179,7 +179,7 @@ namespace mog {
          *                        -              a              -
          */
         template <int Index>
-        struct BlackLanceAttack<4, Index> {
+        struct LanceAttack<turn::BLACK, 4, Index> {
           typedef LanceAttackBase<turn::BLACK, Index> Base;
 
           static BitBoard get_attack(BitBoard const& occ) {
@@ -200,7 +200,7 @@ namespace mog {
          * LogicType = 0: Fixed
          */
         template <int LogicType, int Index>
-        struct WhiteLanceAttack {
+        struct LanceAttack<turn::WHITE, LogicType, Index > {
           typedef LanceAttackBase<turn::WHITE, Index> Base;
 
           static BitBoard get_attack(BitBoard const& occ) {
@@ -219,7 +219,7 @@ namespace mog {
          * ---------  =>  ---------
          */
         template <int Index>
-        struct WhiteLanceAttack<1, Index> {
+        struct LanceAttack<turn::WHITE, 1, Index> {
           typedef LanceAttackBase<turn::WHITE, Index> Base;
 
           static BitBoard get_attack(BitBoard const& occ) {
@@ -244,7 +244,7 @@ namespace mog {
          *                        a
          */
         template <int Index>
-        struct WhiteLanceAttack<2, Index> {
+        struct LanceAttack<turn::WHITE, 2, Index> {
           typedef LanceAttackBase<turn::WHITE, Index> Base;
 
           static BitBoard get_attack(BitBoard const& occ) {
@@ -278,7 +278,7 @@ namespace mog {
          *                        a
          */
         template <int Index>
-        struct WhiteLanceAttack<3, Index> {
+        struct LanceAttack<turn::WHITE, 3, Index> {
           typedef LanceAttackBase<turn::WHITE, Index> Base;
 
           static BitBoard get_attack(BitBoard const& occ) {
@@ -315,7 +315,7 @@ namespace mog {
          *                        a              a
          */
         template <int Index>
-        struct WhiteLanceAttack<4, Index> {
+        struct LanceAttack<turn::WHITE, 4, Index> {
           typedef LanceAttackBase<turn::WHITE, Index> Base;
 
           static BitBoard get_attack(BitBoard const& occ) {
@@ -331,29 +331,23 @@ namespace mog {
         //
         // Generate array of function pointers to each index.
         //
-        template <int... Is>
-        constexpr auto generate_blance_fp(util::seq<Is...>)
-          -> util::Array<decltype(&BlackLanceAttack<0, 0>::get_attack), sizeof...(Is)> {
-          return {{ &BlackLanceAttack<LanceAttackBase<turn::BLACK, Is>::logic_type, Is>::get_attack... }};
-        }
 
-        constexpr auto generate_blance_fp() -> decltype(generate_blance_fp(util::gen_seq<81>{})) {
-          return generate_blance_fp(util::gen_seq<81>{});
-        }
+        template <int Owner>
+        struct LanceAttackGenerator {
+          template <int... Is>
+          static constexpr auto generate(util::seq<Is...>)
+            -> util::Array<decltype(&LanceAttack<Owner, 0, 0>::get_attack), sizeof...(Is)> {
+            return {{ &LanceAttack<Owner, LanceAttackBase<Owner, Is>::logic_type, Is>::get_attack... }};
+          }
 
-        template <int... Is>
-        constexpr auto generate_wlance_fp(util::seq<Is...>)
-          -> util::Array<decltype(&WhiteLanceAttack<0, 0>::get_attack), sizeof...(Is)> {
-          return {{ &WhiteLanceAttack<LanceAttackBase<turn::WHITE, Is>::logic_type, Is>::get_attack... }};
-        }
-
-        constexpr auto generate_wlance_fp() -> decltype(generate_wlance_fp(util::gen_seq<81>{})) {
-          return generate_wlance_fp(util::gen_seq<81>{});
-        }
+          static constexpr auto generate() {
+            return generate(util::gen_seq<81>{});
+          }
+        };
 
       }
     }
   }
 }
 
-#endif  // MOG_CORE_ATTACK_RANGED_LANCE_BLACK_HPP_INCLUDED
+#endif  // MOG_CORE_ATTACK_RANGED_LANCE_HPP_INCLUDED

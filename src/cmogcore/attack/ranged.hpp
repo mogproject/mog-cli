@@ -23,8 +23,8 @@ namespace mog {
         constexpr BitBoard empty_magic(BitBoard const& notuse) { return bitboard::EMPTY; }
 
         constexpr auto empty = util::array::fill<81>(&empty_magic);
-        constexpr auto blance = generate_blance_fp();
-        constexpr auto wlance = generate_wlance_fp();
+        constexpr auto blance = LanceAttackGenerator<turn::BLACK>::generate();
+        constexpr auto wlance = LanceAttackGenerator<turn::WHITE>::generate();
         constexpr auto rook = util::array::fill<81>(&empty_magic);
         constexpr auto bishop = util::array::fill<81>(&empty_magic);
         constexpr auto prook = util::array::fill<81>(&empty_magic);
