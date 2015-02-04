@@ -27,12 +27,10 @@ namespace mog {
           return ~bb_table_aerial_mask[ptype].flip_by_turn(owner);
         }
 
-        constexpr BitBoard generate_attack_bb(int const n) {
-          return make_attack_bb(n >> 4, n & 0xf);
-        }
+        constexpr BitBoard generate_attack_bb(int const n) { return make_attack_bb(n >> 4, n & 0xf); }
       }
 
-      constexpr auto bb_table_aerial = util::array::iterate<BitBoard, 2 * 16>(aerial::generate_attack_bb);
+      constexpr auto bb_table_aerial = util::array::iterate<2 * 16>(aerial::generate_attack_bb);
     }
   }
 }

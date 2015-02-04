@@ -19,16 +19,20 @@ namespace mog {
         //
         constexpr BitBoard empty_magic(BitBoard const& notuse) { return bitboard::EMPTY; }
 
-        constexpr auto empty = util::array::fill<MagicCalculator, 81>(&empty_magic);
+        constexpr auto empty = util::array::fill<81>(&empty_magic);
+        constexpr auto blance = generate_blance_fp();
 
-        constexpr util::Array<MagicCalculator, 81> atk_blance = {{ BOOST_PP_ENUM(81, FUNC_NAME, attack_black_lance_) }};
-        constexpr util::Array<MagicCalculator, 81> atk_wlance = {{ BOOST_PP_ENUM(81, FUNC_NAME, attack_white_lance_) }};
+        constexpr util::Array<MagicCalculator, 81> wlance = {{ BOOST_PP_ENUM(81, FUNC_NAME, attack_white_lance_) }};
+        constexpr auto rook = util::array::fill<81>(&empty_magic);
+        constexpr auto bishop = util::array::fill<81>(&empty_magic);
+        constexpr auto prook = util::array::fill<81>(&empty_magic);
+        constexpr auto pbishop = util::array::fill<81>(&empty_magic);
 
         constexpr util::Array<util::Array<ranged::MagicCalculator, 81>, 32> bb_table_ranged = {{
-          empty, empty, empty, atk_blance, empty, empty, empty,  empty,
-          empty, empty, empty, empty,      empty, empty, empty,  empty,
-          empty, empty, empty, atk_wlance, empty, empty, empty,  empty,
-          empty, empty, empty, empty,      empty, empty, empty,  empty,
+          empty, rook,  bishop,  blance, empty, empty, empty,  empty,
+          empty, prook, pbishop, empty,  empty, empty, empty,  empty,
+          empty, rook,  bishop,  wlance, empty, empty, empty,  empty,
+          empty, prook, pbishop, empty,  empty, empty, empty,  empty,
         }};
       }
 

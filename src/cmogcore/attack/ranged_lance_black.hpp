@@ -1,8 +1,6 @@
 #ifndef MOG_CORE_ATTACK_RANGED_LANCE_BLACK_HPP_INCLUDED
 #define MOG_CORE_ATTACK_RANGED_LANCE_BLACK_HPP_INCLUDED
 
-#include <array>
-#include <boost/preprocessor.hpp>
 #include "../util.hpp"
 #include "../bitboard.hpp"
 #include "ranged_common.hpp"
@@ -14,129 +12,158 @@ namespace mog {
         //
         // Define calculation functions.
         //
-        constexpr BitBoard make_blance_table(int const index, size_t const mask) {
+        constexpr BitBoard make_blance_table(int const index, int const mask) {
           return BitBoard().set_repeat(
             pos::get_file(index), pos::get_rank(index), 0, -1, ntz(mask) + 1);
         }
 
-/** fixed attack bitboard */
-#define BLACK_LANCE_FIXED(z, n, text) BitBoard text##n(BitBoard const& notuse) { \
-          constexpr auto bb = BitBoard().set_repeat(pos::get_file(n), pos::get_rank(n), 0, -1, 8); \
-          return bb; \
+        /** Number of the bitboard variation for each index. */
+        constexpr int num_pattern(int const index) { return 1 << util::max(0, pos::get_rank(index) - 2); }
+
+        /** Make array of the attack bitboards corresponding to each occupancy pattern. */
+        template <int Index>
+        constexpr auto make_table() {
+          return util::array::iterate<num_pattern(Index)>(util::bind1st(&make_blance_table, Index));
         }
 
-
-#define BLACK_LANCE_RANK_1(z, n, text) BLACK_LANCE_FIXED(z, n, text)
-#define BLACK_LANCE_RANK_2(z, n, text) BLACK_LANCE_FIXED(z, n, text)
-
-/*
- * e.g.
- *   lo >> 9
- * ---------      --------a
- * --------a      ---------
- * ---------  =>  ---------
- * ---------      ---------
- * ---------      ---------
- * ---------      ---------
- */
-#define BLACK_LANCE_RANK_3(z, n, text) inline BitBoard text##n(BitBoard const& occ) { \
-          constexpr auto table = util::transform<1 << (pos::get_rank(n) - 2)>(util::bind1st(&make_blance_table, n)); \
-          constexpr auto affected_bb = table[0] & ~bitboard::rank1; \
-          return table[(occ & affected_bb).lo >> BOOST_PP_ADD(POS_INDEX_TO_FILE(n), 8)]; \
+        /**
+         * Fixed
+         */
+        template <int Index>
+        BitBoard blance_magic_fixed(BitBoard const& occ) {
+          constexpr auto bb = BitBoard().set_repeat(pos::get_file(Index), pos::get_rank(Index), 0, -1, 8);
+          return bb;
         }
 
-/*
- * e.g.
- *   lo * 0x0040100401004000ULL (2^54 + 2^44 + 2^34 + 2^24 + 2^14) >> 59
- * ---------      ---------      ----abcde
- * --------a      ---------      ---------
- * --------b  =>  ---a-----  =>  ---------
- * --------c      --ab-----      ---------
- * --------d      -abc-----      ---------
- * --------e      abcd-----      ---------
- *                bcde-----
- *                        a
- */
-/*
-  for debug
-          std::cout << n << ": " << bitboard::repr(table[0]) << " " << bitboard::repr(table[(1 << (pos::get_rank(n) - 2)) - 1]) << std::endl; \
-          std::cout << n << ": occ = " << bitboard::repr(occ) << std::endl; \
-          std::cout << n << ": occ & max_attack = " << bitboard::repr(occ & max_attack) << std::endl; \
-          std::cout << n << ": (occ & max_attack).lo = " << (occ & max_attack).lo << std::endl; \
-          std::cout << n << ": (occ & max_attack).lo * magic = " << ((occ & max_attack).lo * magic) << std::endl; \
-          std::cout << n << ": magic :" << (((occ & max_attack).lo * magic) >> BOOST_PP_SUB(66, POS_INDEX_TO_RANK(n))) << std::endl; \
- */
-#define BLACK_LANCE_MAGIC_LOW(z, n, text) inline BitBoard text##n(BitBoard const& occ) { \
-          constexpr auto table = util::transform<1 << (pos::get_rank(n) - 2)>(util::bind1st(&make_blance_table, n)); \
-          constexpr auto affected_bb = table[0] & ~bitboard::rank1; \
-          constexpr auto magic = 0x0040100401004000ULL >> (pos::get_file(n) - 1); \
-          return table[((occ & affected_bb).lo * magic) >> BOOST_PP_SUB(66, POS_INDEX_TO_RANK(n))]; \
+        /**
+         * Low shift only
+         *
+         * e.g.
+         *   lo >> 9
+         * ---------      --------a
+         * --------a      ---------
+         * ---------  =>  ---------
+         * ---------      ---------
+         * ---------      ---------
+         * ---------      ---------
+         */
+        template <int Index>
+        BitBoard blance_magic_low_shift(BitBoard const& occ) {
+          constexpr auto table = make_table<Index>();
+          constexpr auto affected_bb_lo = (table[0] & ~bitboard::rank1).lo;
+          constexpr auto shift_width = pos::get_file(Index) + 8;
+          return table[(occ.lo & affected_bb_lo) >> shift_width];
         }
 
-#define BLACK_LANCE_RANK_4(z, n, text) BLACK_LANCE_MAGIC_LOW(z, n, text)
-#define BLACK_LANCE_RANK_5(z, n, text) BLACK_LANCE_MAGIC_LOW(z, n, text)
-#define BLACK_LANCE_RANK_6(z, n, text) BLACK_LANCE_MAGIC_LOW(z, n, text)
-#define BLACK_LANCE_RANK_7(z, n, text) BLACK_LANCE_MAGIC_LOW(z, n, text)
-
-/*
- * e.g.
- *   lo * 0x0040100401004000ULL (2^54 + 2^44 + 2^34 + 2^24 + 1^14) >> 58
- * ---------      ---------      ---abcde-
- * --------a      ---------      ---------
- * --------b  =>  ---a-----  =>  ---------
- * --------c      --ab-----      ---------
- * --------d      -abc-----      ---------
- * --------e      abcd-----      ---------
- *                bcde-----
- *                        a
- *
- *   hi
- * --------f                                    ---abcdef
- * ---------                                =>  ---------
- * ---------                                    ---------
- */
-#define BLACK_LANCE_RANK_8(z, n, text) inline BitBoard text##n(BitBoard const& occ) { \
-          constexpr auto table = util::transform<1 << (pos::get_rank(n) - 2)>(util::bind1st(&make_blance_table, n)); \
-          constexpr auto affected_bb = table[0] & ~bitboard::rank1; \
-          constexpr auto magic = 0x0040100401004000ULL >> (pos::get_file(n) - 1); \
-          auto bb = occ & affected_bb; \
-          return table[((bb.lo * magic) >> 58) | (bb.hi >> BOOST_PP_SUB(POS_INDEX_TO_FILE(n), 1))]; \
+        /**
+         * LogicType = 2: Low multiply only
+         *
+         * e.g.
+         *   lo * 0x0040100401004000ULL (2^54 + 2^44 + 2^34 + 2^24 + 2^14) >> 59
+         * ---------      ---------      ----abcde
+         * --------a      ---------      ---------
+         * --------b  =>  ---a-----  =>  ---------
+         * --------c      --ab-----      ---------
+         * --------d      -abc-----      ---------
+         * --------e      abcd-----      ---------
+         *                bcde-----
+         *                        a
+         */
+        template <int Index>
+        BitBoard blance_magic_low_multiply(BitBoard const& occ) {
+          constexpr auto table = make_table<Index>();
+          constexpr auto affected_bb_lo = (table[0] & ~bitboard::rank1).lo;
+          constexpr auto magic = 0x0040100401004000ULL >> (pos::get_file(Index) - 1);
+          constexpr auto shift_width = util::min(63, 66 - pos::get_rank(Index));
+          return table[((occ.lo & affected_bb_lo) * magic) >> shift_width];
         }
 
-/*
- * e.g.
- *   lo * 0x0040100401004000ULL (2^54 + 2^44 + 2^34 + 2^24 + 1^14) ... (a)
- * ---------      ---------
- * --------a      ---------
- * --------b  =>  ---a-----
- * --------c      --ab-----
- * --------d      -abc-----
- * --------e      abcd-----
- *                bcde-----
- *                        a
- *
- *   hi * 0x0401000000000000ULL (2^58 + 2^48) + (a) >> 57
- * --------f      ---------      ---------      --abcdefg
- * --------g      ---------      ---------      ---------
- * ---------  =>  ---------  =>  ---a-----  =>  ---------
- *                ---------      --ab-----      ---------
- *                ---------      -abc-----      ---------
- *                -----f---      abcd-f---      ---------
- *                ----fg---      bcdefg---      ---------
- *                        -              a              -
- */
-#define BLACK_LANCE_RANK_9(z, n, text) inline BitBoard text##n(BitBoard const& occ) { \
-          constexpr auto table = util::transform<1 << (pos::get_rank(n) - 2)>(util::bind1st(&make_blance_table, n)); \
-          constexpr auto affected_bb = table[0] & ~bitboard::rank1; \
-          constexpr auto magic_lo = 0x0040100401004000ULL >> (pos::get_file(n) - 1); \
-          constexpr auto magic_hi = 0x0401000000000000ULL >> (pos::get_file(n) - 1); \
-          auto bb = occ & affected_bb; \
-          return table[(bb.lo * magic_lo | bb.hi * magic_hi) >> 57]; \
+        /**
+         * LogicType = 3: Low multiply and high shift
+         *
+         * e.g.
+         *   lo * 0x0040100401004000ULL (2^54 + 2^44 + 2^34 + 2^24 + 1^14) >> 58
+         * ---------      ---------      ---abcde-
+         * --------a      ---------      ---------
+         * --------b  =>  ---a-----  =>  ---------
+         * --------c      --ab-----      ---------
+         * --------d      -abc-----      ---------
+         * --------e      abcd-----      ---------
+         *                bcde-----
+         *                        a
+         *
+         *   hi
+         * --------f                                    ---abcdef
+         * ---------                                =>  ---------
+         * ---------                                    ---------
+         */
+        template <int Index>
+        BitBoard blance_magic_low_multiply_high_shift(BitBoard const& occ) {
+          constexpr auto table = make_table<Index>();
+          constexpr auto affected_bb = table[0] & ~bitboard::rank1;
+          constexpr auto magic = 0x0040100401004000ULL >> (pos::get_file(Index) - 1);
+          constexpr auto shift_width = pos::get_file(Index) - 1;
+          auto bb = occ & affected_bb;
+          return table[((bb.lo * magic) >> 58) | (bb.hi >> shift_width)];
         }
 
-#define MAKE_BLACK_LANCE(z, n, text) BOOST_PP_CAT(BLACK_LANCE_RANK_, POS_INDEX_TO_RANK(n))(z, n, text)
+        /**
+         * Low and high multiply
+         *
+         * e.g.
+         *   lo * 0x0040100401004000ULL (2^54 + 2^44 + 2^34 + 2^24 + 1^14) ... (a)
+         * ---------      ---------
+         * --------a      ---------
+         * --------b  =>  ---a-----
+         * --------c      --ab-----
+         * --------d      -abc-----
+         * --------e      abcd-----
+         *                bcde-----
+         *                        a
+         *
+         *   hi * 0x0401000000000000ULL (2^58 + 2^48) + (a) >> 57
+         * --------f      ---------      ---------      --abcdefg
+         * --------g      ---------      ---------      ---------
+         * ---------  =>  ---------  =>  ---a-----  =>  ---------
+         *                ---------      --ab-----      ---------
+         *                ---------      -abc-----      ---------
+         *                -----f---      abcd-f---      ---------
+         *                ----fg---      bcdefg---      ---------
+         *                        -              a              -
+         */
+        template <int Index>
+        BitBoard blance_magic_both_multiply(BitBoard const& occ) {
+          constexpr auto table = make_table<Index>();
+          constexpr auto affected_bb = table[0] & ~bitboard::rank1;
+          constexpr auto magic_lo = 0x0040100401004000ULL >> (pos::get_file(Index) - 1);
+          constexpr auto magic_hi = 0x0401000000000000ULL >> (pos::get_file(Index) - 1);
+          auto bb = occ & affected_bb;
+          return table[(bb.lo * magic_lo | bb.hi * magic_hi) >> 57];
+        }
 
-        BOOST_PP_REPEAT(81, MAKE_BLACK_LANCE, attack_black_lance_);
+        /**
+         * Return function pointer to each index.
+         */
+        //todo: refactor to single template function (reduce 81 x 5 instances -> 81)
+        template <int Index>
+        constexpr MagicCalculator blance_magic() {
+          if (pos::get_rank(Index) <= 2) return &blance_magic_fixed<Index>;
+          if (pos::get_rank(Index) <= 3) return &blance_magic_low_shift<Index>;
+          if (pos::get_rank(Index) <= 7) return &blance_magic_low_multiply<Index>;
+          if (pos::get_rank(Index) <= 8) return &blance_magic_low_multiply_high_shift<Index>;
+          return &blance_magic_both_multiply<Index>;
+        }
+
+        template <int... Is>
+        constexpr auto generate_blance_fp_impl(util::seq<Is...>)
+          -> util::Array<decltype(blance_magic<0>()), sizeof...(Is)> {
+          return {{ blance_magic<Is>()... }};
+        }
+
+        constexpr auto generate_blance_fp() -> decltype(generate_blance_fp_impl(util::gen_seq<81>{})) {
+          return generate_blance_fp_impl(util::gen_seq<81>{});
+        }
+
       }
     }
   }

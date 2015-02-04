@@ -40,6 +40,13 @@ namespace mog {
 //      return msb;
 //    }
 
+    namespace util {
+      template <typename T>
+      inline constexpr T min(T const& a, T const& b) { return a < b ? a : b; }
+
+      template <typename T>
+      inline constexpr T max(T const& a, T const& b) { return a < b ? b : a; }
+    }
 
     // Turn
     namespace turn {

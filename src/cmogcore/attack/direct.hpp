@@ -34,7 +34,7 @@ namespace mog {
         }
       }
 
-      constexpr auto bb_table_direct = util::array::iterate<BitBoard, 81 * 2 * 16>(&direct::generate_attack_bb);
+      constexpr auto bb_table_direct = util::array::iterate<81 * 2 * 16>(&direct::generate_attack_bb);
     }
   }
 }
