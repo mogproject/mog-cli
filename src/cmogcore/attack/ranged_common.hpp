@@ -16,7 +16,6 @@ namespace mog {
         //
         // utilities
         //
-
         typedef BitBoard (*MagicCalculator)(BitBoard const&);
 
 #define POS_INDEX_TO_FILE(n) BOOST_PP_ADD(BOOST_PP_MOD(n, 9), 1)
