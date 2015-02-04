@@ -1,7 +1,7 @@
 #ifndef MOG_CORE_UTIL_TRANSFORM_HPP_INCLUDED
 #define MOG_CORE_UTIL_TRANSFORM_HPP_INCLUDED
 
-#include <array>
+#include "array.hpp"
 #include "seq.hpp"
 
 namespace mog {
@@ -10,7 +10,7 @@ namespace mog {
 
       // for unary function
       template <typename Fn, int... Is>
-      constexpr auto transform(Fn fn, seq<Is...>) -> std::array<decltype(fn(0)), sizeof...(Is)> {
+      constexpr auto transform(Fn fn, seq<Is...>) -> util::Array<decltype(fn(0)), sizeof...(Is)> {
         return {{ fn(Is)... }};
       }
 

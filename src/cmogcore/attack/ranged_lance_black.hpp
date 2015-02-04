@@ -39,10 +39,9 @@ namespace mog {
  * ---------      ---------
  * ---------      ---------
  */
-// todo: 'affected_bb' should be constexpr (need array#operator[] to be constexpr)
 #define BLACK_LANCE_RANK_3(z, n, text) inline BitBoard text##n(BitBoard const& occ) { \
           constexpr auto table = util::transform<1 << (pos::get_rank(n) - 2)>(util::bind1st(&make_blance_table, n)); \
-          auto affected_bb = table[0] & ~bitboard::rank1; \
+          constexpr auto affected_bb = table[0] & ~bitboard::rank1; \
           return table[(occ & affected_bb).lo >> BOOST_PP_ADD(POS_INDEX_TO_FILE(n), 8)]; \
         }
 
@@ -69,9 +68,9 @@ namespace mog {
  */
 #define BLACK_LANCE_MAGIC_LOW(z, n, text) inline BitBoard text##n(BitBoard const& occ) { \
           constexpr auto table = util::transform<1 << (pos::get_rank(n) - 2)>(util::bind1st(&make_blance_table, n)); \
-          auto max_attack = table[0] & ~bitboard::rank1; \
+          constexpr auto affected_bb = table[0] & ~bitboard::rank1; \
           constexpr auto magic = 0x0040100401004000ULL >> (pos::get_file(n) - 1); \
-          return table[((occ & max_attack).lo * magic) >> BOOST_PP_SUB(66, POS_INDEX_TO_RANK(n))]; \
+          return table[((occ & affected_bb).lo * magic) >> BOOST_PP_SUB(66, POS_INDEX_TO_RANK(n))]; \
         }
 
 #define BLACK_LANCE_RANK_4(z, n, text) BLACK_LANCE_MAGIC_LOW(z, n, text)
@@ -98,9 +97,9 @@ namespace mog {
  */
 #define BLACK_LANCE_RANK_8(z, n, text) inline BitBoard text##n(BitBoard const& occ) { \
           constexpr auto table = util::transform<1 << (pos::get_rank(n) - 2)>(util::bind1st(&make_blance_table, n)); \
-          auto max_attack = table[0] & ~bitboard::rank1; \
+          constexpr auto affected_bb = table[0] & ~bitboard::rank1; \
           constexpr auto magic = 0x0040100401004000ULL >> (pos::get_file(n) - 1); \
-          auto bb = occ & max_attack; \
+          auto bb = occ & affected_bb; \
           return table[((bb.lo * magic) >> 58) | (bb.hi >> BOOST_PP_SUB(POS_INDEX_TO_FILE(n), 1))]; \
         }
 
@@ -128,10 +127,10 @@ namespace mog {
  */
 #define BLACK_LANCE_RANK_9(z, n, text) inline BitBoard text##n(BitBoard const& occ) { \
           constexpr auto table = util::transform<1 << (pos::get_rank(n) - 2)>(util::bind1st(&make_blance_table, n)); \
-          auto max_attack = table[0] & ~bitboard::rank1; \
+          constexpr auto affected_bb = table[0] & ~bitboard::rank1; \
           constexpr auto magic_lo = 0x0040100401004000ULL >> (pos::get_file(n) - 1); \
           constexpr auto magic_hi = 0x0401000000000000ULL >> (pos::get_file(n) - 1); \
-          auto bb = occ & max_attack; \
+          auto bb = occ & affected_bb; \
           return table[(bb.lo * magic_lo | bb.hi * magic_hi) >> 57]; \
         }
 

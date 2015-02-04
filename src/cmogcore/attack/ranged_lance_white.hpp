@@ -52,7 +52,7 @@ namespace mog {
           constexpr auto table = util::transform<1 << (8 - pos::get_rank(n))>(util::bind1st(&make_wlance_table, n)); \
           constexpr auto magic_lo = 0x0001010101010000ULL >> (pos::get_file(n) - 1); \
           constexpr auto magic_hi = 0x4040000000000000ULL >> (pos::get_file(n) - 1); \
-          auto affected_bb = table[0] & ~bitboard::rank9; \
+          constexpr auto affected_bb = table[0] & ~bitboard::rank9; \
           auto bb = occ & affected_bb; \
           return table[(bb.hi * magic_hi | bb.lo * magic_lo) >> BOOST_PP_ADD(56, POS_INDEX_TO_RANK(n))]; \
         }
@@ -85,7 +85,7 @@ namespace mog {
 #define WHITE_LANCE_RANK_5(z, n, text) inline BitBoard text##n(BitBoard const& occ) { \
           constexpr auto table = util::transform<1 << (8 - pos::get_rank(n))>(util::bind1st(&make_wlance_table, n)); \
           constexpr auto magic = 0x4040000000000000ULL >> (pos::get_file(n) - 1); \
-          auto affected_bb = table[0] & ~bitboard::rank9; \
+          constexpr auto affected_bb = table[0] & ~bitboard::rank9; \
           auto bb = occ & affected_bb; \
           return table[((bb.hi * magic) >> 61) | (bb.lo >> BOOST_PP_ADD(POS_INDEX_TO_FILE(n), 44))]; \
         }
@@ -105,7 +105,7 @@ namespace mog {
 #define WHITE_LANCE_RANK_6(z, n, text) inline BitBoard text##n(BitBoard const& occ) { \
           constexpr auto table = util::transform<1 << (8 - pos::get_rank(n))>(util::bind1st(&make_wlance_table, n)); \
           constexpr auto magic = 0x4040000000000000ULL >> (pos::get_file(n) - 1); \
-          auto affected_bb = table[0] & ~bitboard::rank9; \
+          constexpr auto affected_bb = table[0] & ~bitboard::rank9; \
           return table[((occ & affected_bb).hi * magic) >> 62]; \
         }
 
@@ -118,7 +118,7 @@ namespace mog {
  */
 #define WHITE_LANCE_RANK_7(z, n, text) inline BitBoard text##n(BitBoard const& occ) { \
           constexpr auto table = util::transform<1 << (8 - pos::get_rank(n))>(util::bind1st(&make_wlance_table, n)); \
-          auto affected_bb = table[0] & ~bitboard::rank9; \
+          constexpr auto affected_bb = table[0] & ~bitboard::rank9; \
           return table[(occ & affected_bb).hi >> BOOST_PP_ADD(POS_INDEX_TO_FILE(n), 8)]; \
         }
 
