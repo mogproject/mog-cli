@@ -19,14 +19,12 @@ namespace mog {
         //
         constexpr BitBoard empty_magic(BitBoard const& notuse) { return bitboard::EMPTY; }
 
-        constexpr MagicCalculator empty_generator(int const n) { return &empty_magic; }
+        constexpr auto empty = util::array::fill<MagicCalculator, 81>(&empty_magic);
 
-        constexpr std::array<MagicCalculator, 81> empty = util::transform<81>(empty_generator);
+        constexpr util::Array<MagicCalculator, 81> atk_blance = {{ BOOST_PP_ENUM(81, FUNC_NAME, attack_black_lance_) }};
+        constexpr util::Array<MagicCalculator, 81> atk_wlance = {{ BOOST_PP_ENUM(81, FUNC_NAME, attack_white_lance_) }};
 
-        constexpr std::array<MagicCalculator, 81> atk_blance = {{ BOOST_PP_ENUM(81, FUNC_NAME, attack_black_lance_) }};
-        constexpr std::array<MagicCalculator, 81> atk_wlance = {{ BOOST_PP_ENUM(81, FUNC_NAME, attack_white_lance_) }};
-
-        constexpr std::array<std::array<ranged::MagicCalculator, 81>, 32> bb_table_ranged = {{
+        constexpr util::Array<util::Array<ranged::MagicCalculator, 81>, 32> bb_table_ranged = {{
           empty, empty, empty, atk_blance, empty, empty, empty,  empty,
           empty, empty, empty, empty,      empty, empty, empty,  empty,
           empty, empty, empty, atk_wlance, empty, empty, empty,  empty,

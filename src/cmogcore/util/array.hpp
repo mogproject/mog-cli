@@ -6,7 +6,7 @@ namespace mog {
     namespace util {
 
       template <typename T, int N>
-      struct Array{
+      struct Array {
         T v[N];
         constexpr T& operator[](size_t n){ return v[n]; }
         constexpr T const& operator[](size_t n) const { return v[n]; }
@@ -18,7 +18,7 @@ namespace mog {
          */
         template <typename T, int N>
         constexpr util::Array<T, N> iterate(T (*f)(int)) {
-          util::Array<T, N> xs;
+          util::Array<T, N> xs = {{}};
           for (int i = 0; i < N; ++i) xs[i] = f(i);
           return xs;
         }
@@ -28,7 +28,7 @@ namespace mog {
          */
         template <typename T, int N>
         constexpr util::Array<T, N> fill(T value) {
-          util::Array<T, N> xs;
+          util::Array<T, N> xs = {{}};
           for (int i = 0; i < N; ++i) xs[i] = value;
           return xs;
         }
