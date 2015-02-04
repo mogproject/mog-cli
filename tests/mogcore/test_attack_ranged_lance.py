@@ -5,7 +5,7 @@ from mogcore.bitboard import full, empty
 from .gen_bitboard import gen_bitboard, gen_index
 
 
-class TestAttackRanged(unittest.TestCase):
+class TestAttackRangedLance(unittest.TestCase):
     def test_get_attack_lance_black(self):
         self.assertEqual(Attack.get_attack(0, 3, 0, empty), empty)
         self.assertEqual(Attack.get_attack(0, 3, 40, empty), BitBoard(0o020, 0o020, 0o020, 0o020, 0, 0, 0, 0, 0))
@@ -98,3 +98,6 @@ class TestAttackRanged(unittest.TestCase):
                 a = mogcore.BitBoard.wrap(Attack.get_attack(0, 3, i, bb))
                 b = mogcore.BitBoard.wrap(Attack.get_attack(1, 3, j, bb.flip_vertical()))
                 self.assertEqual(a, b.flip_vertical(), 'bb=%r, i=%d, j=%d' % (bb, i, j))
+
+                # black never intersect over white and vice versa
+                self.assertEqual(Attack.get_attack(0, 3, i, bb) & Attack.get_attack(1, 3, i, bb), empty)
