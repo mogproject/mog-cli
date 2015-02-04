@@ -45,6 +45,12 @@ class TestAttackRangedLance(unittest.TestCase):
                 # should be upper rank
                 self.assertTrue(all(x / 9 < i / 9 for x in atk.indices()), 'bb=%r, i=%s' % (bb, i))
 
+                # horizontal symmetric
+                j = int(i / 9) * 9 + (8 - i % 9)
+                self.assertEqual(
+                    atk, Attack.get_attack(0, 3, j, bb.flip_horizontal()).flip_horizontal(),
+                    'bb=%r, i=%d, j=%d' % (bb, i, j))
+
         for i in gen_index(100):
             atk = mogcore.BitBoard.wrap(Attack.get_attack(0, 3, i, full))
             expected_count = 0 if i < 9 else 1
@@ -86,6 +92,12 @@ class TestAttackRangedLance(unittest.TestCase):
                 # should be lower rank
                 self.assertTrue(all(x / 9 > i / 9 for x in atk.indices()), 'bb=%r, i=%s' % (bb, i))
 
+                # horizontal symmetric
+                j = int(i / 9) * 9 + (8 - i % 9)
+                self.assertEqual(
+                    atk, Attack.get_attack(1, 3, j, bb.flip_horizontal()).flip_horizontal(),
+                    'bb=%r, i=%d, j=%d' % (bb, i, j))
+
         for i in gen_index(100):
             atk = mogcore.BitBoard.wrap(Attack.get_attack(1, 3, i, full))
             expected_count = 0 if 72 <= i else 1
@@ -94,6 +106,7 @@ class TestAttackRangedLance(unittest.TestCase):
     def test_get_attack_lance_prop(self):
         for bb in gen_bitboard(100):
             for i in gen_index(100):
+                # vertical symmetric
                 j = (8 - int(i / 9)) * 9 + i % 9
                 a = mogcore.BitBoard.wrap(Attack.get_attack(0, 3, i, bb))
                 b = mogcore.BitBoard.wrap(Attack.get_attack(1, 3, j, bb.flip_vertical()))
