@@ -67,7 +67,7 @@ namespace mog {
         struct LanceAttack {
           typedef LanceAttackBase<turn::BLACK, Index> Base;
 
-          static BitBoard get_attack(BitBoard const& occ) {
+          static constexpr BitBoard get_attack(BitBoard const& occ) {
             constexpr auto table = Base::make_table();
             return table[0];
           }
@@ -89,7 +89,7 @@ namespace mog {
         struct LanceAttack<turn::BLACK, 1, Index> {
           typedef LanceAttackBase<turn::BLACK, Index> Base;
 
-          static BitBoard get_attack(BitBoard const& occ) {
+          static constexpr BitBoard get_attack(BitBoard const& occ) {
             constexpr auto table = Base::make_table();
             constexpr auto affected_bb_lo = Base::affected_bb().lo;
             return table[(occ.lo & affected_bb_lo) >> (Base::file + 8)];
@@ -114,7 +114,7 @@ namespace mog {
         struct LanceAttack<turn::BLACK, 2, Index> {
           typedef LanceAttackBase<turn::BLACK, Index> Base;
 
-          static BitBoard get_attack(BitBoard const& occ) {
+          static constexpr BitBoard get_attack(BitBoard const& occ) {
             constexpr auto table = Base::make_table();
             constexpr auto affected_bb_lo = Base::affected_bb().lo;
             constexpr auto magic = 0x0040100401004000ULL >> (Base::file - 1);
@@ -145,7 +145,7 @@ namespace mog {
         struct LanceAttack<turn::BLACK, 3, Index> {
           typedef LanceAttackBase<turn::BLACK, Index> Base;
 
-          static BitBoard get_attack(BitBoard const& occ) {
+          static constexpr BitBoard get_attack(BitBoard const& occ) {
             constexpr auto table = Base::make_table();
             constexpr auto affected_bb = Base::affected_bb();
             constexpr auto magic = 0x0040100401004000ULL >> (Base::file - 1);
@@ -182,7 +182,7 @@ namespace mog {
         struct LanceAttack<turn::BLACK, 4, Index> {
           typedef LanceAttackBase<turn::BLACK, Index> Base;
 
-          static BitBoard get_attack(BitBoard const& occ) {
+          static constexpr BitBoard get_attack(BitBoard const& occ) {
             constexpr auto table = Base::make_table();
             constexpr auto affected_bb = Base::affected_bb();
             constexpr auto magic_lo = 0x0040100401004000ULL >> (Base::file - 1);
@@ -203,7 +203,7 @@ namespace mog {
         struct LanceAttack<turn::WHITE, LogicType, Index > {
           typedef LanceAttackBase<turn::WHITE, Index> Base;
 
-          static BitBoard get_attack(BitBoard const& occ) {
+          static constexpr BitBoard get_attack(BitBoard const& occ) {
             constexpr auto table = Base::make_table();
             return table[0];
           }
@@ -222,7 +222,7 @@ namespace mog {
         struct LanceAttack<turn::WHITE, 1, Index> {
           typedef LanceAttackBase<turn::WHITE, Index> Base;
 
-          static BitBoard get_attack(BitBoard const& occ) {
+          static constexpr BitBoard get_attack(BitBoard const& occ) {
             constexpr auto table = Base::make_table();
             constexpr auto affected_bb_hi = Base::affected_bb().hi;
             return table[(occ.hi & affected_bb_hi) >> (Base::file + 8)];
@@ -247,7 +247,7 @@ namespace mog {
         struct LanceAttack<turn::WHITE, 2, Index> {
           typedef LanceAttackBase<turn::WHITE, Index> Base;
 
-          static BitBoard get_attack(BitBoard const& occ) {
+          static constexpr BitBoard get_attack(BitBoard const& occ) {
             constexpr auto table = Base::make_table();
             constexpr auto affected_bb_hi = Base::affected_bb().hi;
             constexpr auto magic = 0x4040000000000000ULL >> (Base::file - 1);
@@ -281,7 +281,7 @@ namespace mog {
         struct LanceAttack<turn::WHITE, 3, Index> {
           typedef LanceAttackBase<turn::WHITE, Index> Base;
 
-          static BitBoard get_attack(BitBoard const& occ) {
+          static constexpr BitBoard get_attack(BitBoard const& occ) {
             constexpr auto table = Base::make_table();
             constexpr auto affected_bb = Base::affected_bb();
             constexpr auto magic = 0x4040000000000000ULL >> (Base::file - 1);
@@ -318,7 +318,7 @@ namespace mog {
         struct LanceAttack<turn::WHITE, 4, Index> {
           typedef LanceAttackBase<turn::WHITE, Index> Base;
 
-          static BitBoard get_attack(BitBoard const& occ) {
+          static constexpr BitBoard get_attack(BitBoard const& occ) {
             constexpr auto table = Base::make_table();
             constexpr auto affected_bb = Base::affected_bb();
             constexpr auto magic_lo = 0x0001010101010000ULL >> (Base::file - 1);
