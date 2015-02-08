@@ -223,6 +223,19 @@ class TestBitBoard(unittest.TestCase):
             self.assertEqual(bb.shift_up(9), empty)
             self.assertEqual(bb.shift_up(3) & BitBoard(0, 0o777), empty)
 
+    def test_count(self):
+        self.assertEqual(empty.count(), 0)
+        self.assertEqual(full.count(), 81)
+        self.assertEqual(BitBoard(1, 0, 0, 0, 0, 0, 0, 0, 0).count(), 1)
+        self.assertEqual(BitBoard(1, 0, 0, 0, 0, 0, 0, 0, 0o400).count(), 2)
+        self.assertEqual(BitBoard(1, 0, 0, 0, 0o777, 0, 0, 0, 0o400).count(), 11)
+
+    def test_count_prop(self):
+        for a in gen_bitboard(50):
+            for bb in gen_bitboard(50):
+                b = bb & (~a)
+                self.assertEqual(a.count() + b.count(), (a | b).count())
+
     def test_flip_vertical(self):
         self.assertEqual(empty.flip_vertical(), empty)
         self.assertEqual(full.flip_vertical(), full)

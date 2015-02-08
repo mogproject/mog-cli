@@ -23,6 +23,7 @@ BOOST_PYTHON_MODULE(cmogcore){
     .def("set", static_cast<BitBoard (BitBoard::*)(int const, int const) const>(&BitBoard::set))
     .def("reset", static_cast<BitBoard (BitBoard::*)(int const) const>(&BitBoard::reset))
     .def("reset", static_cast<BitBoard (BitBoard::*)(int const, int const) const>(&BitBoard::reset))
+    .def("count", &BitBoard::count)
     .def("files", &BitBoard::files)
     .staticmethod("files")
     .def("ranks", &BitBoard::ranks)

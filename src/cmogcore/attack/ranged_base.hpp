@@ -3,6 +3,7 @@
 
 #include "../util.hpp"
 #include "../bitboard.hpp"
+#include "ranged_magic.hpp"
 
 
 namespace mog {
@@ -19,13 +20,14 @@ namespace mog {
           static constexpr auto file = pos::get_file(Index);
           static constexpr auto rank = pos::get_rank(Index);
 
-//          static BitBoard get_attack(BitBoard const& occ) {
-//            constexpr auto table = Base::make_table();
-//            constexpr auto affected_bb = Base::affected_bb();
-//            constexpr auto magic = 0x4040000000000000ULL >> (Base::file - 1);
-//            auto bb = occ & affected_bb;
-//            return table[((bb.hi * magic) >> 61) | (bb.lo >> (Base::file + 44))];
-//          }
+          /** Affected mask bitboard */
+          static constexpr auto affected_mask() {
+            return ~(
+              ((rank != 1) ? bitboard::rank1 : bitboard::EMPTY) |
+              ((rank != 9) ? bitboard::rank9 : bitboard::EMPTY) |
+              ((file != 1) ? bitboard::file1 : bitboard::EMPTY) |
+              ((file != 9) ? bitboard::file9 : bitboard::EMPTY));
+          }
 
          private:
         };

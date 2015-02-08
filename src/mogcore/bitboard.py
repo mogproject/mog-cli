@@ -11,10 +11,6 @@ class BitBoard(cmogcore.BitBoard):
     def wrap(bb):
         return BitBoard(bb.lo, bb.hi)
 
-    # todo: implement in C++
-    def count(self):
-        return len([i for i in range(81) if self.get(i)])
-
     def indices(self):
         return [i for i in range(81) if self.get(i)]
 

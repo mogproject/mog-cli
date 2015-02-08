@@ -52,9 +52,8 @@ class TestAttackRangedLance(unittest.TestCase):
                     'bb=%r, i=%d, j=%d' % (bb, i, j))
 
         for i in gen_index(100):
-            atk = mogcore.BitBoard.wrap(Attack.get_attack(0, 3, i, full))
             expected_count = 0 if i < 9 else 1
-            self.assertEqual(atk.count(), expected_count, 'i=%s' % i)
+            self.assertEqual(Attack.get_attack(0, 3, i, full).count(), expected_count, 'i=%s' % i)
 
     def test_get_attack_lance_white(self):
         self.assertEqual(Attack.get_attack(1, 3, 0, empty),
@@ -99,9 +98,8 @@ class TestAttackRangedLance(unittest.TestCase):
                     'bb=%r, i=%d, j=%d' % (bb, i, j))
 
         for i in gen_index(100):
-            atk = mogcore.BitBoard.wrap(Attack.get_attack(1, 3, i, full))
             expected_count = 0 if 72 <= i else 1
-            self.assertEqual(atk.count(), expected_count, 'i=%s' % i)
+            self.assertEqual(Attack.get_attack(1, 3, i, full).count(), expected_count, 'i=%s' % i)
 
     def test_get_attack_lance_prop(self):
         for bb in gen_bitboard(100):

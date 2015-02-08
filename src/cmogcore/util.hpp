@@ -30,12 +30,23 @@ namespace mog {
       return n == 0 ? 64 : (n & 0x8000000000000000ULL) ? sofar : nlz(n << 1, sofar + 1);
     }
 
+    // Count number of 1-bits (compile time)
+    inline constexpr int pop_ct(u64 x) {
+      x = x - ( ( x >> 1 ) & 0x5555555555555555ULL );
+      x = ( x & 0x3333333333333333ULL ) + ( ( x >> 2 ) & 0x3333333333333333ULL );
+      x = ( x + ( x >> 4 ) ) & 0x0f0f0f0f0f0f0f0fULL;
+      x = x + ( x >> 8 );
+      x = x + ( x >> 16 );
+      x = x + ( x >> 32 );
+      return x & 0x000000000000007f;
+    }
+
     // Most Significant Bit (in compile time)
     //     If n is 0, return -1.
     inline constexpr int msb_ct(u64 n) { return 63 - nlz(n); }
 
 //    inline int msb(unsigned long n) {
-//      int msb;
+//      int msb = 0;
 //      asm("bsrl %1,%0" : "=r"(msb) : "r"(n));
 //      return msb;
 //    }

@@ -55,6 +55,13 @@ namespace mog {
       }
 
       /**
+       * Count number of 1-bits;
+       */
+      constexpr int count() {
+        return pop_ct(lo) + pop_ct(hi);
+      }
+
+      /**
        * Make u64 value spreading file bits to each rank
        *
        * e.g.
