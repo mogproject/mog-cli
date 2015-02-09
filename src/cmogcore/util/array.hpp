@@ -16,18 +16,18 @@ namespace mog {
         constexpr T& operator[](size_t n){ return elems[n]; }
         constexpr T const& operator[](size_t n) const { return elems[n]; }
 
-        constexpr iterator begin() _NOEXCEPT {
+        constexpr iterator begin() noexcept {
           return &elems[0];
         }
 
-        constexpr const_iterator begin() const _NOEXCEPT {
+        constexpr const_iterator begin() const noexcept {
           return &elems[0];
         }
 
-        constexpr iterator end() _NOEXCEPT {
+        constexpr iterator end() noexcept {
           return &elems[0] + N;
         }
-        constexpr const_iterator end() const _NOEXCEPT {
+        constexpr const_iterator end() const noexcept {
           return &elems[0] + N;
         }
       };
