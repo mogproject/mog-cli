@@ -9,9 +9,27 @@ namespace mog {
 
       template <typename T, int N>
       struct Array {
-        T v[N];
-        constexpr T& operator[](size_t n){ return v[n]; }
-        constexpr T const& operator[](size_t n) const { return v[n]; }
+        typedef T* iterator;
+        typedef T const* const_iterator;
+
+        T elems[N];
+        constexpr T& operator[](size_t n){ return elems[n]; }
+        constexpr T const& operator[](size_t n) const { return elems[n]; }
+
+        constexpr iterator begin() _NOEXCEPT {
+          return &elems[0];
+        }
+
+        constexpr const_iterator begin() const _NOEXCEPT {
+          return &elems[0];
+        }
+
+        constexpr iterator end() _NOEXCEPT {
+          return &elems[0] + N;
+        }
+        constexpr const_iterator end() const _NOEXCEPT {
+          return &elems[0] + N;
+        }
       };
 
       namespace array {
