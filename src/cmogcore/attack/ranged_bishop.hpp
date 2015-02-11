@@ -39,12 +39,13 @@ namespace mog {
             auto magic = get_magic();
             auto affected_bb = get_affected_bb();
 
-            auto bb = Promoted ? bb_table_direct[(Index << 5) + (turn::BLACK << 4) + ptype::KING] : BitBoard();;
+            auto bb = Promoted ? bb_table_direct[(Index << 5) + (turn::BLACK << 4) + ptype::KING] : BitBoard();
             int p = 0;
 
             for (auto d: ds) {
               bool stopped = false;
 
+              // todo: be more efficient
               for (int i = 1; i <= 8; ++i) {
                 int f = Base::file + d.first * i;
                 int r = Base::rank + d.second * i;
@@ -69,7 +70,7 @@ namespace mog {
             { 0x0000102081020000ULL, 58,                  0ULL,  0, 0, 0xffffffffff254310ULL },
             { 0x0000102040810000ULL, 59,                  1ULL, -4, 0, 0xffffffffff543210ULL },
             { 0x0000081020408000ULL, 59, 0x1020000000000000ULL, 57, 0, 0xfffffffff6543210ULL },
-            { 0x0000020100804000ULL, 60, 0x0201000000000000ULL, 58, 0, 0xffffffffff543210ULL },  // P21 (index: 9)
+            { 0x0000020100804000ULL, 60, 0x0201000000000000ULL, 58, 0, 0xffffffffff543210ULL },  // P12 (index: 9)
             { 0x0000010080402000ULL, 60, 0x0100800000000000ULL, 58, 0, 0xffffffffff543210ULL },
             { 0x0000010020201000ULL, 59,                  1ULL,  2, 0, 0xffffffffff543120ULL },
             { 0x0000004080080400ULL, 58,                  0ULL,  0, 0, 0xffffffffff435210ULL },
@@ -78,7 +79,7 @@ namespace mog {
             { 0x0000001020810000ULL, 59,                  1ULL, -4, 0, 0xffffffffff254310ULL },
             { 0x0000001020408000ULL, 60, 0x1020000000000000ULL, 58, 0, 0xffffffffff543210ULL },
             { 0x0000000810204000ULL, 60, 0x0810000000000000ULL, 58, 0, 0xffffffffff543210ULL },
-            { 0x0020000100804000ULL, 60, 0x0402000000000000ULL, 58, 0, 0xffffffffff542103ULL },  // P31 (index:18)
+            { 0x0020000100804000ULL, 60, 0x0402000000000000ULL, 58, 0, 0xffffffffff542103ULL },  // P13 (index:18)
             { 0x0010000080402000ULL, 60, 0x0201000000000000ULL, 58, 0, 0xffffffffff542103ULL },
             { 0x0001000080402000ULL, 58, 0x0100800000000000ULL, 56, 0, 0xffffffff76543210ULL },
             { 0x0000400081021000ULL, 57,                  1ULL,  0, 0, 0xffffffff76152430ULL },
@@ -87,16 +88,16 @@ namespace mog {
             { 0x0000100008408000ULL, 58, 0x1020000000000000ULL, 56, 0, 0xffffffff32765410ULL },
             { 0x0000200010204000ULL, 60, 0x0810000000000000ULL, 58, 0, 0xffffffffff543210ULL },
             { 0x0000100008102000ULL, 60, 0x0408000000000000ULL, 58, 0, 0xffffffffff543210ULL },
-            { 0x0010080000804000ULL, 60, 0x0804000000000000ULL, 58, 0, 0xffffffffff541032ULL },  // P41 (index:27)
-            { 0x0008040000402000ULL, 60, 0x0402000000000000ULL, 58, 0, 0xffffffffff541032ULL },  // P42 (index:28)
-            { 0x0004008000402000ULL, 58, 0x0201000000000000ULL, 56, 0, 0xffffffff76435210ULL },  // P43 (index:29)
-            { 0x0000801000402000ULL, 56, 0x0100800000000000ULL, 54, 0, 0xffffff9876523410ULL },  // P44 (index:30)
-            { 0x0000400800201000ULL, 54, 0x2100000000000000ULL, 62, 0, 0xffffff1987405632ULL },  // P45 (index:31)
+            { 0x0010080000804000ULL, 60, 0x0804000000000000ULL, 58, 0, 0xffffffffff541032ULL },  // P14 (index:27)
+            { 0x0008040000402000ULL, 60, 0x0402000000000000ULL, 58, 0, 0xffffffffff541032ULL },
+            { 0x0004008000402000ULL, 58, 0x0201000000000000ULL, 56, 0, 0xffffffff76435210ULL },
+            { 0x0000801000402000ULL, 56, 0x0100800000000000ULL, 54, 0, 0xffffff9876523410ULL },
+            { 0x0000400800201000ULL, 54, 0x2100000000000000ULL, 62, 0, 0xffffff1987405632ULL },
             { 0x0000200400100800ULL, 54, 0x1020000000000000ULL, 62, 0, 0xffffff9874105632ULL },
             { 0x0000400800102000ULL, 58, 0x0810000000000000ULL, 56, 0, 0xffffffff52764310ULL },
             { 0x0000801000102000ULL, 60, 0x0408000000000000ULL, 58, 0, 0xffffffffff543210ULL },
             { 0x0000400800081000ULL, 60, 0x0204000000000000ULL, 58, 0, 0xffffffffff543210ULL },
-            { 0x0008040200004000ULL, 60, 0x1008000000000000ULL, 58, 0, 0xffffffffff540321ULL },  // P51 (index:36)
+            { 0x0008040200004000ULL, 60, 0x1008000000000000ULL, 58, 0, 0xffffffffff540321ULL },  // P15 (index:36)
             { 0x0004020100002000ULL, 60, 0x0804000000000000ULL, 58, 0, 0xffffffffff540321ULL },
             { 0x0002010040002000ULL, 58, 0x0402000000000000ULL, 56, 0, 0xffffffff76354210ULL },
             { 0x0000802010004000ULL, 54, 0x0400200000000000ULL, 59, 0, 0xffffff1498650723ULL },
@@ -105,7 +106,7 @@ namespace mog {
             { 0x0004002004000800ULL, 58, 0x0408000000000000ULL, 56, 0, 0xffffffff52763410ULL },
             { 0x0002004008001000ULL, 60, 0x0204000000000000ULL, 58, 0, 0xffffffffff543210ULL },
             { 0x0001002004000800ULL, 60, 0x0102000000000000ULL, 58, 0, 0xffffffffff543210ULL },
-            { 0x0004020100800000ULL, 60, 0x2010000000000000ULL, 58, 0, 0xffffffffff543210ULL },  // P61 (index:45)
+            { 0x0004020100800000ULL, 60, 0x2010000000000000ULL, 58, 0, 0xffffffffff543210ULL },  // P16 (index:45)
             { 0x0002010080400000ULL, 60, 0x1008000000000000ULL, 58, 0, 0xffffffffff543210ULL },
             { 0x0001008020400000ULL, 59, 0x1002000000000000ULL, 56, 0, 0xffffffff67431250ULL },
             { 0x0000801040080000ULL, 55, 0x2004020000000000ULL, 54, 0, 0xffffff1085746932ULL },
@@ -114,7 +115,7 @@ namespace mog {
             { 0x0010020020040000ULL, 56, 0x0102000000000000ULL, 61, 0, 0xffffffff25107643ULL },
             { 0x0008010020040000ULL, 60, 0x0102000000000000ULL, 58, 0, 0xffffffffff543210ULL },
             { 0x0004008010020000ULL, 60, 0x0081000000000000ULL, 58, 0, 0xffffffffff543210ULL },
-            { 0x0002010080402000ULL, 59,                  1ULL,  5, 0, 0xffffffffff543210ULL },  // P71 (index:54)
+            { 0x0002010080402000ULL, 59,                  1ULL,  5, 0, 0xffffffffff543210ULL },  // P17 (index:54)
             { 0x0001008040201000ULL, 59,                  1ULL,  6, 0, 0xffffffffff543210ULL },
             { 0x0000804020081000ULL, 56, 0x0018000000000000ULL, 62, 0, 0xffffffff17653402ULL },
             { 0x0000002010400800ULL, 56, 0x000c000000000000ULL, 62, 0, 0xffffffff16574032ULL },
@@ -123,7 +124,7 @@ namespace mog {
             { 0x0020040080080100ULL, 56, 0x0001800000000000ULL, 62, 0, 0xffffffff14076532ULL },
             { 0x0010020040080100ULL, 59,                  1ULL, 10, 0, 0xffffffffff543210ULL },
             { 0x0008010020040080ULL, 59,                  1ULL, 11, 0, 0xffffffffff543210ULL },
-            { 0x0001008040201000ULL, 59,                  1ULL, -4, 0, 0xffffffffff432105ULL },  // P81 (index:63)
+            { 0x0001008040201000ULL, 59,                  1ULL, -4, 0, 0xffffffffff432105ULL },  // P18 (index:63)
             { 0x0000804020100800ULL, 59,                  1ULL, -3, 0, 0xffffffffff432105ULL },
             { 0x0000004020100800ULL, 58, 0x3000000000000000ULL, 62, 0, 0xffffffffff543210ULL },
             { 0x0000000020104800ULL, 58, 0x1800000000000000ULL, 62, 0, 0xffffffffff543120ULL },
@@ -132,7 +133,7 @@ namespace mog {
             { 0x0000100200400800ULL, 58, 0x0300000000000000ULL, 62, 0, 0xffffffffff154320ULL },
             { 0x0020040080100200ULL, 59,                  1ULL,  1, 0, 0xffffffffff432105ULL },
             { 0x0010020040080100ULL, 59,                  1ULL,  2, 0, 0xffffffffff432105ULL },
-            { 0x0000804020100800ULL, 59, 0x2010000000000000ULL, 57, 0, 0xfffffffff4321065ULL },  // P91 (index:72)
+            { 0x0000804020100800ULL, 59, 0x2010000000000000ULL, 57, 0, 0xfffffffff4321065ULL },  // P19 (index:72)
             { 0x0000004020100800ULL, 60, 0x1008000000000000ULL, 58, 0, 0xffffffffff321054ULL },
             { 0x0000000020100800ULL, 61, 0x0408000000000000ULL, 58, 0, 0xffffffffff210453ULL },
             { 0x0000000000100800ULL, 58, 0x1402000000000000ULL, 60, 0, 0xffffffffff543210ULL },
