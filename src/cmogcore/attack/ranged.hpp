@@ -26,9 +26,9 @@ namespace mog {
         constexpr auto blance = LanceAttackGenerator<turn::BLACK>::generate();
         constexpr auto wlance = LanceAttackGenerator<turn::WHITE>::generate();
         constexpr auto rook = util::array::fill<81>(&empty_magic);
-        constexpr auto bishop = BishopAttackGenerator::generate();
         constexpr auto prook = util::array::fill<81>(&empty_magic);
-        constexpr auto pbishop = util::array::fill<81>(&empty_magic);
+        constexpr auto bishop = BishopAttackGenerator<false>::generate();
+        constexpr auto pbishop = BishopAttackGenerator<true>::generate();
 
         constexpr util::Array<util::Array<MagicCalculator, 81>, 32> bb_table_ranged = {{
           empty, rook,  bishop,  blance, empty, empty, empty,  empty,

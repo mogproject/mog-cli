@@ -3,6 +3,7 @@
 
 #include "../util.hpp"
 #include "../bitboard.hpp"
+#include "direct.hpp"
 #include "ranged_base.hpp"
 
 
@@ -13,7 +14,7 @@ namespace mog {
         //
         // Bishop attack
         //
-        template <int Index>
+        template <bool Promoted, int Index>
         class BishopAttack {
          private:
           typedef RangedBase<Index> Base;
@@ -30,12 +31,15 @@ namespace mog {
             return bb;
           }
 
+          /** Make affected bitboard */
+          static constexpr auto get_affected_bb() { return get_max_attack() & Base::affected_mask(); }
+
           /** Make attack bitboard with the specified mask */
           static constexpr BitBoard make_attack(int const mask) {
             auto magic = get_magic();
             auto affected_bb = get_affected_bb();
 
-            auto bb = BitBoard();
+            auto bb = Promoted ? bb_table_direct[(Index << 5) + (turn::BLACK << 4) + ptype::KING] : BitBoard();;
             int p = 0;
 
             for (auto d: ds) {
@@ -92,7 +96,7 @@ namespace mog {
             { 0x0000400800102000ULL, 58, 0x0810000000000000ULL, 56, 0, 0xffffffff52764310ULL },
             { 0x0000801000102000ULL, 60, 0x0408000000000000ULL, 58, 0, 0xffffffffff543210ULL },
             { 0x0000400800081000ULL, 60, 0x0204000000000000ULL, 58, 0, 0xffffffffff543210ULL },
-            { 0x0008040200004000ULL, 60, 0x1008000000000000ULL, 58, 0, 0xffffffffff540321ULL },  // P51
+            { 0x0008040200004000ULL, 60, 0x1008000000000000ULL, 58, 0, 0xffffffffff540321ULL },  // P51 (index:36)
             { 0x0004020100002000ULL, 60, 0x0804000000000000ULL, 58, 0, 0xffffffffff540321ULL },
             { 0x0002010040002000ULL, 58, 0x0402000000000000ULL, 56, 0, 0xffffffff76354210ULL },
             { 0x0000802010004000ULL, 54, 0x0400200000000000ULL, 59, 0, 0xffffff1498650723ULL },
@@ -101,7 +105,7 @@ namespace mog {
             { 0x0004002004000800ULL, 58, 0x0408000000000000ULL, 56, 0, 0xffffffff52763410ULL },
             { 0x0002004008001000ULL, 60, 0x0204000000000000ULL, 58, 0, 0xffffffffff543210ULL },
             { 0x0001002004000800ULL, 60, 0x0102000000000000ULL, 58, 0, 0xffffffffff543210ULL },
-            { 0x0004020100800000ULL, 60, 0x2010000000000000ULL, 58, 0, 0xffffffffff543210ULL },  // P61
+            { 0x0004020100800000ULL, 60, 0x2010000000000000ULL, 58, 0, 0xffffffffff543210ULL },  // P61 (index:45)
             { 0x0002010080400000ULL, 60, 0x1008000000000000ULL, 58, 0, 0xffffffffff543210ULL },
             { 0x0001008020400000ULL, 59, 0x1002000000000000ULL, 56, 0, 0xffffffff67431250ULL },
             { 0x0000801040080000ULL, 55, 0x2004020000000000ULL, 54, 0, 0xffffff1085746932ULL },
@@ -110,7 +114,7 @@ namespace mog {
             { 0x0010020020040000ULL, 56, 0x0102000000000000ULL, 61, 0, 0xffffffff25107643ULL },
             { 0x0008010020040000ULL, 60, 0x0102000000000000ULL, 58, 0, 0xffffffffff543210ULL },
             { 0x0004008010020000ULL, 60, 0x0081000000000000ULL, 58, 0, 0xffffffffff543210ULL },
-            { 0x0002010080402000ULL, 59,                  1ULL,  5, 0, 0xffffffffff543210ULL },  // P71
+            { 0x0002010080402000ULL, 59,                  1ULL,  5, 0, 0xffffffffff543210ULL },  // P71 (index:54)
             { 0x0001008040201000ULL, 59,                  1ULL,  6, 0, 0xffffffffff543210ULL },
             { 0x0000804020081000ULL, 56, 0x0018000000000000ULL, 62, 0, 0xffffffff17653402ULL },
             { 0x0000002010400800ULL, 56, 0x000c000000000000ULL, 62, 0, 0xffffffff16574032ULL },
@@ -119,7 +123,7 @@ namespace mog {
             { 0x0020040080080100ULL, 56, 0x0001800000000000ULL, 62, 0, 0xffffffff14076532ULL },
             { 0x0010020040080100ULL, 59,                  1ULL, 10, 0, 0xffffffffff543210ULL },
             { 0x0008010020040080ULL, 59,                  1ULL, 11, 0, 0xffffffffff543210ULL },
-            { 0x0001008040201000ULL, 59,                  1ULL, -4, 0, 0xffffffffff432105ULL },  // P81
+            { 0x0001008040201000ULL, 59,                  1ULL, -4, 0, 0xffffffffff432105ULL },  // P81 (index:63)
             { 0x0000804020100800ULL, 59,                  1ULL, -3, 0, 0xffffffffff432105ULL },
             { 0x0000004020100800ULL, 58, 0x3000000000000000ULL, 62, 0, 0xffffffffff543210ULL },
             { 0x0000000020104800ULL, 58, 0x1800000000000000ULL, 62, 0, 0xffffffffff543120ULL },
@@ -128,7 +132,7 @@ namespace mog {
             { 0x0000100200400800ULL, 58, 0x0300000000000000ULL, 62, 0, 0xffffffffff154320ULL },
             { 0x0020040080100200ULL, 59,                  1ULL,  1, 0, 0xffffffffff432105ULL },
             { 0x0010020040080100ULL, 59,                  1ULL,  2, 0, 0xffffffffff432105ULL },
-            { 0x0000804020100800ULL, 59, 0x2010000000000000ULL, 57, 0, 0xfffffffff4321065ULL },  // P91
+            { 0x0000804020100800ULL, 59, 0x2010000000000000ULL, 57, 0, 0xfffffffff4321065ULL },  // P91 (index:72)
             { 0x0000004020100800ULL, 60, 0x1008000000000000ULL, 58, 0, 0xffffffffff321054ULL },
             { 0x0000000020100800ULL, 61, 0x0408000000000000ULL, 58, 0, 0xffffffffff210453ULL },
             { 0x0000000000100800ULL, 58, 0x1402000000000000ULL, 60, 0, 0xffffffffff543210ULL },
@@ -138,9 +142,6 @@ namespace mog {
             { 0x0000100200400800ULL, 60, 0x0400800000000000ULL, 58, 0, 0xffffffffff321054ULL },
             { 0x0020040080100200ULL, 59, 0x0200400000000000ULL, 57, 0, 0xfffffffff4321065ULL },
           };
-
-          /** Make affected bitboard */
-          static constexpr auto get_affected_bb() { return get_max_attack() & Base::affected_mask(); }
 
           /**
            * Get magic traits
@@ -169,11 +170,12 @@ namespace mog {
         // Generate array of function pointers to each index.
         //
 
+        template <bool Promoted>
         struct BishopAttackGenerator {
           template <int... Is>
           static constexpr auto generate(util::seq<Is...>)
-            -> util::Array<decltype(&BishopAttack<0>::get_attack), sizeof...(Is)> {
-            return {{ &BishopAttack<Is>::get_attack... }};
+            -> util::Array<decltype(&BishopAttack<false, 0>::get_attack), sizeof...(Is)> {
+            return {{ &BishopAttack<Promoted, Is>::get_attack... }};
           }
 
           static constexpr auto generate() {
