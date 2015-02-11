@@ -30,9 +30,9 @@ install:
   - sudo ln -s /tmp/boost_${BOOST_VERSION//[.]/_}/stage-python${TRAVIS_PYTHON_VERSION}/lib/* /usr/local/lib/
   - sudo ldconfig
   - pip install coveralls
+  - travis_wait make build
 
 script:
-  - travis_wait make build
   - make coverage
 
 after_success:
