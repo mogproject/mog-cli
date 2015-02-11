@@ -21,7 +21,7 @@ namespace mog {
       /** attack bitboard for ranged pieces on board */
       constexpr BitBoard get_attack(int owner, int ptype, int index, BitBoard const& occ) {
         return attack::bb_table_ranged[__flags(owner, ptype)][index](occ);
-      };
+      }
 
       /** attack bitboard for pawn from hand */
       constexpr BitBoard get_attack(int owner, BitBoard const& occ, BitBoard const& my_pawn_occ) {
@@ -31,7 +31,7 @@ namespace mog {
       /** attack bitboard for pieces from hand except pawn */
       constexpr BitBoard get_attack(int owner, int ptype, BitBoard const& occ) {
         return attack::bb_table_aerial[__flags(owner, ptype)] & ~occ;
-      };
+      }
     }
 
 

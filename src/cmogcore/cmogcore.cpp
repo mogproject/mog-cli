@@ -2,6 +2,9 @@
 #include "bitboard.hpp"
 #include "attack.hpp"
 
+//template
+//class mog::core::attack::ranged::BishopAttack<0>;
+
 BOOST_PYTHON_MODULE(cmogcore){
   using namespace boost::python;
   using namespace mog::core;
@@ -23,6 +26,7 @@ BOOST_PYTHON_MODULE(cmogcore){
     .def("set", static_cast<BitBoard (BitBoard::*)(int const, int const) const>(&BitBoard::set))
     .def("reset", static_cast<BitBoard (BitBoard::*)(int const) const>(&BitBoard::reset))
     .def("reset", static_cast<BitBoard (BitBoard::*)(int const, int const) const>(&BitBoard::reset))
+    .def("set_repeat", &BitBoard::set_repeat)
     .def("count", &BitBoard::count)
     .def("files", &BitBoard::files)
     .staticmethod("files")

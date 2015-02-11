@@ -46,7 +46,7 @@ class TestAttackRangedLance(unittest.TestCase):
                 self.assertTrue(all(x / 9 < i / 9 for x in atk.indices()), 'bb=%r, i=%s' % (bb, i))
 
                 # horizontal symmetric
-                j = int(i / 9) * 9 + (8 - i % 9)
+                j = i // 9 * 9 + (8 - i % 9)
                 self.assertEqual(
                     atk, Attack.get_attack(0, 3, j, bb.flip_horizontal()).flip_horizontal(),
                     'bb=%r, i=%d, j=%d' % (bb, i, j))
@@ -92,7 +92,7 @@ class TestAttackRangedLance(unittest.TestCase):
                 self.assertTrue(all(x / 9 > i / 9 for x in atk.indices()), 'bb=%r, i=%s' % (bb, i))
 
                 # horizontal symmetric
-                j = int(i / 9) * 9 + (8 - i % 9)
+                j = i // 9 * 9 + (8 - i % 9)
                 self.assertEqual(
                     atk, Attack.get_attack(1, 3, j, bb.flip_horizontal()).flip_horizontal(),
                     'bb=%r, i=%d, j=%d' % (bb, i, j))
@@ -105,9 +105,9 @@ class TestAttackRangedLance(unittest.TestCase):
         for bb in gen_bitboard(100):
             for i in gen_index(100):
                 # vertical symmetric
-                j = (8 - int(i / 9)) * 9 + i % 9
-                a = mogcore.BitBoard.wrap(Attack.get_attack(0, 3, i, bb))
-                b = mogcore.BitBoard.wrap(Attack.get_attack(1, 3, j, bb.flip_vertical()))
+                j = (8 - i // 9) * 9 + i % 9
+                a = Attack.get_attack(0, 3, i, bb)
+                b = Attack.get_attack(1, 3, j, bb.flip_vertical())
                 self.assertEqual(a, b.flip_vertical(), 'bb=%r, i=%d, j=%d' % (bb, i, j))
 
                 # black never intersect over white and vice versa

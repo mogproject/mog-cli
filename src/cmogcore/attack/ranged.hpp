@@ -2,7 +2,7 @@
 #define MOG_CORE_ATTACK_RANGED_HPP_INCLUDED
 
 #include "ranged_lance.hpp"
-//#include "ranged_bishop.hpp"
+#include "ranged_bishop.hpp"
 //#include "ranged_look.hpp"
 
 namespace mog {
@@ -26,7 +26,7 @@ namespace mog {
         constexpr auto blance = LanceAttackGenerator<turn::BLACK>::generate();
         constexpr auto wlance = LanceAttackGenerator<turn::WHITE>::generate();
         constexpr auto rook = util::array::fill<81>(&empty_magic);
-        constexpr auto bishop = util::array::fill<81>(&empty_magic);
+        constexpr auto bishop = BishopAttackGenerator::generate();
         constexpr auto prook = util::array::fill<81>(&empty_magic);
         constexpr auto pbishop = util::array::fill<81>(&empty_magic);
 
