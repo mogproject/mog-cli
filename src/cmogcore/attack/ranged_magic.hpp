@@ -18,7 +18,7 @@ namespace mog {
           u64 magic_hi;
           int shift_hi;
           int shift_final;
-          u64 mapping = 0ULL;
+          u64 mapping = 0xffffffffffffffffULL;
 
           /**
            * Calculate index of the attack table from occupancy bitboard. (general model)
