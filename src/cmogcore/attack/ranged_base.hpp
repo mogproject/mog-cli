@@ -10,10 +10,12 @@ namespace mog {
   namespace core {
     namespace attack {
       namespace ranged {
-        //
-        // Base class
-        //
-        template <int Index>
+        /**
+         * Base class for ranged piece types
+         *
+         * @tparam MagicType 0: black lance, 1: white lance, 2: bishop or promoted bishop, 3: rook or promoted rook
+         */
+        template <int Index, int MagicType>
         class RangedBase {
          public:
           /** File and rank (1-indexed) */
@@ -21,6 +23,7 @@ namespace mog {
           static constexpr auto rank = pos::get_rank(Index);
 
           /** Affected mask bitboard */
+          // can be variable?
           static constexpr auto affected_mask() {
             return ~(
               ((rank != 1) ? bitboard::rank1 : bitboard::EMPTY) |
@@ -30,6 +33,36 @@ namespace mog {
           }
 
          private:
+          /** Generate directions. */
+          static constexpr util::Array<std::pair<int, int>, 4> get_directions() {
+            switch (MagicType) {
+              case 0: return {{ {0, -1} }}; break;
+              case 1: return {{ {0, 1} }}; break;
+              case 2: return {{ {-1, -1}, {-1, 1}, {1, -1}, {1, 1} }}; break;
+              case 3: return {{ {0, -1}, {-1, 0}, {0, 1}, {1, 0} }}; break;
+            }
+          }
+
+          /** max attack bitboard */
+          static constexpr BitBoard get_max_attack() {
+            auto bb = BitBoard();
+            for (auto d: directions) {
+              bb = bb.set_repeat(file, rank, d.first, d.second, 8);
+            }
+            return bb;
+          }
+
+         public:
+          /** directions */
+          static constexpr auto directions = get_directions();
+
+          /** Make affected bitboard */
+          // can be constant?
+          static constexpr auto get_affected_bb() { return get_max_attack() & affected_mask(); }
+
+          /** size of the variation table */
+          static constexpr int variation_size = 1 << get_affected_bb().count();
+
         };
       }
     }

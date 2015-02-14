@@ -14,52 +14,36 @@ namespace mog {
         //
         // Rook attack
         //
-        template <bool Promoted, int Index>
-        class RookAttack {
-         private:
-          typedef RangedBase<Index> Base;
-
-          /** four directions of rook */
-          static constexpr util::Array<std::pair<int, int>, 4> ds = {{ {0, -1}, {-1, 0}, {0, 1}, {1, 0} }};
-
+        template <int Index>
+        class RookAttackBase {
          public:
-          static constexpr BitBoard get_max_attack() {
-            auto bb = BitBoard();
-            for (auto d: ds) {
-              bb = bb.set_repeat(Base::file, Base::rank, d.first, d.second, 8);
-            }
-            return bb;
-          }
+          typedef RangedBase<Index, 3> Base;
 
-          /** Make affected bitboard */
-          static constexpr auto get_affected_bb() { return get_max_attack() & Base::affected_mask(); }
+          /**
+           * Calculate index of the table
+           *
+           * @param magic Static magic object
+           * @param bb Intersect of the occupancy bitboard and affected area
+           */
+          inline static constexpr int get_index(Magic const& magic, BitBoard const& bb){
 
-          /** Make attack bitboard with the specified mask */
-          static constexpr BitBoard make_attack(int const mask) {
-            auto magic = get_magic();
-            auto affected_bb = get_affected_bb();
-
-            auto bb = Promoted ? bb_table_direct[(Index << 5) + (turn::BLACK << 4) + ptype::KING] : BitBoard();
-            int p = 0;
-
-            for (auto d: ds) {
-              bool stopped = false;
-
-              // todo: be more efficient
-              for (int i = 1; i <= 8; ++i) {
-                int f = Base::file + d.first * i;
-                int r = Base::rank + d.second * i;
-                if (pos::make_pos(f, r) < 0) break;
-
-                if (!stopped) bb = bb.set(f, r);
-                if ((mask >> magic.get_mapping(p)) & 1) stopped = true;
-                if (affected_bb.get(f, r)) ++p;
+            // Use special magic formula for these 3 indices.
+            if (Index == 0 || Index == 8 || Index == 26) {
+              if (Index == 26) {
+                return (
+                  (rshift(bb.lo * magic.magic_lo, magic.shift_lo)) |
+                  (rshift(bb.hi * magic.magic_hi, magic.shift_hi) << 11)
+                ) >> magic.shift_final;
               }
+              return (
+                rshift((bb.lo >> 9) * magic.magic_lo, magic.shift_lo) |
+                rshift((bb.lo << 55) | (bb.hi * magic.magic_hi), magic.shift_hi)
+              ) >> magic.shift_final;
             }
-
-            return bb;
+            return magic.get_index(bb);
           }
 
+         private:
           static constexpr Magic __magic_table[] = {
             { 0x8020080200800000ULL, 58, 0x8000020000000000ULL, 50, 0, 0xffcba98760d12345ULL },  // P11 (index: 0) Special formula
             { 0x0040080004000200ULL, 52, 0x4000020000000000ULL, 51, 0, 0xfff9876540c3b2a1ULL },
@@ -144,46 +128,71 @@ namespace mog {
             { 0x0000401004010040ULL, 59, 0x0001004000000000ULL, 50, 0, 0xff789abcd4321065ULL },
           };
 
-          /**
-           * Get magic traits
-           */
-          static constexpr Magic get_magic() { return __magic_table[Index]; }
+         public:
+          /** Get magic traits */
+          inline static constexpr Magic get_magic() { return __magic_table[Index]; }
 
-          /** Make bitboard array for all variation */
+          /** Make attack bitboard with the specified mask */
+          static constexpr BitBoard make_attack(int const mask) {
+            auto magic = get_magic();
+            auto affected_bb = Base::get_affected_bb();
+
+            auto bb = BitBoard();
+            int p = 0;
+
+            for (auto d: Base::directions) {
+              bool stopped = false;
+
+              // todo: be more efficient
+              for (int i = 1; i <= 8; ++i) {
+                int f = Base::file + d.first * i;
+                int r = Base::rank + d.second * i;
+                if (pos::make_pos(f, r) < 0) break;
+
+                if (!stopped) bb = bb.set(f, r);
+                if ((mask >> magic.get_mapping(p)) & 1) stopped = true;
+                if (affected_bb.get(f, r)) ++p;
+              }
+            }
+
+            return bb;
+          }
+
+          /** bitboard array for all variation */
+          static constexpr auto variation_table = util::array::iterate<Base::variation_size>(&make_attack);
+
+        };
+
+        //
+        // Derived class
+        //
+        template <bool Promoted, int Index>
+        class RookAttack {
+         private:
+          typedef RookAttackBase<Index> Base;
+
+         public:
           static constexpr auto make_table() {
-            constexpr int num_bits = get_affected_bb().count();
-            return util::array::iterate<1 << num_bits>(&make_attack);
+            util::Array<BitBoard, Base::Base::variation_size> table = {{}};
+            constexpr auto additional_bb =
+              Promoted ? bb_table_direct[(Index << 5) + (turn::BLACK << 4) + ptype::KING] : BitBoard();
+
+            for (auto i = 0; i < Base::Base::variation_size; ++i) {
+              table[i] = Base::variation_table[i] | additional_bb;
+            }
+
+            return table;
           }
 
           /**
            * Return attack bitboard from occupancy bitboard.
            */
           static constexpr BitBoard get_attack(BitBoard const& occ) {
-            constexpr auto magic = get_magic();
-            constexpr auto affected_bb = get_affected_bb();
+            constexpr auto magic = Base::get_magic();
+            constexpr auto affected_bb = Base::Base::get_affected_bb();
             constexpr auto table = make_table();
-
-            // Use special magic formula for these 3 indices.
-            if (Index == 0 || Index == 8 || Index == 26) {
-              auto bb = occ & affected_bb;
-              int idx = 0;
-              if (Index == 26) {
-                idx = (
-                  (rshift(bb.lo * magic.magic_lo, magic.shift_lo)) |
-                  (rshift(bb.hi * magic.magic_hi, magic.shift_hi) << 11)
-                ) >> magic.shift_final;
-              } else {
-                idx = (
-                  rshift((bb.lo >> 9) * magic.magic_lo, magic.shift_lo) |
-                  rshift((bb.lo << 55) | (bb.hi * magic.magic_hi), magic.shift_hi)
-                ) >> magic.shift_final;
-              }
-              return table[idx];
-            }
-
-            return table[magic.get_index(occ & affected_bb)];
+            return table[Base::get_index(magic, occ & affected_bb)];
           }
-
         };
 
         //

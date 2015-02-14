@@ -16,7 +16,7 @@ namespace mog {
         template <int Owner, int Index>
         class LanceAttack {
          private:
-          typedef RangedBase<Index> Base;
+          typedef RangedBase<Index, Owner> Base;
 
           /** Make attack bitboard with the specified mask */
           static constexpr BitBoard __make_attack(int const mask) {

@@ -14,52 +14,12 @@ namespace mog {
         //
         // Bishop attack
         //
-        template <bool Promoted, int Index>
-        class BishopAttack {
-         private:
-          typedef RangedBase<Index> Base;
-
-          /** four directions of bishop */
-          static constexpr util::Array<std::pair<int, int>, 4> ds = {{ { -1, -1}, {-1, 1}, {1, -1}, {1, 1} }};
-
+        template <int Index>
+        class BishopAttackBase {
          public:
-          static constexpr BitBoard get_max_attack() {
-            auto bb = BitBoard();
-            for (auto d: ds) {
-              bb = bb.set_repeat(Base::file, Base::rank, d.first, d.second, 8);
-            }
-            return bb;
-          }
+          typedef RangedBase<Index, 2> Base;
 
-          /** Make affected bitboard */
-          static constexpr auto get_affected_bb() { return get_max_attack() & Base::affected_mask(); }
-
-          /** Make attack bitboard with the specified mask */
-          static constexpr BitBoard make_attack(int const mask) {
-            auto magic = get_magic();
-            auto affected_bb = get_affected_bb();
-
-            auto bb = Promoted ? bb_table_direct[(Index << 5) + (turn::BLACK << 4) + ptype::KING] : BitBoard();
-            int p = 0;
-
-            for (auto d: ds) {
-              bool stopped = false;
-
-              // todo: be more efficient
-              for (int i = 1; i <= 8; ++i) {
-                int f = Base::file + d.first * i;
-                int r = Base::rank + d.second * i;
-                if (pos::make_pos(f, r) < 0) break;
-
-                if (!stopped) bb = bb.set(f, r);
-                if ((mask >> magic.get_mapping(p)) & 1) stopped = true;
-                if (affected_bb.get(f, r)) ++p;
-              }
-            }
-
-            return bb;
-          }
-
+         private:
           static constexpr Magic __magic_table[] = {
             { 0x0002010080402000ULL, 59, 0x0100800000000000ULL, 57, 0, 0xfffffffff6543210ULL },  // P11 (index: 0)
             { 0x0001008040201000ULL, 59,                  1ULL,  2, 0, 0xffffffffff543210ULL },
@@ -144,27 +104,71 @@ namespace mog {
             { 0x0020040080100200ULL, 59, 0x0200400000000000ULL, 57, 0, 0xfffffffff4321065ULL },
           };
 
-          /**
-           * Get magic traits
-           */
+         public:
+          /** Get magic traits */
           static constexpr Magic get_magic() { return __magic_table[Index]; }
 
-          /** Make bitboard array for all variation */
+          /** Make attack bitboard with the specified mask */
+          static constexpr BitBoard make_attack(int const mask) {
+            auto magic = get_magic();
+            auto affected_bb = Base::get_affected_bb();
+
+            auto bb = BitBoard();
+            int p = 0;
+
+            for (auto d: Base::directions) {
+              bool stopped = false;
+
+              // todo: be more efficient
+              for (int i = 1; i <= 8; ++i) {
+                int f = Base::file + d.first * i;
+                int r = Base::rank + d.second * i;
+                if (pos::make_pos(f, r) < 0) break;
+
+                if (!stopped) bb = bb.set(f, r);
+                if ((mask >> magic.get_mapping(p)) & 1) stopped = true;
+                if (affected_bb.get(f, r)) ++p;
+              }
+            }
+
+            return bb;
+          }
+
+          /** bitboard array for all variation */
+          static constexpr auto variation_table = util::array::iterate<Base::variation_size>(&make_attack);
+
+        };
+
+        //
+        // Derived class
+        //
+        template <bool Promoted, int Index>
+        class BishopAttack {
+         private:
+          typedef BishopAttackBase<Index> Base;
+
+         public:
           static constexpr auto make_table() {
-            constexpr int num_bits = get_affected_bb().count();
-            return util::array::iterate<1 << num_bits>(&make_attack);
+            util::Array<BitBoard, Base::Base::variation_size> table = {{}};
+            constexpr auto additional_bb =
+              Promoted ? bb_table_direct[(Index << 5) + (turn::BLACK << 4) + ptype::KING] : BitBoard();
+
+            for (auto i = 0; i < Base::Base::variation_size; ++i) {
+              table[i] = Base::variation_table[i] | additional_bb;
+            }
+
+            return table;
           }
 
           /**
            * Return attack bitboard from occupancy bitboard.
            */
           static constexpr BitBoard get_attack(BitBoard const& occ) {
-            constexpr auto magic = get_magic();
-            constexpr auto affected_bb = get_affected_bb();
+            constexpr auto magic = Base::get_magic();
+            constexpr auto affected_bb = Base::Base::get_affected_bb();
             constexpr auto table = make_table();
             return table[magic.get_index(occ & affected_bb)];
           }
-
         };
 
         //
