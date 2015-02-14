@@ -57,7 +57,7 @@ namespace mog {
       /**
        * Count number of 1-bits;
        */
-      constexpr int count() {
+      constexpr int count() const {
         return pop_ct(lo) + pop_ct(hi);
       }
 

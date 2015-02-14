@@ -135,7 +135,7 @@ namespace mog {
           /** Make attack bitboard with the specified mask */
           static constexpr BitBoard make_attack(int const mask) {
             auto magic = get_magic();
-            auto affected_bb = Base::get_affected_bb();
+            auto affected_bb = Base::affected_bb;
 
             auto bb = BitBoard();
             int p = 0;
@@ -189,7 +189,7 @@ namespace mog {
            */
           static constexpr BitBoard get_attack(BitBoard const& occ) {
             constexpr auto magic = Base::get_magic();
-            constexpr auto affected_bb = Base::Base::get_affected_bb();
+            constexpr BitBoard affected_bb = Base::Base::affected_bb;
             constexpr auto table = make_table();
             return table[Base::get_index(magic, occ & affected_bb)];
           }

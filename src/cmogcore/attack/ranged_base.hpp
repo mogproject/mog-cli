@@ -23,14 +23,11 @@ namespace mog {
           static constexpr auto rank = pos::get_rank(Index);
 
           /** Affected mask bitboard */
-          // can be variable?
-          static constexpr auto affected_mask() {
-            return ~(
+          static constexpr auto affected_mask = ~(
               ((rank != 1) ? bitboard::rank1 : bitboard::EMPTY) |
               ((rank != 9) ? bitboard::rank9 : bitboard::EMPTY) |
               ((file != 1) ? bitboard::file1 : bitboard::EMPTY) |
               ((file != 9) ? bitboard::file9 : bitboard::EMPTY));
-          }
 
          private:
           /** Generate directions. */
@@ -57,11 +54,10 @@ namespace mog {
           static constexpr auto directions = get_directions();
 
           /** Make affected bitboard */
-          // can be constant?
-          static constexpr auto get_affected_bb() { return get_max_attack() & affected_mask(); }
+          static constexpr auto affected_bb = get_max_attack() & affected_mask;
 
           /** size of the variation table */
-          static constexpr int variation_size = 1 << get_affected_bb().count();
+          static constexpr int variation_size = 1 << affected_bb.count();
 
         };
       }

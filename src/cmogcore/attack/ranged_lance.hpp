@@ -25,7 +25,7 @@ namespace mog {
 
          public:
           /** Make affected bitboard */
-          static constexpr auto get_affected_bb() { return __make_attack(0) & Base::affected_mask(); }
+          static constexpr auto get_affected_bb() { return __make_attack(0) & Base::affected_mask; }
 
           /**
            * Get magic traits
@@ -193,8 +193,7 @@ namespace mog {
 
           /** Make bitboard array for all variation */
           static constexpr auto make_table() {
-            constexpr int num_bits = get_affected_bb().count();
-            return util::array::iterate<1 << num_bits>(&__make_attack);
+            return util::array::iterate<Base::variation_size>(&__make_attack);
           }
 
           /**
@@ -202,7 +201,8 @@ namespace mog {
            */
           static constexpr BitBoard get_attack(BitBoard const& occ) {
             constexpr auto magic = get_magic();
-            constexpr auto affected_bb = get_affected_bb();
+//            constexpr BitBoard affected_bb = Base::affected_bb;
+            constexpr BitBoard affected_bb = get_affected_bb();
             constexpr auto table = make_table();
             return table[magic.get_index(occ & affected_bb)];
           }
