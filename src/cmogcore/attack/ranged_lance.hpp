@@ -201,8 +201,7 @@ namespace mog {
            */
           static constexpr BitBoard get_attack(BitBoard const& occ) {
             constexpr auto magic = get_magic();
-//            constexpr BitBoard affected_bb = Base::affected_bb;
-            constexpr BitBoard affected_bb = get_affected_bb();
+            constexpr auto affected_bb = get_affected_bb();
             constexpr auto table = make_table();
             return table[magic.get_index(occ & affected_bb)];
           }
