@@ -1,8 +1,9 @@
 import unittest
-from cmogcore import Attack, BitBoard
-import mogcore
-from mogcore.bitboard import full, empty
+from mogcore import Attack, BitBoard
 from .gen_bitboard import gen_bitboard, gen_index
+
+full = BitBoard.FULL
+empty = BitBoard.EMPTY
 
 
 class TestAttackRangedLance(unittest.TestCase):
@@ -39,7 +40,7 @@ class TestAttackRangedLance(unittest.TestCase):
     def test_get_attack_lance_black_prop(self):
         for bb in gen_bitboard(100):
             for i in gen_index(100):
-                atk = mogcore.BitBoard.wrap(Attack.get_attack(0, 3, i, bb))
+                atk = BitBoard.wrap(Attack.get_attack(0, 3, i, bb))
 
                 # should be same file
                 self.assertTrue(all(x % 9 == i % 9 for x in atk.indices()), 'bb=%r, i=%s' % (bb, i))

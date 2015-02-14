@@ -1,7 +1,5 @@
-# import cmogcore
-# from mogcore.bitboard import BitBoard
-#
-#
-# class Attack(cmogcore.Attack):
-#
-#     xx = BitBoard(xxx)
+import cmogcore
+
+
+class Attack(cmogcore.Attack):
+    pass

@@ -1,5 +1,8 @@
 import unittest
-from cmogcore import Attack, BitBoard
+from mogcore import Attack, BitBoard
+
+full = BitBoard.FULL
+empty = BitBoard.EMPTY
 
 
 class TestAttackDirect(unittest.TestCase):

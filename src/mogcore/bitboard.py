@@ -13,7 +13,3 @@ class BitBoard(cmogcore.BitBoard):
 
     def indices(self):
         return [i for i in range(81) if self.get(i)]
-
-# constant bitboards
-empty = BitBoard(0, 0)
-full = BitBoard(0xffffffffffffffff, 0xffffffffffffffff)

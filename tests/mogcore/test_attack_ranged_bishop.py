@@ -1,8 +1,10 @@
 import unittest
-from cmogcore import Attack, BitBoard
-from mogcore.bitboard import full, empty
+from mogcore import Attack, BitBoard
 from .gen_bitboard import gen_bitboard, gen_index
 from .util.bitboard_util import bitboards_from_string
+
+full = BitBoard.FULL
+empty = BitBoard.EMPTY
 
 
 class TestAttackRangedBishop(unittest.TestCase):

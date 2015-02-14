@@ -1,6 +1,8 @@
 import unittest
-from cmogcore import Attack, BitBoard
-from mogcore.bitboard import full, empty
+from mogcore import Attack, BitBoard
+
+full = BitBoard.FULL
+empty = BitBoard.EMPTY
 
 
 class TestAttackAerial(unittest.TestCase):

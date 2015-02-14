@@ -2,8 +2,6 @@
 #include "bitboard.hpp"
 #include "attack.hpp"
 
-//template
-//class mog::core::attack::ranged::BishopAttack<0>;
 
 BOOST_PYTHON_MODULE(cmogcore){
   using namespace boost::python;
@@ -14,6 +12,26 @@ BOOST_PYTHON_MODULE(cmogcore){
     .def(init<int, int, int, int, int, int, int, int, int>())
     .def_readonly("lo", &BitBoard::lo)
     .def_readonly("hi", &BitBoard::hi)
+    .def_readonly("EMPTY", &bitboard::EMPTY)
+    .def_readonly("FULL", &bitboard::FULL)
+    .def_readonly("rank1", &bitboard::rank1)
+    .def_readonly("rank2", &bitboard::rank2)
+    .def_readonly("rank3", &bitboard::rank3)
+    .def_readonly("rank4", &bitboard::rank4)
+    .def_readonly("rank5", &bitboard::rank5)
+    .def_readonly("rank6", &bitboard::rank6)
+    .def_readonly("rank7", &bitboard::rank7)
+    .def_readonly("rank8", &bitboard::rank8)
+    .def_readonly("rank9", &bitboard::rank9)
+    .def_readonly("file1", &bitboard::file1)
+    .def_readonly("file2", &bitboard::file2)
+    .def_readonly("file3", &bitboard::file3)
+    .def_readonly("file4", &bitboard::file4)
+    .def_readonly("file5", &bitboard::file5)
+    .def_readonly("file6", &bitboard::file6)
+    .def_readonly("file7", &bitboard::file7)
+    .def_readonly("file8", &bitboard::file8)
+    .def_readonly("file9", &bitboard::file9)
     .def(self == self)
     .def(self & self)
     .def(self | self)
