@@ -7,9 +7,13 @@ full = BitBoard.FULL
 
 
 class TestBitBoard(unittest.TestCase):
-    def test_repr(self):
+    def test_str(self):
         self.assertEqual(str(BitBoard.wrap(empty)), '\n'.join(['-' * 9] * 9))
         self.assertEqual(str(BitBoard.wrap(full)), '\n'.join(['*' * 9] * 9))
+
+    def test_repr(self):
+        self.assertEqual(repr(BitBoard.wrap(empty)), 'BitBoard(000.000.000,000.000.000,000.000.000)')
+        self.assertEqual(repr(BitBoard.wrap(full)), 'BitBoard(777.777.777,777.777.777,777.777.777)')
 
     def test_get(self):
         self.assertFalse(any(empty.get(i) for i in range(81)))

@@ -85,7 +85,7 @@ class TestAttackRangedLance(unittest.TestCase):
 
     def test_get_attack_lance_white_prop(self):
         for bb, i in zip(gen_bitboard(100), gen_index(100)):
-            atk = mogcore.BitBoard.wrap(Attack.get_attack(1, self.ptype, i, bb))
+            atk = BitBoard.wrap(Attack.get_attack(1, self.ptype, i, bb))
 
             # should be same file
             self.assertTrue(all(x % 9 == i % 9 for x in atk.indices()), 'bb=%r, i=%s' % (bb, i))
