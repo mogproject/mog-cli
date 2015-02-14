@@ -3,7 +3,6 @@
 """Utilities for finding magic number"""
 
 
-
 usage = """
 Usage:
   Use functions in the Python REPL.
@@ -18,6 +17,7 @@ Example:
 """
 
 from collections import defaultdict
+
 
 def x2i(u64):
     """Convert 64-bit integer to list of indices of the 1-bit"""
@@ -56,10 +56,6 @@ def mul(xs, ys):
 
     print('\n'.join(list(reversed(buf))[:16]))
     return bits
-
-
-def some_func():
-    pass
 
 
 if __name__ == '__main__':

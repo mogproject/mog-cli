@@ -56,8 +56,74 @@ namespace mog {
           /** Make affected bitboard */
           static constexpr auto affected_bb = get_max_attack() & affected_mask;
 
+         private:
+          static constexpr auto get_affected_sizes() {
+            util::Array<int, directions.size()> ret = {{}};
+
+            for (auto i = 0; i < directions.size(); ++i) {
+              auto df = directions[i].first, dr = directions[i].second;
+              auto a = df == 0 ? 7 : util::max((2 - file) / df, (8 - file) / df);
+              auto b = dr == 0 ? 7 : util::max((2 - rank) / dr, (8 - rank) / dr);
+              ret[i] = util::max(0, util::min(a, b));
+            }
+
+            return ret;
+          }
+
+         public:
           /** size of the variation table */
           static constexpr int variation_size = 1 << affected_bb.count();
+
+          /** array of length of the affected bits for each direction */
+          static constexpr auto affected_sizes = get_affected_sizes();
+
+          /**
+           * Make variation table
+           */
+          static constexpr auto make_variation_table(Magic const& magic) {
+            util::Array<BitBoard, variation_size> table = {{}};
+
+            // max length
+            auto mi = affected_sizes[0];
+            auto mj = affected_sizes[1];
+            auto mk = affected_sizes[2];
+            auto ml = affected_sizes[3];
+
+            // shift width
+            auto si = 0;
+            auto sj = mi;
+            auto sk = sj + mj;
+            auto sl = sk + mk;
+
+            auto bb = BitBoard();
+            for (int di = 1; di <= mi + 1; ++di) {
+              bb = bb.set(file + directions[0].first * di, rank + directions[0].second * di);
+              auto bb1(bb);
+              for (int dj = 1; dj <= mj + 1; ++dj) {
+                 bb1 = bb1.set(file + directions[1].first * dj, rank + directions[1].second * dj);
+                 auto bb2(bb1);
+                 for (int dk = 1; dk <= mk + 1; ++dk) {
+                   bb2 = bb2.set(file + directions[2].first * dk, rank + directions[2].second * dk);
+                   auto bb3(bb2);
+                   for (int dl = 1; dl <= ml + 1; ++dl) {
+                     bb3 = bb3.set(file + directions[3].first * dl, rank + directions[3].second * dl);
+                     for (int xi = 1 << mi >> di; xi < (1 << (mi + 1 - di)); ++xi) {
+                       for (int xj = 1 << mj >> dj; xj < (1 << (mj + 1 - dj)); ++xj) {
+                         for (int xk = 1 << mk >> dk; xk < (1 << (mk + 1 - dk)); ++xk) {
+                           for (int xl = 1 << ml >> dl; xl < (1 << (ml + 1 - dl)); ++xl) {
+                             int ordered = (xi << si) | (xj << sj) | (xk << sk) | (xl << sl);
+                             table[magic.convert_mapping(ordered)] = bb3;
+                           }
+                         }
+                       }
+                     }
+                   }
+                 }
+              }
+            }
+
+            return table;
+          }
 
         };
       }

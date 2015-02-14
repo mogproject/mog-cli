@@ -13,8 +13,11 @@ namespace mog {
         typedef T const* const_iterator;
 
         T elems[N];
+
         constexpr T& operator[](size_t n){ return elems[n]; }
         constexpr T const& operator[](size_t n) const { return elems[n]; }
+
+        constexpr size_t size() const { return N; }
 
         constexpr iterator begin() noexcept {
           return &elems[0];

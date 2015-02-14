@@ -32,8 +32,19 @@ namespace mog {
             ) >> shift_final;
           }
 
-          constexpr int get_mapping(int pos) const {
+          inline constexpr int get_mapping(int pos) const {
             return (mapping >> (pos * 4)) & 0xf;
+          }
+
+          /** Convert ordered bits to magic mask */
+          constexpr int convert_mapping(int ordered_bits) const {
+            int ret = 0;
+            for (int i = 0; i < 16; ++i) {
+              int k = get_mapping(i);
+              if (k == 0xf) break;
+              ret |= ((ordered_bits >> i) & 1) << k;
+            }
+            return ret;
           }
         };
 
