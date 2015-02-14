@@ -14,6 +14,11 @@ namespace mog {
 
         T elems[N];
 
+        constexpr bool operator==(Array<T, N> rhs) const {
+          for (auto i = 0; i < N; ++i) if (elems[i] != rhs.elems[i]) return false;
+          return true;
+        }
+
         constexpr T& operator[](size_t n){ return elems[n]; }
         constexpr T const& operator[](size_t n) const { return elems[n]; }
 

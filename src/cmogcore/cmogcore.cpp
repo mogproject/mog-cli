@@ -1,6 +1,7 @@
 #include <boost/python.hpp>
 #include "bitboard.hpp"
 #include "attack.hpp"
+#include "state/simplestate.hpp"
 
 
 BOOST_PYTHON_MODULE(cmogcore){
@@ -57,6 +58,12 @@ BOOST_PYTHON_MODULE(cmogcore){
     .def("flip_vertical", &BitBoard::flip_vertical)
     .def("flip_horizontal", &BitBoard::flip_horizontal)
     .def("spread_all_file", &BitBoard::spread_all_file)
+    ;
+
+  class_<state::SimpleState>("SimpleState", init<int, list>())
+    .def_readonly("turn", &state::SimpleState::turn)
+    .def("piece", &state::SimpleState::piece)
+    .def(self == self)
     ;
 
   class_<Attack>("Attack")
