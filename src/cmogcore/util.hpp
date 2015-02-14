@@ -1,9 +1,6 @@
 #ifndef MOG_CORE_UTIL_HPP_INCLUDED
 #define MOG_CORE_UTIL_HPP_INCLUDED
 
-//#include "util/transform.hpp"
-//#include "util/bind.hpp"
-//#include "util/preprocessor.hpp"
 #include "util/array.hpp"
 
 namespace mog {
