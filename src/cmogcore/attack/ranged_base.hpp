@@ -35,7 +35,7 @@ namespace mog {
             switch (MagicType) {
               case 0: return {{ {0, -1} }}; break;
               case 1: return {{ {0, 1} }}; break;
-              case 2: return {{ {-1, -1}, {-1, 1}, {1, -1}, {1, 1} }}; break;
+              case 2: return {{ {-1, -1}, {-1, 1}, {1, 1}, {1, -1} }}; break;
               case 3: return {{ {0, -1}, {-1, 0}, {0, 1}, {1, 0} }}; break;
             }
           }
