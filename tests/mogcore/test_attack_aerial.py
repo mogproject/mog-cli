@@ -1,5 +1,5 @@
 import unittest
-from mogcore import Attack, BitBoard
+from mogcore import Attack, BitBoard, BLACK, WHITE
 
 full = BitBoard.FULL
 empty = BitBoard.EMPTY
@@ -13,55 +13,55 @@ class TestAttackAerial(unittest.TestCase):
                     self.assertEqual(Attack.get_attack(owner, ptype, occ), empty)
 
     def test_get_attack_pawn(self):
-        self.assertEqual(Attack.get_attack(0, empty, empty),
+        self.assertEqual(Attack.get_attack(BLACK, empty, empty),
                          BitBoard(0, 0o777, 0o777, 0o777, 0o777, 0o777, 0o777, 0o777, 0o777))
-        self.assertEqual(Attack.get_attack(1, empty, empty),
+        self.assertEqual(Attack.get_attack(WHITE, empty, empty),
                          BitBoard(0o777, 0o777, 0o777, 0o777, 0o777, 0o777, 0o777, 0o777, 0))
-        self.assertEqual(Attack.get_attack(0, empty, BitBoard(0, 0, 0, 0, 0o777, 0, 0, 0, 0)), empty)
-        self.assertEqual(Attack.get_attack(0, full, BitBoard(0, 0, 0, 0, 0o777, 0, 0, 0, 0)), empty)
-        self.assertEqual(Attack.get_attack(1, empty, BitBoard(0, 0, 0, 0, 0o777, 0, 0, 0, 0)), empty)
-        self.assertEqual(Attack.get_attack(1, full, BitBoard(0, 0, 0, 0, 0o777, 0, 0, 0, 0)), empty)
-        self.assertEqual(Attack.get_attack(1, BitBoard(0, 0o777, 0, 0, 0, 0, 0, 0o777, 0),
+        self.assertEqual(Attack.get_attack(BLACK, empty, BitBoard(0, 0, 0, 0, 0o777, 0, 0, 0, 0)), empty)
+        self.assertEqual(Attack.get_attack(BLACK, full, BitBoard(0, 0, 0, 0, 0o777, 0, 0, 0, 0)), empty)
+        self.assertEqual(Attack.get_attack(WHITE, empty, BitBoard(0, 0, 0, 0, 0o777, 0, 0, 0, 0)), empty)
+        self.assertEqual(Attack.get_attack(WHITE, full, BitBoard(0, 0, 0, 0, 0o777, 0, 0, 0, 0)), empty)
+        self.assertEqual(Attack.get_attack(WHITE, BitBoard(0, 0o777, 0, 0, 0, 0, 0, 0o777, 0),
                                            BitBoard(0, 0o555, 0, 0, 0, 0, 0, 0o111, 0)),
                          BitBoard(0o222, 0, 0o222, 0o222, 0o222, 0o222, 0o222, 0, 0))
 
     def test_get_attack_lance(self):
-        self.assertEqual(Attack.get_attack(0, 3, empty),
+        self.assertEqual(Attack.get_attack(BLACK, 3, empty),
                          BitBoard(0, 0o777, 0o777, 0o777, 0o777, 0o777, 0o777, 0o777, 0o777))
-        self.assertEqual(Attack.get_attack(1, 3, empty),
+        self.assertEqual(Attack.get_attack(WHITE, 3, empty),
                          BitBoard(0o777, 0o777, 0o777, 0o777, 0o777, 0o777, 0o777, 0o777, 0))
-        self.assertEqual(Attack.get_attack(0, 3, full), empty)
-        self.assertEqual(Attack.get_attack(1, 3, full), empty)
-        self.assertEqual(Attack.get_attack(0, 3,
+        self.assertEqual(Attack.get_attack(BLACK, 3, full), empty)
+        self.assertEqual(Attack.get_attack(WHITE, 3, full), empty)
+        self.assertEqual(Attack.get_attack(BLACK, 3,
                                            BitBoard(0o001, 0o002, 0o004, 0o010, 0o020, 0o040, 0o100, 0o200, 0o400)),
                          BitBoard(0, 0o775, 0o773, 0o767, 0o757, 0o737, 0o677, 0o577, 0o377))
-        self.assertEqual(Attack.get_attack(1, 3,
+        self.assertEqual(Attack.get_attack(WHITE, 3,
                                            BitBoard(0o001, 0o002, 0o004, 0o010, 0o020, 0o040, 0o100, 0o200, 0o400)),
                          BitBoard(0o776, 0o775, 0o773, 0o767, 0o757, 0o737, 0o677, 0o577, 0))
 
     def test_get_attack_knight(self):
-        self.assertEqual(Attack.get_attack(0, 6, empty),
+        self.assertEqual(Attack.get_attack(BLACK, 6, empty),
                          BitBoard(0, 0, 0o777, 0o777, 0o777, 0o777, 0o777, 0o777, 0o777))
-        self.assertEqual(Attack.get_attack(1, 6, empty),
+        self.assertEqual(Attack.get_attack(WHITE, 6, empty),
                          BitBoard(0o777, 0o777, 0o777, 0o777, 0o777, 0o777, 0o777, 0, 0))
-        self.assertEqual(Attack.get_attack(0, 6, full), empty)
-        self.assertEqual(Attack.get_attack(1, 6, full), empty)
-        self.assertEqual(Attack.get_attack(0, 6,
+        self.assertEqual(Attack.get_attack(BLACK, 6, full), empty)
+        self.assertEqual(Attack.get_attack(WHITE, 6, full), empty)
+        self.assertEqual(Attack.get_attack(BLACK, 6,
                                            BitBoard(0o001, 0o002, 0o004, 0o010, 0o020, 0o040, 0o100, 0o200, 0o400)),
                          BitBoard(0, 0, 0o773, 0o767, 0o757, 0o737, 0o677, 0o577, 0o377))
-        self.assertEqual(Attack.get_attack(1, 6,
+        self.assertEqual(Attack.get_attack(WHITE, 6,
                                            BitBoard(0o001, 0o002, 0o004, 0o010, 0o020, 0o040, 0o100, 0o200, 0o400)),
                          BitBoard(0o776, 0o775, 0o773, 0o767, 0o757, 0o737, 0o677, 0, 0))
 
     def test_get_attack_others(self):
         for ptype in [1, 2, 4, 5]:
-            self.assertEqual(Attack.get_attack(0, ptype, empty), full)
-            self.assertEqual(Attack.get_attack(1, ptype, empty), full)
-            self.assertEqual(Attack.get_attack(0, ptype, full), empty)
-            self.assertEqual(Attack.get_attack(1, ptype, full), empty)
-            self.assertEqual(Attack.get_attack(0, ptype,
+            self.assertEqual(Attack.get_attack(BLACK, ptype, empty), full)
+            self.assertEqual(Attack.get_attack(WHITE, ptype, empty), full)
+            self.assertEqual(Attack.get_attack(BLACK, ptype, full), empty)
+            self.assertEqual(Attack.get_attack(WHITE, ptype, full), empty)
+            self.assertEqual(Attack.get_attack(BLACK, ptype,
                                                BitBoard(0o001, 0o002, 0o004, 0o010, 0o020, 0o040, 0o100, 0o200, 0o400)),
                              BitBoard(0o776, 0o0775, 0o773, 0o767, 0o757, 0o737, 0o677, 0o577, 0o377))
-            self.assertEqual(Attack.get_attack(1, ptype,
+            self.assertEqual(Attack.get_attack(WHITE, ptype,
                                                BitBoard(0o001, 0o002, 0o004, 0o010, 0o020, 0o040, 0o100, 0o200, 0o400)),
                              BitBoard(0o776, 0o775, 0o773, 0o767, 0o757, 0o737, 0o677, 0o577, 0o377))
