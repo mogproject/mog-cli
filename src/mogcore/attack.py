@@ -1,5 +1,5 @@
 import cmogcore
-from mogcore import Turn
+from .atomiccsatype import AtomicCsaType
 
 
 class Attack(cmogcore.Attack):
@@ -9,7 +9,6 @@ class Attack(cmogcore.Attack):
 
     @staticmethod
     def unwrap(x):
-        for t in [Turn]:
-            if isinstance(x, t):  # TODO: refactor after implement of CsaType
-                return x.value
+        if isinstance(x, AtomicCsaType):
+            return x.value
         return x
