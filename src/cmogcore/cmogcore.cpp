@@ -62,7 +62,7 @@ BOOST_PYTHON_MODULE(cmogcore){
 
   class_<state::SimpleState>("SimpleState", init<int, list>())
     .def_readonly("turn", &state::SimpleState::turn)
-    .def("piece", &state::SimpleState::piece)
+    .def("get_piece", &state::SimpleState::get_piece)
     .def(self == self)
     ;
 

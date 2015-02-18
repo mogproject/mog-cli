@@ -5,19 +5,19 @@ from .gen_pos import gen_pos
 
 class TestPos(unittest.TestCase):
     def test_init(self):
-        self.assertEqual(Pos(-1), HAND)
+        self.assertEqual(Pos(81), HAND)
         self.assertEqual(Pos(0), P11)
         self.assertEqual(Pos(49), P56)
         self.assertEqual(Pos(80), P99)
 
     def test_init_invalid(self):
-        self.assertRaises(AssertionError, Pos, 81)
-        self.assertRaises(AssertionError, Pos, -2)
+        self.assertRaises(AssertionError, Pos, 82)
+        self.assertRaises(AssertionError, Pos, -1)
         self.assertRaises(AssertionError, Pos, 'xxx')
         self.assertRaises(AssertionError, Pos, None)
 
     def test_value(self):
-        self.assertEqual(HAND.value, -1)
+        self.assertEqual(HAND.value, 81)
         self.assertEqual(P11.value, 0)
         self.assertEqual(P56.value, 49)
         self.assertEqual(P99.value, 80)
@@ -46,9 +46,9 @@ class TestPos(unittest.TestCase):
             if (a, b) == (HAND, HAND):
                 return False
             elif a == HAND:
-                return True
-            elif b == HAND:
                 return False
+            elif b == HAND:
+                return True
             return p.rank < q.rank or (p.rank == q.rank and p.file < q.file)
 
         for p in gen_pos(50):

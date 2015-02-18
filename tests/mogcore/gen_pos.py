@@ -14,4 +14,4 @@ def gen_pos(n):
         elif num == 2:
             yield Pos(80)
         else:
-            yield Pos(rnd.randint(-1, 80))
+            yield Pos(rnd.randint(0, 81))

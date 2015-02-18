@@ -6,15 +6,15 @@ class TestSimpleState(unittest.TestCase):
     def test_constructor(self):
         s = SimpleState(0, [])
         self.assertEqual(s.turn, 0)
-        self.assertEqual([s.piece(i) for i in range(40)], [-1] * 40)
+        self.assertEqual(s.pieces(), [-1] * 40)
 
         s = SimpleState(0, list(range(20)))
         self.assertEqual(s.turn, 0)
-        self.assertEqual([s.piece(i) for i in range(40)], list(range(20)) + [-1] * 20)
+        self.assertEqual(s.pieces(), list(range(20)) + [-1] * 20)
 
         s = SimpleState(1, list(range(40)))
         self.assertEqual(s.turn, 1)
-        self.assertEqual([s.piece(i) for i in range(40)], list(range(40)))
+        self.assertEqual(s.pieces(), list(range(40)))
 
     def test_eq(self):
         s = SimpleState(0, [

@@ -10,21 +10,16 @@ class AtomicCsaType(CaseClass):
     def table(self):
         """list of values"""
 
-    @property
-    @abstractmethod
-    def min_value(self):
-        """first value of table"""
-
     def __init__(self, value):
         assert (isinstance(value, int))
-        assert (self.min_value <= value < len(self.table) + self.min_value)
-        assert (self.table[value - self.min_value] is not None)
+        assert (0 <= value < len(self.table))
+        assert (self.table[value] is not None)
 
         super(AtomicCsaType, self).__init__(value=value)
-        self.__class__.table_inv = dict((v, k + self.min_value) for (k, v) in enumerate(self.table) if v is not None)
+        self.__class__.table_inv = dict((v, k) for (k, v) in enumerate(self.table) if v is not None)
 
     def __str__(self):
-        return self.table[self.value - self.min_value]
+        return self.table[self.value]
 
     @classmethod
     def from_string(cls, s):

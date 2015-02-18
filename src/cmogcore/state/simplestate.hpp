@@ -19,13 +19,14 @@ namespace mog {
        *   Usage of integer
        *
        *   -------- -------- -------- --------
-       *                               ******* position (0-80 -> board, -1 -> hand)
+       *                               ******* position (0-80 -> board, 81 -> hand)
        *                              *        is promoted (0 -> raw, 1 -> promoted)
        *                            *          owner (0 -> black, 1 -> white)
        *
        *   Slot usage
-       *
        *   0-1: king, 2-3: rook, 4-5: bishop, 6-9: lance, 10-13: gold, 14-17: silver, 18-21: knight, 22-39: pawn
+       *
+       *   Note: If the piece is unused, should be set -1
        */
       struct SimpleState {
         static constexpr size_t PieceSize = 40;
@@ -61,7 +62,7 @@ namespace mog {
         }
 
         /** get piece value */
-        constexpr int piece(size_t index) const { return index < PieceSize ? pieces[index] : PIECE_NOT_AVAILABLE; }
+        constexpr int get_piece(size_t index) const { return index < PieceSize ? pieces[index] : PIECE_NOT_AVAILABLE; }
 
         /**
          * Sort and compare in each raw piece types
