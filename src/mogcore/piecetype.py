@@ -1,3 +1,4 @@
+from itertools import chain
 from .atomiccsatype import AtomicCsaType
 
 
@@ -32,3 +33,6 @@ class PieceType(AtomicCsaType):
 
 
 PIECE_TYPE_MAX_NUMS = {KING: 2, ROOK: 2, BISHOP: 2, LANCE: 4, GOLD: 4, SILVER: 4, KNIGHT: 4, PAWN: 18}
+PIECE_TYPE_OFFSETS = {KING: 0, ROOK: 2, BISHOP: 4, LANCE: 6, GOLD: 10, SILVER: 14, KNIGHT: 18, PAWN: 22}
+PIECE_TYPE_HANDS = [ROOK, BISHOP, GOLD, SILVER, KNIGHT, LANCE, PAWN]
+PIECE_TYPES = list(chain.from_iterable([p] * PIECE_TYPE_MAX_NUMS[p] for p in [PieceType(i) for i in range(8)]))
