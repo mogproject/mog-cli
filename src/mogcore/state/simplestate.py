@@ -38,10 +38,10 @@ class SimpleState(cmogcore.SimpleState):
 
 
 class SimpleStateBuilder:
-    def __init__(self, t=BLACK):
-        self.turn = t
+    def __init__(self):
+        self.turn = BLACK
         self.pieces = [None] * 40
-        self.offsets = {k: (v, v + PIECE_TYPE_MAX_NUMS(k)) for k, v in PIECE_TYPE_OFFSETS.items()}
+        self.offsets = {k: (v, v + PIECE_TYPE_CAPACITIES(k)) for k, v in PIECE_TYPE_OFFSETS.items()}
         self.occ_all = BitBoard()
         self.occ_pawn = [BitBoard(), BitBoard()]
 
@@ -80,8 +80,8 @@ class SimpleStateBuilder:
             if ptype == PAWN and self.occ_pawn[owner].get(pos):
                 raise ValueError('No two pawns should exist in same file: %s' % args)
 
-        index = self.__borrow(ptype)
-        if index < 0:
+        pid = self.__borrow(ptype)
+        if pid < 0:
             raise ValueError('There is no left for that piece type: %s' % args)
 
         # take one piece
@@ -89,7 +89,7 @@ class SimpleStateBuilder:
             self.occ_all.set(pos)
             if ptype == PAWN:
                 self.occ_pawn |= BitBoard().set(ps).spread_all_file()
-        self.pieces[index] = self.__make_int(owner, ptype, ps)
+        self.pieces[pid] = self.__make_int(owner, ptype, ps)
 
     def result(self):
         if not any(self.king_used):

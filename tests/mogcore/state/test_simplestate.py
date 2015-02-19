@@ -42,12 +42,7 @@ class TestSimpleState(unittest.TestCase):
         def f(owner, promoted, ps):
             return (owner.value << 8) | ((1 if promoted else 0) << 7) | ps.value
 
-        empty = SimpleState(0, [
-            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-        ])
+        empty = SimpleState(0, [-1] * 40)
         mate = SimpleState(0, [
             -1, f(WHITE, False, P51),
             f(BLACK, False, HAND), f(BLACK, False, HAND),
