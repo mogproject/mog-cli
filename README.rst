@@ -24,7 +24,7 @@ Command Line Interface for Playing Shogi Games
 Dependencies
 ------------
 
-* Python >= 3.2
+* Python >= 3.3
 * Boost C++ Library >= 1.57.0
 * clang >= 3.5
 * libstdc++ >= 4.9
