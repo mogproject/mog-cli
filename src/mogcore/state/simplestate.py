@@ -28,7 +28,7 @@ class SimpleState(cmogcore.SimpleState):
         return [self.get_piece(i) for i in range(40)]
 
     @classmethod
-    def from_string(s):
+    def from_string(cls, s):
         """Build SimpleState object from CSA-formatted string"""
         b = SimpleStateBuilder()
 
@@ -41,7 +41,7 @@ class SimpleStateBuilder:
     def __init__(self):
         self.turn = BLACK
         self.pieces = [None] * 40
-        self.offsets = {k: (v, v + PIECE_TYPE_CAPACITIES(k)) for k, v in PIECE_TYPE_OFFSETS.items()}
+        self.offsets = {k: (v, v + PIECE_TYPE_CAPACITIES[k]) for k, v in PIECE_TYPE_OFFSETS.items()}
         self.occ_all = BitBoard()
         self.occ_pawn = [BitBoard(), BitBoard()]
 
@@ -92,6 +92,7 @@ class SimpleStateBuilder:
         self.pieces[pid] = self.__make_int(owner, ptype, ps)
 
     def result(self):
-        if not any(self.king_used):
+        if self.pieces[0:2] == [None] * 2:
             raise ValueError('There must be one or two kings.')
-        return SimpleState(self.turn.value, self.pieces)
+
+        return SimpleState(self.turn.value, [-1 if x is None else x in self.pieces])
