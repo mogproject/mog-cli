@@ -1,6 +1,7 @@
 from collections import defaultdict
 import cmogcore
 from mogcore import *
+import util
 
 
 class SimpleState(cmogcore.SimpleState):
@@ -30,17 +31,49 @@ class SimpleState(cmogcore.SimpleState):
     @classmethod
     def from_string(cls, s):
         """Build SimpleState object from CSA-formatted string"""
+        used_init = False
+        used_all = False
+
         b = SimpleStateBuilder()
 
-        # todo: implement
+        lines = s.splitlines()
+        while lines:
+            h = lines[0]
+            if h.startswith('PI') and not used_init and not used_all:
+                b = cls.__parse_init_expression(h[2:])
+                used_init = True
+            elif h.startswith('P1') and not used_init and not used_all:
+                # read nine lines
+                pass  # todo: implement
+            elif h[:2] in ['P+', 'P-']:
+                pass  # todo: implement
+            elif lines in [['+'], ['-']]:  # last line shows turn to move
+                b.set_turn(Turn.from_string(h))
+            else:
+                pass
+            lines = lines[1:]
 
         return b.result()
 
+    @classmethod
+    def make_piece(cls, owner, is_promoted, ps):
+        ret = owner.value << 8
+        ret |= (1 if is_promoted else 0) << 7
+        ret |= ps.value
+        return ret
+
+    @classmethod
+    def __parse_init_expression(cls, line):
+        b = SimpleStateBuilder(HIRATE.turn, HIRATE.pieces()[:])
+        ps = util.grouped(line, 4)
+        # todo: implement
+        return b
+
 
 class SimpleStateBuilder:
-    def __init__(self):
-        self.turn = BLACK
-        self.pieces = [None] * 40
+    def __init__(self, t=BLACK, pieces=[None] * 40):
+        self.turn = t
+        self.pieces = pieces
         self.offsets = {k: (v, v + PIECE_TYPE_CAPACITIES[k]) for k, v in PIECE_TYPE_OFFSETS.items()}
         self.occ_all = BitBoard()
         self.occ_pawn = [BitBoard(), BitBoard()]
@@ -53,13 +86,6 @@ class SimpleStateBuilder:
         index = offset + 1
         self.offsets[origin] = (index, limit)
         return index
-
-    @staticmethod
-    def __make_int(owner, ptype, ps):
-        ret = owner.value << 8
-        ret |= (1 if ptype.is_promoted() else 0) << 7
-        ret |= ps.value
-        return ret
 
     def set_turn(self, t):
         self.turn = t
@@ -89,10 +115,27 @@ class SimpleStateBuilder:
             self.occ_all.set(pos)
             if ptype == PAWN:
                 self.occ_pawn |= BitBoard().set(ps).spread_all_file()
-        self.pieces[pid] = self.__make_int(owner, ptype, ps)
+        self.pieces[pid] = SimpleState.make_piece(owner, ptype.is_promoted(), ps)
 
     def result(self):
         if self.pieces[0:2] == [None] * 2:
             raise ValueError('There must be one or two kings.')
 
-        return SimpleState(self.turn.value, [-1 if x is None else x in self.pieces])
+        return SimpleState(self.turn.value, [-1 if x is None else x for x in self.pieces])
+
+
+HIRATE = SimpleState(BLACK.value, [SimpleState.make_piece(o, pr, ps) for (o, pr, ps) in [
+    (BLACK, False, P59), (WHITE, False, P51),
+    (BLACK, False, P28), (WHITE, False, P82),
+    (BLACK, False, P88), (WHITE, False, P22),
+    (BLACK, False, P19), (BLACK, False, P99), (WHITE, False, P11), (WHITE, False, P91),
+    (BLACK, False, P49), (BLACK, False, P69), (WHITE, False, P41), (WHITE, False, P61),
+    (BLACK, False, P39), (BLACK, False, P79), (WHITE, False, P31), (WHITE, False, P71),
+    (BLACK, False, P29), (BLACK, False, P89), (WHITE, False, P21), (WHITE, False, P81),
+    (BLACK, False, P17), (BLACK, False, P27), (BLACK, False, P37),
+    (BLACK, False, P47), (BLACK, False, P57), (BLACK, False, P67),
+    (BLACK, False, P77), (BLACK, False, P87), (BLACK, False, P97),
+    (WHITE, False, P13), (WHITE, False, P23), (WHITE, False, P33),
+    (WHITE, False, P43), (WHITE, False, P53), (WHITE, False, P63),
+    (WHITE, False, P73), (WHITE, False, P83), (WHITE, False, P93),
+]])
