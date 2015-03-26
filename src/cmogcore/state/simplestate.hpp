@@ -29,8 +29,8 @@ namespace mog {
        *   Note: If the piece is unused, should be set -1
        */
       struct SimpleState {
-        static constexpr size_t PieceSize = 40;
-        typedef util::Array<int, PieceSize> PieceList;
+        static constexpr size_t NUM_PIECES = 40;
+        typedef util::Array<int, NUM_PIECES> PieceList;
 
         static constexpr int PIECE_NOT_AVAILABLE = -1;
         static constexpr PieceList raw_ptype = {{
@@ -54,15 +54,15 @@ namespace mog {
         // constructor for Python
         SimpleState(int turn, boost::python::list const& pieces): turn(turn) {
           auto n = boost::python::len(pieces);
-          assert(n <= PieceSize);  // Length of the pieces should be less than or equal 40.
+          assert(n <= NUM_PIECES);  // Length of the pieces should be less than or equal 40.
 
-          for (auto i = 0; i < PieceSize; ++i) {
+          for (auto i = 0; i < NUM_PIECES; ++i) {
             this->pieces[i] = i < n ? boost::python::extract<int>(pieces[i]) : PIECE_NOT_AVAILABLE;
           }
         }
 
         /** get piece value */
-        constexpr int get_piece(size_t index) const { return index < PieceSize ? pieces[index] : PIECE_NOT_AVAILABLE; }
+        constexpr int get_piece(size_t index) const { return index < NUM_PIECES ? pieces[index] : PIECE_NOT_AVAILABLE; }
 
         /**
          * Sort and compare in each raw piece types
@@ -74,6 +74,7 @@ namespace mog {
           static int thres[] = {0, 2, 4, 6, 10, 14, 18, 22, 40};
           PieceList a(pieces), b = (rhs.pieces);
 
+          // todo: can be more efficient?
           for (auto ptype = 0; ptype < 8; ++ptype) {
             std::sort(a.begin() + thres[ptype], a.begin() + thres[ptype + 1]);
             std::sort(b.begin() + thres[ptype], b.begin() + thres[ptype + 1]);

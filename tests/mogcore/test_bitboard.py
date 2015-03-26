@@ -1,6 +1,8 @@
 import unittest
 from mogcore.bitboard import BitBoard
+from mogcore import HAND
 from .gen_bitboard import gen_bitboard, gen_pawns
+from .gen_pos import gen_pos
 
 empty = BitBoard.EMPTY
 full = BitBoard.FULL
@@ -271,3 +273,17 @@ class TestBitBoard(unittest.TestCase):
     def test_spread_all_file_prop(self):
         for bb in gen_pawns(100):
             self.assertEqual(bb.spread_all_file() & bb, bb)
+
+    def test_ident(self):
+        self.assertEqual(BitBoard.ident(0), BitBoard(0o001, 0, 0, 0, 0, 0, 0, 0, 0))
+        self.assertEqual(BitBoard.ident(40), BitBoard(0, 0, 0, 0, 0o020, 0, 0, 0, 0))
+        self.assertEqual(BitBoard.ident(80), BitBoard(0, 0, 0, 0, 0, 0, 0, 0, 0o400))
+        self.assertEqual(BitBoard.ident(81), BitBoard())
+
+    def test_ident_prop(self):
+        for pos in gen_pos(100):
+            if pos == HAND:
+                self.assertEqual(BitBoard.ident(pos.value), BitBoard(), 'pos=%r' % pos)
+            else:
+                self.assertEqual(BitBoard.ident(pos.value).count(), 1, 'pos=%r' % pos)
+                self.assertEqual(BitBoard.ident(pos.value).get(pos.value), True, 'pos=%r' % pos)

@@ -58,6 +58,8 @@ BOOST_PYTHON_MODULE(cmogcore){
     .def("flip_vertical", &BitBoard::flip_vertical)
     .def("flip_horizontal", &BitBoard::flip_horizontal)
     .def("spread_all_file", &BitBoard::spread_all_file)
+    .def("ident", &bitboard::ident)
+    .staticmethod("ident")
     ;
 
   class_<state::SimpleState>("SimpleState", init<int, list>())

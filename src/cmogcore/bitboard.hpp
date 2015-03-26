@@ -55,7 +55,7 @@ namespace mog {
       }
 
       /**
-       * Count number of 1-bits;
+       * Count number of 1-bits
        */
       constexpr int count() const {
         return pop_ct(lo) + pop_ct(hi);
@@ -250,6 +250,11 @@ namespace mog {
       /** Empty and full */
       static constexpr BitBoard EMPTY = BitBoard();
       static constexpr BitBoard FULL = BitBoard(0777, 0777, 0777, 0777, 0777, 0777, 0777, 0777, 0777);
+
+      /** Identity with a single bit */
+      constexpr BitBoard ident(int index) {
+        return BitBoard(lshift(1ULL, index), lshift(1ULL, index - 54));
+      }
 
       /** Ranks */
       static constexpr BitBoard rank1 = BitBoard(0777, 0, 0, 0, 0, 0, 0, 0, 0);
