@@ -30,11 +30,11 @@ class TestTurn(unittest.TestCase):
         self.assertEqual(Turn.from_string('-'), WHITE)
 
     def test_from_string_invalid(self):
-        self.assertIsNone(Turn.from_string(''))
-        self.assertIsNone(Turn.from_string(' '))
-        self.assertIsNone(Turn.from_string('xxx'))
-        self.assertIsNone(Turn.from_string(0))
-        self.assertIsNone(Turn.from_string(None))
+        self.assertRaises(ValueError, Turn.from_string, '')
+        self.assertRaises(ValueError, Turn.from_string, ' ')
+        self.assertRaises(ValueError, Turn.from_string, 'xxx')
+        self.assertRaises(ValueError, Turn.from_string, 0)
+        self.assertRaises(ValueError, Turn.from_string, None)
 
     def test_prop_double_invert(self):
         for t in gen_turn(100):

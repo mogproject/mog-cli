@@ -23,6 +23,8 @@ class AtomicCsaType(CaseClass):
 
     @classmethod
     def from_string(cls, s):
-        """Find index of the given string. If there is no matching index, return None."""
+        """Find index of the given string. If there is no matching index, raise ValueError."""
         index = cls.table_inv.get(s)
-        return None if index is None else cls(index)
+        if index is None:
+            raise ValueError('Mal-formed CSA string for %s: %s' % (cls.__name__, s))
+        return cls(index)

@@ -27,6 +27,15 @@ class PieceType(AtomicCsaType):
         """Get original piece type"""
         return PieceType(self.value & 7)
 
+    def is_capturable(self):
+        """Return True if it can be captured."""
+        return self != KING
+
+    @classmethod
+    def from_piece_id(cls, id):
+        """Get object from piece id"""
+        return _PIECE_TYPES[id]
+
 
 # define piece types
 (
@@ -45,4 +54,4 @@ PIECE_TYPE_OFFSETS = dict(accumulate(
     ((PieceType(i), ([0] + PieceType.capacity)[i]) for i in range(8)), lambda a, x: (x[0], a[1] + x[1])))
 
 # Helper list to get piece type from piece id
-PIECE_TYPES = list(chain.from_iterable([p] * PIECE_TYPE_CAPACITIES[p] for p in [PieceType(i) for i in range(8)]))
+_PIECE_TYPES = list(chain.from_iterable([p] * PIECE_TYPE_CAPACITIES[p] for p in [PieceType(i) for i in range(8)]))

@@ -42,11 +42,11 @@ class TestPieceType(unittest.TestCase):
         self.assertEqual(PieceType.from_string('KY'), LANCE)
 
     def test_from_string_invalid(self):
-        self.assertIsNone(PieceType.from_string(''))
-        self.assertIsNone(PieceType.from_string(' '))
-        self.assertIsNone(PieceType.from_string('xxx'))
-        self.assertIsNone(PieceType.from_string(0))
-        self.assertIsNone(PieceType.from_string(None))
+        self.assertRaises(ValueError, PieceType.from_string, '')
+        self.assertRaises(ValueError, PieceType.from_string, ' ')
+        self.assertRaises(ValueError, PieceType.from_string, 'xxx')
+        self.assertRaises(ValueError, PieceType.from_string, 0)
+        self.assertRaises(ValueError, PieceType.from_string, None)
 
     def test_prop_promote_then_demote(self):
         for pt in gen_piecetype(100):

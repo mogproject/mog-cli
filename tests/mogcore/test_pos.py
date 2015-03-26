@@ -35,11 +35,11 @@ class TestPos(unittest.TestCase):
         self.assertEqual(Pos.from_string('99'), P99)
 
     def test_from_string_invalid(self):
-        self.assertIsNone(Pos.from_string(''))
-        self.assertIsNone(Pos.from_string(' '))
-        self.assertIsNone(Pos.from_string('xxx'))
-        self.assertIsNone(Pos.from_string(0))
-        self.assertIsNone(Pos.from_string(None))
+        self.assertRaises(ValueError, Pos.from_string, '')
+        self.assertRaises(ValueError, Pos.from_string, ' ')
+        self.assertRaises(ValueError, Pos.from_string, 'xxx')
+        self.assertRaises(ValueError, Pos.from_string, 0)
+        self.assertRaises(ValueError, Pos.from_string, None)
 
     def test_prop_file_rank_order(self):
         def f(a, b):
