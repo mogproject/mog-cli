@@ -175,7 +175,7 @@ namespace mog {
         }
 
         /** get piece value */
-        constexpr int get_piece(size_t index) const { return index < NUM_PIECES ? pieces[index] : PIECE_NOT_AVAILABLE; }
+        int get_piece(size_t index) const { return index < NUM_PIECES ? pieces[index] : PIECE_NOT_AVAILABLE; }
 
         /** get attack bitboards */
         constexpr BitBoard get_attack_bb(size_t index) const { return index < NUM_PIECES ? attack_bbs[index] : bitboard::EMPTY; }
