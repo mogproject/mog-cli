@@ -2,12 +2,43 @@
 #include "bitboard.hpp"
 #include "attack.hpp"
 #include "state/simplestate.hpp"
+#include "state/parsedstate.hpp"
+
+namespace cmogcore {
+  namespace py = boost::python;
+
+  /*
+   * Converter of {std::array, std::vector} => python list
+   */
+  namespace detail {
+    template <typename Seq>
+    struct seq_to_list {
+      static PyObject* convert(Seq const& xs) {
+        py::list ret;
+        for (auto x: xs) ret.append(x);
+        return py::incref(ret.ptr());
+      }
+
+      static PyTypeObject const* get_pytype() { return &PyList_Type; }
+    };
+  }
+
+  template <typename Seq>
+  void expose_seq_to_list() {
+    py::to_python_converter<Seq, detail::seq_to_list<Seq>, true>();
+  }
+}
 
 
 BOOST_PYTHON_MODULE(cmogcore){
   using namespace boost::python;
   using namespace mog::core;
+  using namespace cmogcore;
 
+  // expose converters
+  expose_seq_to_list<state::ParsedState::LegalMoveList>();
+
+  // expose classes
   class_<BitBoard>("BitBoard")
     .def(init<u64, u64>())
     .def(init<int, int, int, int, int, int, int, int, int>())
@@ -66,6 +97,14 @@ BOOST_PYTHON_MODULE(cmogcore){
     .def_readonly("turn", &state::SimpleState::turn)
     .def("get_piece", &state::SimpleState::get_piece)
     .def(self == self)
+    ;
+
+  class_<state::ParsedState>("ParsedState", init<state::SimpleState>())
+    .def_readonly("turn", &state::ParsedState::turn)
+    .def("get_piece", &state::ParsedState::get_piece)
+    .def("get_attack_bb", &state::ParsedState::get_attack_bb)
+    .def("get_legal_moves", &state::ParsedState::get_legal_moves)
+    .def("move_next", &state::ParsedState::move_next)
     ;
 
   class_<Attack>("Attack")

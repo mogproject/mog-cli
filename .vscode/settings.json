@@ -1,0 +1,7 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+    // "editor.detectIndentation": false,
+    // "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "mog.ext.cmd_1": "make clean && make test"
+}

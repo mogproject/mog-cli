@@ -1,15 +1,29 @@
 #ifndef MOG_CORE_STATE_SIMPLESTATE_HPP_INCLUDED
 #define MOG_CORE_STATE_SIMPLESTATE_HPP_INCLUDED
 
-#include <cassert>
-#include <algorithm>
-#include <boost/python.hpp>
 #include "../util.hpp"
 
 
 namespace mog {
   namespace core {
     namespace state {
+      static constexpr size_t NUM_PIECES = 40;
+      static constexpr int PIECE_NOT_AVAILABLE = -1;
+
+      typedef util::Array<int, NUM_PIECES> PieceList;
+      static constexpr PieceList RAW_PTYPE = {{
+          ptype::KING, ptype::KING,
+          ptype::ROOK, ptype::ROOK,
+          ptype::BISHOP, ptype::BISHOP,
+          ptype::LANCE, ptype::LANCE, ptype::LANCE, ptype::LANCE,
+          ptype::GOLD, ptype::GOLD, ptype::GOLD, ptype::GOLD,
+          ptype::SILVER, ptype::SILVER, ptype::SILVER, ptype::SILVER,
+          ptype::KNIGHT, ptype::KNIGHT, ptype::KNIGHT, ptype::KNIGHT,
+          ptype::PAWN, ptype::PAWN, ptype::PAWN, ptype::PAWN, ptype::PAWN, ptype::PAWN, ptype::PAWN, ptype::PAWN,
+          ptype::PAWN, ptype::PAWN, ptype::PAWN, ptype::PAWN, ptype::PAWN, ptype::PAWN, ptype::PAWN, ptype::PAWN,
+          ptype::PAWN, ptype::PAWN,
+      }};
+
       /*
        * State class before parsing
        *
@@ -29,23 +43,6 @@ namespace mog {
        *   Note: If the piece is unused, should be set -1
        */
       struct SimpleState {
-        static constexpr size_t NUM_PIECES = 40;
-        typedef util::Array<int, NUM_PIECES> PieceList;
-
-        static constexpr int PIECE_NOT_AVAILABLE = -1;
-        static constexpr PieceList raw_ptype = {{
-          ptype::KING, ptype::KING,
-          ptype::ROOK, ptype::ROOK,
-          ptype::BISHOP, ptype::BISHOP,
-          ptype::LANCE, ptype::LANCE, ptype::LANCE, ptype::LANCE,
-          ptype::GOLD, ptype::GOLD, ptype::GOLD, ptype::GOLD,
-          ptype::SILVER, ptype::SILVER, ptype::SILVER, ptype::SILVER,
-          ptype::KNIGHT, ptype::KNIGHT, ptype::KNIGHT, ptype::KNIGHT,
-          ptype::PAWN, ptype::PAWN, ptype::PAWN, ptype::PAWN, ptype::PAWN, ptype::PAWN, ptype::PAWN, ptype::PAWN,
-          ptype::PAWN, ptype::PAWN, ptype::PAWN, ptype::PAWN, ptype::PAWN, ptype::PAWN, ptype::PAWN, ptype::PAWN,
-          ptype::PAWN, ptype::PAWN,
-        }};
-
         int turn;
         PieceList pieces;
 
@@ -63,6 +60,15 @@ namespace mog {
 
         /** get piece value */
         constexpr int get_piece(size_t index) const { return index < NUM_PIECES ? pieces[index] : PIECE_NOT_AVAILABLE; }
+
+        /** extract owner from int value */
+        inline static constexpr int get_owner(int value) { return (value >> 8) & 1; }
+
+        /** extract piece type fron int value */
+        inline static constexpr int get_ptype(int index, int value) { return RAW_PTYPE[index] | ((value >> 4) & 8); }
+
+        /** extract position from int value */
+        inline static constexpr int get_pos(int value) { return value & 127; }
 
         /**
          * Sort and compare in each raw piece types

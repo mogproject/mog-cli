@@ -35,3 +35,10 @@ Installation
 
 TBD
 
+
+------------------
+Running on Jupyter
+------------------
+
+    pip3 install jupyter
+    jupyter notebook

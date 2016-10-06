@@ -94,6 +94,21 @@ namespace mog {
       int const SILVER = 5;
       int const KNIGHT = 6;
       int const PAWN = 7;
+
+      int const PROOK = 9;
+      int const PBISHOP = 10;
+      int const PLANCE = 11;
+      int const PSILVER = 13;
+      int const PKNIGHT = 14;
+      int const PPAWN = 15;
+
+      inline constexpr bool is_ranged(int ptype) {
+        return (ROOK <= ptype && ptype <= LANCE) || ptype == PROOK || ptype == PBISHOP;
+      }
+
+      inline constexpr bool is_promoted(int ptype) { return ptype & 8; }
+
+      inline constexpr bool can_promote(int ptype) { return ptype != KING || ptype != GOLD; }
     }
 
     // Position

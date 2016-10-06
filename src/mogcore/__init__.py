@@ -4,3 +4,4 @@ from .piecetype import *
 from .pos import *
 from .attack import Attack
 from .state.simplestate import SimpleState
+from .state.parsedstate import ParsedState
