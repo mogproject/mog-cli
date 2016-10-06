@@ -60,7 +60,7 @@ namespace mog {
           static constexpr auto get_affected_sizes() {
             util::Array<int, directions.size()> ret = {{}};
 
-            for (auto i = 0; i < directions.size(); ++i) {
+            for (size_t i = 0; i < directions.size(); ++i) {
               auto df = directions[i].first, dr = directions[i].second;
               auto a = df == 0 ? 7 : util::max((2 - file) / df, (8 - file) / df);
               auto b = dr == 0 ? 7 : util::max((2 - rank) / dr, (8 - rank) / dr);

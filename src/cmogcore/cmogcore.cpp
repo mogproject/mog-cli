@@ -37,6 +37,7 @@ BOOST_PYTHON_MODULE(cmogcore){
 
   // expose converters
   expose_seq_to_list<state::ParsedState::LegalMoveList>();
+  expose_seq_to_list<std::vector<int>>();
 
   // expose classes
   class_<BitBoard>("BitBoard")
@@ -78,6 +79,7 @@ BOOST_PYTHON_MODULE(cmogcore){
     .def("reset", static_cast<BitBoard (BitBoard::*)(int const, int const) const>(&BitBoard::reset))
     .def("set_repeat", &BitBoard::set_repeat)
     .def("count", &BitBoard::count)
+    .def("to_list", &BitBoard::to_list)
     .def("files", &BitBoard::files)
     .staticmethod("files")
     .def("ranks", &BitBoard::ranks)

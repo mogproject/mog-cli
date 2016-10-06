@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <vector>
 #include "util.hpp"
 
 namespace mog {
@@ -59,6 +60,18 @@ namespace mog {
        */
       constexpr int count() const {
         return pop_ct(lo) + pop_ct(hi);
+      }
+
+      /**
+       * Return a list of all indexes
+       */
+      std::vector<int> to_list() const {
+        std::vector<int> ret;
+        int i = 0;
+        u64 x = 1ULL;
+        for (; i < 54; ++i, x <<= 1) { if (lo & x) ret.push_back(i); }
+        for (x = 1ULL; i < 81; ++i, x <<= 1) { if (hi & x) ret.push_back(i); }
+        return std::move(ret);
       }
 
       /**

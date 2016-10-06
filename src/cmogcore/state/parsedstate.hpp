@@ -35,7 +35,7 @@ namespace mog {
           std::fill(boards.begin(), boards.end(), EMPTY_CELL);
 
           // prepare occupancy bitboards and initialize boards array
-          for (auto i = 0; i < NUM_PIECES; ++i) {
+          for (size_t i = 0; i < NUM_PIECES; ++i) {
             auto p = pieces[i];
             if (p == PIECE_NOT_AVAILABLE) continue;
 
@@ -53,7 +53,7 @@ namespace mog {
           occ_all = occ[turn::BLACK] | occ[turn::WHITE];
 
           // prepare attack bitboards
-          for (auto i = 0; i < NUM_PIECES; ++i) {
+          for (size_t i = 0; i < NUM_PIECES; ++i) {
             auto p = pieces[i];
             if (p == PIECE_NOT_AVAILABLE) continue;
 

@@ -53,7 +53,7 @@ namespace mog {
           auto n = boost::python::len(pieces);
           assert(n <= NUM_PIECES);  // Length of the pieces should be less than or equal 40.
 
-          for (auto i = 0; i < NUM_PIECES; ++i) {
+          for (size_t i = 0; i < NUM_PIECES; ++i) {
             this->pieces[i] = i < n ? boost::python::extract<int>(pieces[i]) : PIECE_NOT_AVAILABLE;
           }
         }

@@ -238,6 +238,15 @@ class TestBitBoard(unittest.TestCase):
         self.assertEqual(BitBoard(1, 0, 0, 0, 0, 0, 0, 0, 0o400).count(), 2)
         self.assertEqual(BitBoard(1, 0, 0, 0, 0o777, 0, 0, 0, 0o400).count(), 11)
 
+    def test_to_list(self):
+        self.assertEqual(empty.to_list(), [])
+        self.assertEqual(full.to_list(), [x for x in range(81)])
+        self.assertEqual(BitBoard(1, 0, 0, 0, 0, 0, 0, 0, 0).to_list(), [0])
+        self.assertEqual(BitBoard(1, 0, 0, 0, 0, 0, 0, 0, 0o400).to_list(), [0, 80])
+        self.assertEqual(BitBoard(1, 0, 0, 0, 0o777, 0, 0, 0, 0o400).to_list(), [
+            0, 36, 37, 38, 39, 40, 41, 42, 43, 44, 80
+        ])
+
     def test_count_prop(self):
         for a in gen_bitboard(50):
             for bb in gen_bitboard(50):
