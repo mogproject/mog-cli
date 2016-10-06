@@ -30,6 +30,7 @@ namespace mog {
         BitBoard occ[2];
         BitBoard occ_pawn[2];
 
+        // todo: refactor to be a constexpr class
         ParsedState(SimpleState const& ss): turn(ss.turn), pieces(ss.pieces) {
           std::fill(boards.begin(), boards.end(), EMPTY_CELL);
 
@@ -178,7 +179,7 @@ namespace mog {
         int get_piece(size_t index) const { return index < NUM_PIECES ? pieces[index] : PIECE_NOT_AVAILABLE; }
 
         /** get attack bitboards */
-        constexpr BitBoard get_attack_bb(size_t index) const { return index < NUM_PIECES ? attack_bbs[index] : bitboard::EMPTY; }
+        BitBoard get_attack_bb(size_t index) const { return index < NUM_PIECES ? attack_bbs[index] : bitboard::EMPTY; }
 
        private:
          inline constexpr static BitBoard get_promotion_zone(int const owner) {

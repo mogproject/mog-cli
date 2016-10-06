@@ -6,10 +6,10 @@ from util.caseclass import CaseClass
 
 class Move(CaseClass):
     def __init__(self, turn, from_, to, piece_type):
-        assert(isinstance(turn, Turn))
-        assert(isinstance(from_, Pos))
-        assert(isinstance(to, Pos))
-        assert(isinstance(piece_type, PieceType))
+        assert isinstance(turn, Turn)
+        assert isinstance(from_, Pos)
+        assert isinstance(to, Pos)
+        assert isinstance(piece_type, PieceType)
         assert from_ != to, 'from_ and to must not be same'
         assert to != HAND, 'to must not be HAND'
         CaseClass.__init__(self, turn=turn, from_=from_, to=to, piece_type=piece_type)
