@@ -32,6 +32,7 @@ namespace mog {
         static constexpr size_t NUM_PIECES = 40;
         typedef util::Array<int, NUM_PIECES> PieceList;
 
+        static constexpr int PIECE_NOT_AVAILABLE = -1;
         static constexpr PieceList raw_ptype = {{
           ptype::KING, ptype::KING,
           ptype::ROOK, ptype::ROOK,
@@ -48,7 +49,7 @@ namespace mog {
         int turn;
         PieceList pieces;
 
-        constexpr SimpleState(int turn, PieceList &pieces): turn(turn), pieces(pieces) {}
+        constexpr SimpleState(int turn, PieceList pieces): turn(turn), pieces(pieces) {}
 
         // constructor for Python
         SimpleState(int turn, boost::python::list const& pieces): turn(turn) {
@@ -56,12 +57,12 @@ namespace mog {
           assert(n <= NUM_PIECES);  // Length of the pieces should be less than or equal 40.
 
           for (auto i = 0; i < NUM_PIECES; ++i) {
-            this->pieces[i] = i < n ? boost::python::extract<int>(pieces[i]) : mog::core::pos::UNUSED;
+            this->pieces[i] = i < n ? boost::python::extract<int>(pieces[i]) : PIECE_NOT_AVAILABLE;
           }
         }
 
         /** get piece value */
-        constexpr int get_piece(size_t index) const { return index < NUM_PIECES ? pieces[index] : mog::core::pos::UNUSED; }
+        constexpr int get_piece(size_t index) const { return index < NUM_PIECES ? pieces[index] : PIECE_NOT_AVAILABLE; }
 
         /**
          * Sort and compare in each raw piece types
