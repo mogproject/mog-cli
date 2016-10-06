@@ -7,11 +7,11 @@
 namespace mog {
   namespace core {
     namespace state {
-      static constexpr size_t NUM_PIECES = 40;
-      static constexpr int PIECE_NOT_AVAILABLE = -1;
+      constexpr size_t NUM_PIECES = 40;
+      constexpr int PIECE_NOT_AVAILABLE = -1;
 
       typedef util::Array<int, NUM_PIECES> PieceList;
-      static constexpr PieceList RAW_PTYPE = {{
+      constexpr PieceList RAW_PTYPE = {{
           ptype::KING, ptype::KING,
           ptype::ROOK, ptype::ROOK,
           ptype::BISHOP, ptype::BISHOP,
@@ -46,7 +46,7 @@ namespace mog {
         int turn;
         PieceList pieces;
 
-        constexpr SimpleState(int turn, PieceList pieces): turn(turn), pieces(pieces) {}
+        constexpr SimpleState(int turn, PieceList const& pieces): turn(turn), pieces(pieces) {}
 
         // constructor for Python
         SimpleState(int turn, boost::python::list const& pieces): turn(turn) {

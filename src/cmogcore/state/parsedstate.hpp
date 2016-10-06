@@ -30,10 +30,7 @@ namespace mog {
         BitBoard occ[2];
         BitBoard occ_pawn[2];
 
-        ParsedState(SimpleState const&ss) {
-          turn = ss.turn;
-          pieces = ss.pieces;
-          
+        ParsedState(SimpleState const& ss): turn(ss.turn), pieces(ss.pieces) {
           std::fill(boards.begin(), boards.end(), EMPTY_CELL);
 
           // prepare occupancy bitboards and initialize boards array
