@@ -19,3 +19,14 @@ class ParsedState(cmogcore.ParsedState):
     def from_string(cls, s):
         """Build ParsedState object from CSA-formatted string"""
         return ParsedState(SimpleState.from_string(s))
+
+    def legal_move_bbs(self) -> [BitBoard]:
+        return [BitBoard.wrap(bb) for bb in self.get_legal_moves()]
+
+    def legal_moves(self) -> [Move]:
+        # todo
+        return []
+
+    def move_next(move: Move) -> None:
+        # todo
+        pass

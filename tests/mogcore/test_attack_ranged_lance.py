@@ -117,7 +117,7 @@ class TestAttackRangedLance(unittest.TestCase):
                 Attack.get_attack(BLACK, self.ptype, i, bb) & Attack.get_attack(WHITE, self.ptype, i, bb), empty)
 
     def test_get_attack_prop_duel(self):
-        """If a lance could attack another lance, it also can be attacked."""
+        # If a lance could attack another lance, it also can be attacked.
 
         for bb, i, j in zip(gen_bitboard(100), gen_index(100), gen_index(100)):
             msg = 'bb=%r, i=%d, j=%d' % (bb, i, j)

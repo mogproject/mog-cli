@@ -84,7 +84,7 @@ class TestAttackRangedBishop(unittest.TestCase):
             self.assertEqual(Attack.get_attack(BLACK, self.ptype, i, full), b[0], msg)
 
     def test_get_attack_bishop_prop_owner(self):
-        """Owner doesn't care"""
+        # Owner doesn't care
 
         for bb, i in zip(gen_bitboard(100), gen_index(100)):
             msg = 'bb=%r, i=%d' % (bb, i)
@@ -92,7 +92,7 @@ class TestAttackRangedBishop(unittest.TestCase):
                 Attack.get_attack(BLACK, self.ptype, i, bb), Attack.get_attack(WHITE, self.ptype, i, bb), msg)
 
     def test_get_attack_bishop_prop_symmetry(self):
-        """Keep vertical and horizontal symmetric"""
+        # Keep vertical and horizontal symmetric
 
         for bb, i in zip(gen_bitboard(100), gen_index(100)):
             # vertical symmetric
@@ -114,7 +114,7 @@ class TestAttackRangedBishop(unittest.TestCase):
             self.assertEqual(a, b.flip_horizontal(), msg)
 
     def test_get_attack_bishop_prop_neighbor(self):
-        """neighbors' attack never intersect"""
+        # neighbors' attack never intersect
 
         for bb, i in zip(gen_bitboard(100), gen_index(100)):
             j = i - 1 if i % 9 == 8 else i + 1
@@ -126,7 +126,7 @@ class TestAttackRangedBishop(unittest.TestCase):
             self.assertEqual(a & b, empty, msg)
 
     def test_get_attack_prop_duel(self):
-        """If a bishop could attack another bishop, it also can be attacked."""
+        # If a bishop could attack another bishop, it also can be attacked.
 
         for bb, i, j in zip(gen_bitboard(100), gen_index(100), gen_index(100)):
             msg = 'bb=%r, i=%d, j=%d' % (bb, i, j)

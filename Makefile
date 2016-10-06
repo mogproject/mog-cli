@@ -6,7 +6,7 @@ CC = clang-3.5
 CXX = clang++-3.5
 endif
 
-PYTHON = python3
+PYTHON = python3.5
 
 build:
 	CC=$(CC) CXX=$(CXX) $(PYTHON) setup.py build

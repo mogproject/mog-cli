@@ -84,7 +84,7 @@ class TestAttackRangedRook(unittest.TestCase):
             self.assertEqual(Attack.get_attack(BLACK, self.ptype, i, full), b[0], msg)
 
     def test_get_attack_rook_prop_owner(self):
-        """Owner doesn't care"""
+        # Owner doesn't care
 
         for bb, i in zip(gen_bitboard(100), gen_index(100)):
             msg = 'bb=%r, i=%d' % (bb, i)
@@ -92,7 +92,7 @@ class TestAttackRangedRook(unittest.TestCase):
                 Attack.get_attack(BLACK, self.ptype, i, bb), Attack.get_attack(WHITE, self.ptype, i, bb), msg)
 
     def test_get_attack_rook_prop_symmetry(self):
-        """Keep vertical and horizontal symmetric"""
+        # Keep vertical and horizontal symmetric
 
         for bb, i in zip(gen_bitboard(100), gen_index(100)):
             # vertical symmetric
@@ -114,7 +114,7 @@ class TestAttackRangedRook(unittest.TestCase):
             self.assertEqual(a, b.flip_horizontal(), msg)
 
     def test_get_attack_prop_duel(self):
-        """If a rook could attack another rook, it also can be attacked."""
+        # If a rook could attack another rook, it also can be attacked.
 
         for bb, i, j in zip(gen_bitboard(100), gen_index(100), gen_index(100)):
             msg = 'bb=%r, i=%d, j=%d' % (bb, i, j)
