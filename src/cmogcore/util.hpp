@@ -98,6 +98,7 @@ namespace mog {
 
     // Position
     namespace pos {
+      int const UNUSED = -2;
       int const HAND = -1;
 
       inline constexpr int make_pos(int const file, int const rank) {
