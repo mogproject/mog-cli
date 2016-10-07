@@ -50,7 +50,7 @@ namespace mog {
 
         // constructor for Python
         SimpleState(int turn, boost::python::list const& pieces): turn(turn) {
-          auto n = boost::python::len(pieces);
+          size_t n = boost::python::len(pieces);
           assert(n <= NUM_PIECES);  // Length of the pieces should be less than or equal 40.
 
           for (size_t i = 0; i < NUM_PIECES; ++i) {

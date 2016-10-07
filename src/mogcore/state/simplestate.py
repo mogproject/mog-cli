@@ -1,6 +1,7 @@
 from collections import defaultdict
 import cmogcore
 from mogcore import *
+from mogcore.state.piecestate import PieceState
 import util
 
 
@@ -118,26 +119,6 @@ class SimpleState(cmogcore.SimpleState):
                 return f(b, chunks[1:])
 
         return f(builder, util.grouped(line, 4))
-
-
-class PieceState(util.CaseClass):
-    """
-    Set owner None when the piece is not active.
-    """
-    def __init__(self, owner=None, is_promoted=None, position=None):
-        super(PieceState, self).__init__(owner=owner, is_promoted=is_promoted, position=position)
-
-    def is_active(self):
-        return self.owner is not None
-
-    def value(self):
-        if self.is_active():
-            ret = self.owner.value << 8
-            ret |= (1 if self.is_promoted else 0) << 7
-            ret |= self.position.value
-            return ret
-        else:
-            return -1
 
 
 class SimpleStateBuilder:

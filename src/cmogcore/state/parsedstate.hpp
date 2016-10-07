@@ -79,7 +79,7 @@ namespace mog {
 
           int hand_used = 0;
 
-          for (auto i = 0; i < NUM_PIECES; ++i) {
+          for (size_t i = 0; i < NUM_PIECES; ++i) {
             auto p = pieces[i];
             if (p == PIECE_NOT_AVAILABLE) continue;
 
@@ -90,7 +90,7 @@ namespace mog {
             auto ps = SimpleState::get_pos(p);
 
             if (ps == 81) { // hand
-              if (hand_used & RAW_PTYPE[i]) {
+              if (!(hand_used & (1 << RAW_PTYPE[i]))) {
                 if (i >= 22) { // pawn
                   ret[i] = attack::get_attack(o, occ_all, occ_pawn[turn]);
                 } else {
@@ -126,6 +126,7 @@ namespace mog {
 
           // captured piece
           if (boards[to] != EMPTY_CELL) {
+            // todo: consider captured king'
             auto captured_id = boards[to];
             auto is_captured_pawn = SimpleState::get_ptype(captured_id, pieces[captured_id]) == ptype::PAWN;
             pieces[captured_id] = turn << 8 | 81;  // 81=HAND

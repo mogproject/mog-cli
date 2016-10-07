@@ -108,7 +108,7 @@ namespace mog {
 
       inline constexpr bool is_promoted(int ptype) { return ptype & 8; }
 
-      inline constexpr bool can_promote(int ptype) { return ptype != KING || ptype != GOLD; }
+      inline constexpr bool can_promote(int ptype) { return ptype != KING && ptype != GOLD; }
     }
 
     // Position
