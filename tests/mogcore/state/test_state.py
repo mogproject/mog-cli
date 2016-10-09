@@ -264,16 +264,33 @@ class TestState(unittest.TestCase):
         self.assertEqual(str(State.from_string(STR_MAX_LEGAL_MOVES)), STR_MAX_LEGAL_MOVES)
 
     def test_from_string_error(self):
-        self.assertRaises(ValueError, State.from_string, '')
-        self.assertRaises(ValueError, State.from_string, 'PI')
-        self.assertRaises(ValueError, State.from_string, 'PI82KA\n+')
-        self.assertRaises(ValueError, State.from_string, 'PI82HI82HI\n+')
-        self.assertRaises(ValueError, State.from_string, 'PI8\n+')
-        self.assertRaises(ValueError, State.from_string, 'PI82\n+')
-        self.assertRaises(ValueError, State.from_string, 'PI82H\n+')
-        self.assertRaises(ValueError, State.from_string, 'P+00AL\nP-00AL\n+')
-        self.assertRaises(ValueError, State.from_string, 'PI55KA\nP-00AL55KA\n+')
-        self.assertRaises(ValueError, State.from_string, 'PI55KA\nP-00AL\nP-55KA\n+')
-        self.assertRaises(ValueError, State.from_string, 'P+11OU12OU\n+')
-        self.assertRaises(ValueError, State.from_string, 'P-11OU12OU\n+')
-        self.assertRaises(ValueError, State.from_string, 'P+12FU+13FU\n+')
+        self.assertRaisesRegexp(ValueError, '^Mal-formed state string', State.from_string, '')
+        self.assertRaisesRegexp(ValueError, '^Mal-formed CSA string for Turn', State.from_string, 'PI')
+        self.assertRaisesRegexp(ValueError, '^Mal-formed bundle expression', State.from_string, 'P1\n+')
+
+        self.assertRaisesRegexp(ValueError, '^Unmatched piece type in initiated expression',
+                                State.from_string, 'PI82KA\n+')
+        self.assertRaisesRegexp(ValueError, '^Position to remove is already empty', State.from_string, 'PI82HI82HI\n+')
+        self.assertRaisesRegexp(ValueError, '^Position to remove is already empty',
+                                State.from_string, 'PI55KA\nP-00AL55KA\n+')
+        self.assertRaisesRegexp(ValueError, '^Position to remove is already empty',
+                                State.from_string, 'PI55KA\nP-00AL\nP-55KA\n+')
+
+        self.assertRaisesRegexp(ValueError, '^Mal-formed CSA string for Pos', State.from_string, 'PI8\n+')
+        self.assertRaisesRegexp(ValueError, '^Mal-formed CSA string for PieceType', State.from_string, 'PI82\n+')
+        self.assertRaisesRegexp(ValueError, '^Mal-formed CSA string for PieceType', State.from_string, 'PI82H\n+')
+        self.assertRaisesRegexp(ValueError, '^Mal-formed CSA string for PieceType',
+                                State.from_string, 'P+00AL\nP-00AL\n+')
+
+        # C++ errors
+        self.assertRaisesRegexp(ValueError, '^no left for the piece', State.from_string, 'P+11OU12OU\n+')
+        self.assertRaisesRegexp(ValueError, '^king in hand', State.from_string, 'P+00OU\n+')
+        self.assertRaisesRegexp(ValueError, '^promoted piece in hand', State.from_string, 'P+00TO\n+')
+        self.assertRaisesRegexp(ValueError, '^position already taken', State.from_string, 'P+55FU55KA\n+')
+        self.assertRaisesRegexp(ValueError, '^two pawns in the same file', State.from_string, 'P+12FU13FU\n+')
+        self.assertRaisesRegexp(ValueError, '^unmovable piece', State.from_string, 'P+11FU\n+')
+        self.assertRaisesRegexp(ValueError, '^unmovable piece', State.from_string, 'P+11KY\n+')
+        self.assertRaisesRegexp(ValueError, '^unmovable piece', State.from_string, 'P+12KE\n+')
+        self.assertRaisesRegexp(ValueError, '^unmovable piece', State.from_string, 'P-19FU\n+')
+        self.assertRaisesRegexp(ValueError, '^unmovable piece', State.from_string, 'P-19KY\n+')
+        self.assertRaisesRegexp(ValueError, '^unmovable piece', State.from_string, 'P-18KE\n+')

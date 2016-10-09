@@ -123,7 +123,7 @@ struct State {
    */
   constexpr State set_piece(int owner, int piece_type, int pos) const {
     int slot_id = __get_unused_slot(owner, piece_type);
-    if (slot_id == 64) return *this;  // no slot left
+    if (slot_id == 64) throw RuntimeError("no left for the piece");
 
     auto mask = 1ULL << slot_id;
 
@@ -133,10 +133,30 @@ struct State {
     auto new_promoted_bits = promoted_bits | (static_cast<u64>(ptype::is_promoted(piece_type)) << slot_id);
 
     if (pos == pos::HAND) {
+      // check piece type
+      if (piece_type == ptype::KING) throw RuntimeError("king in hand");
+      if (ptype::is_promoted(piece_type)) throw RuntimeError("promoted piece in hand");
+
       auto new_hand_bits = hand_bits | mask;
       return std::move(State(turn, new_owner_bits, new_hand_bits, new_promoted_bits, new_unused_bits, board, position));
     } else {
-      if (board.get(pos)) return *this;  // the position is already set by another piece
+      // check board
+      if (board.get(pos)) throw RuntimeError("position already taken");
+
+      // check pawn files
+      if (piece_type == ptype::PAWN) {
+        auto m = ~(unused_bits | hand_bits | (owner ? ~owner_bits : owner_bits));
+        for (int i = 16; i < 34; ++i) {
+          if (((m >> i) & 1) && pos % 9 == __get_position(i) % 9) throw RuntimeError("two pawns in the same file");
+        }
+      }
+
+      // check unmovable pieces
+      if (piece_type == ptype::PAWN || piece_type == ptype::LANCE || piece_type == ptype::KNIGHT) {
+        auto bb = (piece_type == ptype::KNIGHT ? (bitboard::rank1 | bitboard::rank2) : bitboard::rank1).flip_by_turn(owner);
+        if (bb.get(pos)) throw RuntimeError("unmovable piece");
+      }
+
       auto new_board = board.set(pos);
 
       // set position
@@ -229,9 +249,9 @@ struct State {
    * Return one unused slot number.
    * If there is no slot, returns 64.
    */
-  constexpr int __get_unused_slot(int owner_bits, int piece_type) const {
+  constexpr int __get_unused_slot(int owner_bit, int piece_type) const {
     if (piece_type == ptype::KING) {
-      return unused_bits & (1ULL << (38 + owner_bits)) ? 38 + owner_bits : 64;  // 38=king's offset
+      return unused_bits & (1ULL << (38 + owner_bit)) ? 38 + owner_bit : 64;  // 38=king's offset
     } else {
       return ntz(unused_bits & __piece_masks[ptype::demoted(piece_type)]);
     }

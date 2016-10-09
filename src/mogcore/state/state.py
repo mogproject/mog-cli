@@ -81,7 +81,7 @@ class State(cmogcore.State):
                 (b, used_all) = cls.__parse_single_expression(builder, Turn.from_string(h[0][1]), used_all, h[0][2:])
                 return f(b, t, used_init, used_all)
             else:
-                raise ValueError('Malformed state string')
+                raise ValueError('Mal-formed state string')
 
         return f(StateBuilder(), s.splitlines(), False, False)
 
@@ -117,7 +117,7 @@ class State(cmogcore.State):
             return True
 
         if not is_valid(lines):
-            raise ValueError('Malformed bundle expression: %r' % lines)
+            raise ValueError('Mal-formed bundle expression: %r' % lines)
 
         for r in range(9):
             for f in range(9):
@@ -144,37 +144,16 @@ class StateBuilder:
 
     def __init__(self):
         self.__state = State()
-        self.occ_pawn = [BitBoard(), BitBoard()]
 
     def set_turn(self, t: Turn):
         self.__state = self.__state.set_turn(t.value)
 
     def set_piece(self, owner: Turn, ptype: PieceType, ps: Pos):
-        args = 'owner=%r, ptype=%r, pos=%r' % (owner, ptype, ps)
-
-        # error check
-        if ps == HAND:
-            if ptype == KING:
-                raise ValueError('King must not be held in hand: %s' % args)
-            if ptype.is_promoted():
-                raise ValueError('Promoted piece must not be held in hand: %s' % args)
-        else:
-            if self.__state._board.get(ps.value):
-                raise ValueError('Pos already occupied by another piece: %s' % args)
-            if ptype == PAWN and self.occ_pawn[owner.value].get(ps.value):
-                raise ValueError('No two pawns should exist in same file: %s' % args)
-
-        # for pawn check
-        if ps != HAND and ptype == PAWN:
-            self.occ_pawn[owner.value] |= BitBoard().set(ps.value).spread_all_file()
-
-        new_state = self.__state.set_piece(owner.value, ptype.value, ps.value)
-
-        if (self.__state == new_state):  # todo: more sensible check?
-            raise ValueError('There is no left for that piece type: %s' % ptype)
-
-        self.__state = new_state
-        return self
+        try:
+            self.__state = self.__state.set_piece(owner.value, ptype.value, ps.value)
+            return self
+        except RuntimeError as e:
+            raise ValueError('%s: owner=%r, ptype=%r, pos=%r' % (e, owner, ptype, ps))
 
     def set_all_hand(self, owner: Turn):
         self.__state = self.__state.set_all_hand(owner.value)

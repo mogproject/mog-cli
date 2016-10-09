@@ -50,6 +50,11 @@ void expose_pylist_to_array() {
 
   py::converter::registry::push_back(convertible, construct, py::type_id<A>());
 }
+
+// exceptions
+void translateRuntimeError(mog::core::RuntimeError const& e) {
+  PyErr_SetString(PyExc_RuntimeError, e.what());
+}
 }  // namespace cmogcore
 
 // constants
@@ -60,6 +65,9 @@ BOOST_PYTHON_MODULE(cmogcore) {
   using namespace boost::python;
   using namespace mog::core;
   using namespace cmogcore;
+
+  // exception handling
+  py::register_exception_translator<RuntimeError>(&translateRuntimeError);
 
   // expose converters
   expose_seq_to_list<std::vector<int>>();
