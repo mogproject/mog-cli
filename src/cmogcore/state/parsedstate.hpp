@@ -40,7 +40,7 @@ namespace mog {
             if (p == PIECE_NOT_AVAILABLE) continue;
 
             auto ps = SimpleState::get_pos(p);
-            if (ps == pos::HAND) continue;
+            if (ps == 81) continue;
 
             auto o = SimpleState::get_owner(p);
             auto is_pawn = SimpleState::get_ptype(i, p) == ptype::PAWN;

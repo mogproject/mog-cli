@@ -33,7 +33,7 @@ upload:
 	$(PYTHON) setup.py sdist upload
 
 pep8:
-	pep8 --max-line-length 120 src tests
+	pep8 --max-line-length 140 src tests
 
 .PHONY: build install test coverage clean run console upload pep8
 

@@ -110,6 +110,8 @@ namespace mog {
 
       inline constexpr bool is_promoted(int ptype) { return ptype & 8; }
 
+      inline constexpr int promoted(int ptype) { return ptype | 8; }
+
       inline constexpr int demoted(int ptype) { return ptype & 7; }
 
       inline constexpr bool can_promote(int ptype) { return ptype != KING && ptype != GOLD; }
@@ -117,7 +119,7 @@ namespace mog {
 
     // Position
     namespace pos {
-      int const HAND = -1;
+      int const HAND = 81;
 
       inline constexpr int make_pos(int const file, int const rank) {
         return (1 <= file && file <= 9 && 1 <= rank && rank <= 9) ? rank * 9 + file - 10 : -1;
