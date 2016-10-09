@@ -305,7 +305,30 @@ class TestState(unittest.TestCase):
         self.assertRaisesRegexp(ValueError, '^Mal-formed state string', State.from_string, '')
         self.assertRaisesRegexp(ValueError, '^Mal-formed CSA string for Turn', State.from_string, 'PI')
         self.assertRaisesRegexp(ValueError, '^Mal-formed bundle expression', State.from_string, 'P1\n+')
-
+        self.assertRaisesRegexp(ValueError, '^Mal-formed bundle expression', State.from_string, '\n'.join([
+            'P1 *  *  *  *  *  *  *  *  * ',
+            'P2 *  *  *  *  *  *  *  *  * ',
+            'P3 *  *  *  *  *  *  *  *  * ',
+            'P4 *  *  *  *  *  *  *  *  * ',
+            'P5 *  *  *  *  *  *  *  *  * ',
+            'P6 *  *  *  *  *  *  *  *  * ',
+            'P7 *  *  *  *  *  *  *  *  * ',
+            'P8 *  *  *  *  *  *  *  *  * ',
+            'P9 *  *  *  *  *  *  *  *  *',
+            'P+',
+            '+']))
+        self.assertRaisesRegexp(ValueError, '^Mal-formed bundle expression', State.from_string, '\n'.join([
+            'P1 *  *  *  *  *  *  *  *  * ',
+            'P2 *  *  *  *  *  *  *  *  * ',
+            'P3 *  *  *  *  *  *  *  *  * ',
+            'P4 *  *  *  *  *  *  *  *  * ',
+            'P5 *  *  *  *  *  *  *  *  * ',
+            'P6 *  *  *  *  *  *  *  *  * ',
+            'P7 *  *  *  *  *  *  *  *  * ',
+            'P8 *  *  *  *  *  *  *  *  * ',
+            'P8 *  *  *  *  *  *  *  *  * ',
+            'P+',
+            '+']))
         self.assertRaisesRegexp(ValueError, '^Unmatched piece type in initiated expression',
                                 State.from_string, 'PI82KA\n+')
         self.assertRaisesRegexp(ValueError, '^Position to remove is already empty', State.from_string, 'PI82HI82HI\n+')
