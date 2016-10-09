@@ -1,6 +1,7 @@
 #include <boost/python.hpp>
 #include "bitboard.hpp"
 #include "attack.hpp"
+#include "state/state.hpp"
 #include "state/simplestate.hpp"
 #include "state/parsedstate.hpp"
 
@@ -28,6 +29,9 @@ namespace cmogcore {
     py::to_python_converter<Seq, detail::seq_to_list<Seq>, true>();
   }
 }
+
+// constants
+constexpr mog::core::util::Array<mog::core::u64, 8> mog::core::state::State::__piece_masks;
 
 
 BOOST_PYTHON_MODULE(cmogcore){
@@ -93,6 +97,19 @@ BOOST_PYTHON_MODULE(cmogcore){
     .def("spread_all_file", &BitBoard::spread_all_file)
     .def("ident", &bitboard::ident)
     .staticmethod("ident")
+    ;
+
+  class_<state::State>("State", init<int, u64, u64, u64, u64, BitBoard, state::State::PositionList>())
+    .def_readonly("turn", &state::State::turn)
+    .def_readonly("owner_bits", &state::State::owner_bits)
+    .def_readonly("hand_bits", &state::State::hand_bits)
+    .def_readonly("promoted_bits", &state::State::promoted_bits)
+    .def_readonly("unused_bits", &state::State::unused_bits)
+    .def_readonly("board", &state::State::board)
+    .def_readonly("position", &state::State::position)
+    .def("set_turn", &state::State::set_turn)
+    .def("set_piece", &state::State::set_piece)
+    .def("set_move", &state::State::move)
     ;
 
   class_<state::SimpleState>("SimpleState", init<int, list>())
