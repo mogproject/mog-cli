@@ -10,6 +10,8 @@ namespace mog {
 
     u64 const MASK27 = 0000000000777777777ULL;
     u64 const MASK54 = 0777777777777777777ULL;
+    u64 const MASK40 = 0x000000ffffffffffULL;
+    u64 const MASK64 = 0xffffffffffffffffULL;
 
     // Universal shift functions
     inline constexpr u64 lshift(u64 const u, int const n) { return -64 < n && n < 64 ? n < 0 ? u >> -n : u << n : 0ULL; }
@@ -107,6 +109,8 @@ namespace mog {
       }
 
       inline constexpr bool is_promoted(int ptype) { return ptype & 8; }
+
+      inline constexpr int demoted(int ptype) { return ptype & 7; }
 
       inline constexpr bool can_promote(int ptype) { return ptype != KING && ptype != GOLD; }
     }

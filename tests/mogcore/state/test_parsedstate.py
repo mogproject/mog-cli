@@ -1,5 +1,6 @@
 import unittest
 from mogcore import *
+from tests.mogcore.state.gen_simplestate import *
 
 
 class TestParsedState(unittest.TestCase):
@@ -190,3 +191,5 @@ class TestParsedState(unittest.TestCase):
             '-8788FU -8788TO -9899TO -7978TO -7969TO -7989TO'
         ).split()]
         self.assertEqual(p4.legal_moves(), e4)
+
+        self.assertEqual(len(ParsedState(STATE_MAX_LEGAL_MOVES).legal_moves()), 593)
