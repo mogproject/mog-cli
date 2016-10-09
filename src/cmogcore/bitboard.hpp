@@ -24,6 +24,7 @@ namespace mog {
           hi(((u64)r7 + ((u64)r8 << 9) + ((u64)r9 << 18)) & MASK27) {}
 
       constexpr bool operator==(BitBoard const& rhs) const { return lo == rhs.lo && hi == rhs.hi; }
+      constexpr bool operator!=(BitBoard const& rhs) const { return lo != rhs.lo || hi != rhs.hi; }
       constexpr BitBoard operator&(BitBoard const& rhs) const { return BitBoard(lo & rhs.lo, hi & rhs.hi); }
       constexpr BitBoard operator|(BitBoard const& rhs) const { return BitBoard(lo | rhs.lo, hi | rhs.hi); }
       constexpr BitBoard operator^(BitBoard const& rhs) const { return BitBoard(lo ^ rhs.lo, hi ^ rhs.hi); }
