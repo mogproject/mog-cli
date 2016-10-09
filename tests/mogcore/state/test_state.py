@@ -19,8 +19,46 @@ class TestState(unittest.TestCase):
         self.assertEqual(s.turn, WHITE)
 
     def test_constructor_error(self):
-        self.assertRaises(ValueError, State, BLACK, 0, 0, 0, 0x000000ffffffffff, BitBoard(), [])
-        self.assertRaises(ValueError, State, BLACK, 1, 0, 0, 0x000000ffffffffff, BitBoard())
+        self.assertRaisesRegexp(ValueError, '^position must have 5 elements', State,
+                                BLACK, 0, 0, 0, 0x000000ffffffffff, BitBoard(), [])
+        self.assertRaisesRegexp(ValueError, '^invalid state: conflict between owner bits and unused bits',
+                                State, BLACK, 1, 0, 0, 0x000000ffffffffff, BitBoard())
+        self.assertRaisesRegexp(ValueError, '^invalid state: conflict between hand bits and unused bits',
+                                State, BLACK, 0, 1, 0, 0x000000ffffffffff, BitBoard())
+        self.assertRaisesRegexp(ValueError, '^invalid state: conflict between promoted bits and unused bits',
+                                State, BLACK, 0, 0, 1, 0x000000ffffffffff, BitBoard())
+        self.assertRaisesRegexp(ValueError, '^invalid state: conflict between hand bits and promoted bits',
+                                State, BLACK, 0, 1, 1, 0x000000fffffffffe, BitBoard(1, 0), [
+                                    0xffffffffffffff00, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff
+                                ])
+        self.assertRaisesRegexp(ValueError, '^invalid state: position must be in hand or unused',
+                                State, BLACK, 0, 0, 0, 0x000000fffffffffe, BitBoard(1, 0), [
+                                    0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff
+                                ])
+        self.assertRaisesRegexp(ValueError, '^invalid state: position must not be in hand or unused',
+                                State, BLACK, 0, 1, 0, 0x000000fffffffffe, BitBoard(1, 0), [
+                                    0xffffffffffffff00, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff
+                                ])
+        self.assertRaisesRegexp(ValueError, '^invalid state: position must not be in hand or unused',
+                                State, BLACK, 0, 0, 0, 0x000000ffffffffff, BitBoard(1, 0), [
+                                    0xffffffffffffff00, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff
+                                ])
+        self.assertRaisesRegexp(ValueError, '^invalid state: invalid position value',
+                                State, BLACK, 0, 0, 0, 0x000000fffffffffe, BitBoard(1, 0), [
+                                    0xffffffffffffff51, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff
+                                ])
+        self.assertRaisesRegexp(ValueError, '^invalid state: invalid position value',
+                                State, BLACK, 0, 0, 0, 0x000000fffffffffe, BitBoard(1, 0), [
+                                    0xfffffffffffffffe, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff
+                                ])
+        self.assertRaisesRegexp(ValueError, '^invalid state: position already taken',
+                                State, BLACK, 0, 0, 0, 0x000000fffffffffc, BitBoard(1, 0), [
+                                    0xffffffffffff0000, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff
+                                ])
+        self.assertRaisesRegexp(ValueError, '^invalid state: inconsistent board bitboard',
+                                State, BLACK, 0, 0, 0, 0x000000fffffffffe, BitBoard(1, 0), [
+                                    0xffffffffffffff01, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff
+                                ])
 
     def test_set_turn(self):
         self.assertEqual(State().set_turn(WHITE.value), State(WHITE))
@@ -294,3 +332,133 @@ class TestState(unittest.TestCase):
         self.assertRaisesRegexp(ValueError, '^unmovable piece', State.from_string, 'P-19FU\n+')
         self.assertRaisesRegexp(ValueError, '^unmovable piece', State.from_string, 'P-19KY\n+')
         self.assertRaisesRegexp(ValueError, '^unmovable piece', State.from_string, 'P-18KE\n+')
+
+    def test_move(self):
+        t = {}
+        s = STATE_HIRATE
+        for i in range(40):
+            t[Pos(s.get_position(i))] = i
+
+        s = s.move(t[P77], P76.value, False, -1)
+        t[P76] = t[P77]
+        del t[P77]
+        self.assertEqual(str(State.wrap(s)), '\n'.join([
+            'P1-KY-KE-GI-KI-OU-KI-GI-KE-KY',
+            'P2 * -HI *  *  *  *  * -KA * ',
+            'P3-FU-FU-FU-FU-FU-FU-FU-FU-FU',
+            'P4 *  *  *  *  *  *  *  *  * ',
+            'P5 *  *  *  *  *  *  *  *  * ',
+            'P6 *  * +FU *  *  *  *  *  * ',
+            'P7+FU+FU * +FU+FU+FU+FU+FU+FU',
+            'P8 * +KA *  *  *  *  * +HI * ',
+            'P9+KY+KE+GI+KI+OU+KI+GI+KE+KY',
+            'P+',
+            'P-',
+            '-'
+        ]))
+
+        s = s.move(t[P33], P34.value, False, -1)
+        t[P34] = t[P33]
+        del t[P33]
+        self.assertEqual(str(State.wrap(s)), '\n'.join([
+            'P1-KY-KE-GI-KI-OU-KI-GI-KE-KY',
+            'P2 * -HI *  *  *  *  * -KA * ',
+            'P3-FU-FU-FU-FU-FU-FU * -FU-FU',
+            'P4 *  *  *  *  *  * -FU *  * ',
+            'P5 *  *  *  *  *  *  *  *  * ',
+            'P6 *  * +FU *  *  *  *  *  * ',
+            'P7+FU+FU * +FU+FU+FU+FU+FU+FU',
+            'P8 * +KA *  *  *  *  * +HI * ',
+            'P9+KY+KE+GI+KI+OU+KI+GI+KE+KY',
+            'P+',
+            'P-',
+            '+'
+        ]))
+
+        s = s.move(t[P88], P22.value, True, t[P22])
+        k1 = t[P22]
+        t[P22] = t[P88]
+        del t[P88]
+        self.assertEqual(str(State.wrap(s)), '\n'.join([
+            'P1-KY-KE-GI-KI-OU-KI-GI-KE-KY',
+            'P2 * -HI *  *  *  *  * +UM * ',
+            'P3-FU-FU-FU-FU-FU-FU * -FU-FU',
+            'P4 *  *  *  *  *  * -FU *  * ',
+            'P5 *  *  *  *  *  *  *  *  * ',
+            'P6 *  * +FU *  *  *  *  *  * ',
+            'P7+FU+FU * +FU+FU+FU+FU+FU+FU',
+            'P8 *  *  *  *  *  *  * +HI * ',
+            'P9+KY+KE+GI+KI+OU+KI+GI+KE+KY',
+            'P+00KA',
+            'P-',
+            '-'
+        ]))
+
+        s = s.move(t[P82], P22.value, False, t[P22])
+        k2 = t[P22]
+        t[P22] = t[P82]
+        del t[P82]
+        self.assertEqual(str(State.wrap(s)), '\n'.join([
+            'P1-KY-KE-GI-KI-OU-KI-GI-KE-KY',
+            'P2 *  *  *  *  *  *  * -HI * ',
+            'P3-FU-FU-FU-FU-FU-FU * -FU-FU',
+            'P4 *  *  *  *  *  * -FU *  * ',
+            'P5 *  *  *  *  *  *  *  *  * ',
+            'P6 *  * +FU *  *  *  *  *  * ',
+            'P7+FU+FU * +FU+FU+FU+FU+FU+FU',
+            'P8 *  *  *  *  *  *  * +HI * ',
+            'P9+KY+KE+GI+KI+OU+KI+GI+KE+KY',
+            'P+00KA',
+            'P-00KA',
+            '+'
+        ]))
+
+        s = s.move(k1, P33.value, False, -1)
+        t[P33] = k1
+        self.assertEqual(str(State.wrap(s)), '\n'.join([
+            'P1-KY-KE-GI-KI-OU-KI-GI-KE-KY',
+            'P2 *  *  *  *  *  *  * -HI * ',
+            'P3-FU-FU-FU-FU-FU-FU+KA-FU-FU',
+            'P4 *  *  *  *  *  * -FU *  * ',
+            'P5 *  *  *  *  *  *  *  *  * ',
+            'P6 *  * +FU *  *  *  *  *  * ',
+            'P7+FU+FU * +FU+FU+FU+FU+FU+FU',
+            'P8 *  *  *  *  *  *  * +HI * ',
+            'P9+KY+KE+GI+KI+OU+KI+GI+KE+KY',
+            'P+',
+            'P-00KA',
+            '-'
+        ]))
+
+        s = s.move(k2, P95.value, False, -1)
+        t[P95] = k2
+        self.assertEqual(str(State.wrap(s)), '\n'.join([
+            'P1-KY-KE-GI-KI-OU-KI-GI-KE-KY',
+            'P2 *  *  *  *  *  *  * -HI * ',
+            'P3-FU-FU-FU-FU-FU-FU+KA-FU-FU',
+            'P4 *  *  *  *  *  * -FU *  * ',
+            'P5-KA *  *  *  *  *  *  *  * ',
+            'P6 *  * +FU *  *  *  *  *  * ',
+            'P7+FU+FU * +FU+FU+FU+FU+FU+FU',
+            'P8 *  *  *  *  *  *  * +HI * ',
+            'P9+KY+KE+GI+KI+OU+KI+GI+KE+KY',
+            'P+',
+            'P-',
+            '+'
+        ]))
+
+        s = s.move(t[P33], P51.value, True, t[P51])
+        self.assertEqual(str(State.wrap(s)), '\n'.join([
+            'P1-KY-KE-GI-KI+UM-KI-GI-KE-KY',
+            'P2 *  *  *  *  *  *  * -HI * ',
+            'P3-FU-FU-FU-FU-FU-FU * -FU-FU',
+            'P4 *  *  *  *  *  * -FU *  * ',
+            'P5-KA *  *  *  *  *  *  *  * ',
+            'P6 *  * +FU *  *  *  *  *  * ',
+            'P7+FU+FU * +FU+FU+FU+FU+FU+FU',
+            'P8 *  *  *  *  *  *  * +HI * ',
+            'P9+KY+KE+GI+KI+OU+KI+GI+KE+KY',
+            'P+',
+            'P-',
+            '-'
+        ]))

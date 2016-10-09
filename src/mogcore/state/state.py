@@ -13,8 +13,12 @@ class State(cmogcore.State):
             raise ValueError('position must have 5 elements')
 
         cmogcore.State.__init__(self, turn.value, owner_bits, hand_bits, promoted_bits, unused_bits, board, position)
-        if not self.is_valid():
-            raise ValueError('invalid state')
+
+        try:
+            self.validate()
+        except RuntimeError as e:
+            raise ValueError('invalid state: %s: %s' % (e, State.__repr_string(
+                turn, owner_bits, hand_bits, promoted_bits, unused_bits, board, position)))
 
         self.turn = turn
         self.board = board
@@ -52,12 +56,16 @@ class State(cmogcore.State):
         buf.append(str(self.turn))
         return '\n'.join(buf)
 
-    def __repr__(self):
+    @staticmethod
+    def __repr_string(turn, owner_bits, hand_bits, promoted_bits, unused_bits, board, position):
         flags = 'owner_bits=0x%016x, hand_bits=0x%016x, promoted_bits=0x%016x, unused_bits=0x%016x' % (
-            self.owner_bits, self.hand_bits, self.promoted_bits, self.unused_bits
+            owner_bits, hand_bits, promoted_bits, unused_bits
         )
-        position = ','.join('0x%016x' % x for x in self.position)
-        return 'State(turn=%r, %s, board=%r, position=[%s])' % (self.turn, flags, self.board, position)
+        p = ','.join('0x%016x' % x for x in position)
+        return 'State(turn=%r, %s, board=%r, position=[%s])' % (turn, flags, board, p)
+
+    def __repr__(self):
+        return __repr_string(self.turn, self.owner_bits, self.hand_bits, self.promoted_bits, self.unused_bits, self.board, self.position)
 
     @classmethod
     def from_string(cls, s):

@@ -138,7 +138,7 @@ BOOST_PYTHON_MODULE(cmogcore) {
       .def_readonly("unused_bits", &state::State::unused_bits)
       .def_readonly("_board", &state::State::board)
       .add_property("position", py::make_getter(&state::State::position, py::return_value_policy<py::return_by_value>()))
-      .def("is_valid", &state::State::is_valid)
+      .def("validate", &state::State::validate)
       .def("is_used", &state::State::is_used)
       .def("get_owner", &state::State::get_owner)
       .def("get_piece_type", &state::State::get_piece_type)
@@ -146,7 +146,7 @@ BOOST_PYTHON_MODULE(cmogcore) {
       .def("set_turn", &state::State::set_turn)
       .def("set_piece", &state::State::set_piece)
       .def("set_all_hand", &state::State::set_all_hand)
-      .def("set_move", &state::State::move)
+      .def("move", &state::State::move)
       .def(self == self);
 
   class_<state::SimpleState>("SimpleState", init<int, list>())

@@ -55,9 +55,7 @@ struct State {
         promoted_bits(promoted_bits),
         unused_bits(unused_bits),
         board(board),
-        position(position) {
-    assert(is_valid());
-  }
+        position(position) {}
 
   /**
    * Compare two objects
@@ -181,49 +179,61 @@ struct State {
     assert(captured_slot_id >= -1 && captured_slot_id < 40);  // Invalid slot id
     assert(captured_slot_id == -1 && !board.get(to));         // There must be captured piece
 
+    // move
     auto new_owner_bits = owner_bits;
-    auto new_hand_bits = hand_bits;
-    auto new_promoted_bits = promoted_bits;
-    auto from_pos = __get_position(slot_id);
+    auto new_hand_bits = hand_bits & ~(1ULL << slot_id);
+    auto new_promoted_bits = promoted_bits | (static_cast<u64>(promote) << slot_id);
+    auto new_unused_bits = unused_bits;
+    auto new_board = board.reset(__get_position(slot_id)).set(to_pos);
     PositionList new_position = position;
+
+    __set_position(new_position, slot_id, to_pos);
 
     // capture
     if (captured_slot_id != -1) {
       auto mask = 1ULL << captured_slot_id;
-      new_owner_bits ^= mask;
-      new_hand_bits ^= mask;
-      new_promoted_bits ^= promoted_bits & mask;  // reset promoted bit
-      __reset_position(new_position, slot_id);
+      if (captured_slot_id >= 38) {  // king is captured
+        new_owner_bits &= ~mask;
+        new_unused_bits |= mask;
+      } else {
+        new_owner_bits ^= mask;
+        new_hand_bits ^= mask;
+        new_promoted_bits &= ~mask;  // reset promoted bit
+      }
+
+      __reset_position(new_position, captured_slot_id);
     }
 
-    // move
-    __set_position(new_position, slot_id, to_pos);
-
-    return std::move(State(turn ^ 1, new_owner_bits, new_hand_bits, new_promoted_bits, unused_bits, std::move(board.reset(from_pos)),
-                           std::move(new_position)));
+    return std::move(
+        State(turn ^ 1, new_owner_bits, new_hand_bits, new_promoted_bits, new_unused_bits, std::move(new_board), std::move(new_position)));
   }
 
-  constexpr bool is_valid() const {
-    if (owner_bits & unused_bits) return false;
-    if (promoted_bits & unused_bits) return false;
-    if (hand_bits & unused_bits) return false;
-    if (promoted_bits & hand_bits) return false;
+  /*
+   * Check the validity of the state
+   *
+   * This does not check legal moves
+   */
+  constexpr void validate() const {
+    if (owner_bits & unused_bits) throw RuntimeError("conflict between owner bits and unused bits");
+    if (hand_bits & unused_bits) throw RuntimeError("conflict between hand bits and unused bits");
+    if (promoted_bits & unused_bits) throw RuntimeError("conflict between promoted bits and unused bits");
+    if (hand_bits & promoted_bits) throw RuntimeError("conflict between hand bits and promoted bits");
 
     // check board
     BitBoard bb;
     for (int i = 0; i < 40; ++i) {
       int pos = __get_position(i);
 
-      if (pos != 0xff) {
-        if (pos >= 81) return false;
-        if (bb.get(pos)) return false;
+      if (pos == 0xff) {
+        if (!(((hand_bits | unused_bits) >> i) & 1)) throw RuntimeError("position must be in hand or unused");
+      } else {
+        if (((hand_bits | unused_bits) >> i) & 1) throw RuntimeError("position must not be in hand or unused");
+        if (pos >= 81) throw RuntimeError("invalid position value");
+        if (bb.get(pos)) throw RuntimeError("position already taken");
         bb = bb.set(pos);
       }
     }
-    if (bb != board) return false;
-
-    // this class does not check the move rules
-    return true;
+    if (bb != board) throw RuntimeError("inconsistent board bitboard");
   }
 
  private:
@@ -260,9 +270,10 @@ struct State {
   constexpr int __get_position(int slot_id) const { return (position[slot_id / 8] >> (8 * (slot_id % 8))) & 0xffULL; }
 
   static inline constexpr void __set_position(PositionList &position_list, int slot_id, int pos) {
-    auto i = slot_id / 8;
-    auto j = 8 * (slot_id % 8);
-    position_list[i] = (position_list[i] & (MASK64 ^ (0xffULL << j))) | (static_cast<u64>(pos) << j);
+    auto &x = position_list[slot_id / 8];
+    auto y = 8 * (slot_id % 8);
+    x &= ~(0xffULL << y);
+    x |= static_cast<u64>(pos) << y;
   }
 
   constexpr PositionList __set_position(int slot_id, int pos) const {
