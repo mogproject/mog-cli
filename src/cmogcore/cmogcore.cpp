@@ -126,6 +126,7 @@ BOOST_PYTHON_MODULE(cmogcore) {
       .def("shift_up", &BitBoard::shift_up)
       .def("flip_vertical", &BitBoard::flip_vertical)
       .def("flip_horizontal", &BitBoard::flip_horizontal)
+      .def("flip_by_turn", &BitBoard::flip_by_turn)
       .def("spread_all_file", &BitBoard::spread_all_file)
       .def("ident", &bitboard::ident)
       .staticmethod("ident");
@@ -141,6 +142,7 @@ BOOST_PYTHON_MODULE(cmogcore) {
       .def("validate", &state::State::validate)
       .def("is_used", &state::State::is_used)
       .def("get_owner", &state::State::get_owner)
+      .def("get_raw_piece_type", &state::State::get_raw_piece_type)
       .def("get_piece_type", &state::State::get_piece_type)
       .def("get_position", &state::State::get_position)
       .def("set_turn", &state::State::set_turn)

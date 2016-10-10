@@ -1,4 +1,50 @@
+from random import Random
 from mogcore import *
+
+RANDOM_SEED = 12345
+
+
+def gen_state(n):
+    rnd = Random(RANDOM_SEED)
+
+    for num in range(n):
+        if num == 0:
+            yield State()
+        if num == 1:
+            yield STATE_HIRATE
+        if num == 2:
+            yield STATE_TSUME_BLACK
+        else:
+            s = State()
+
+            s.set_turn(rnd.randint(0, 1))
+
+            for i in range(40):
+                if rnd.random() < 0.004:  # randomely set unused
+                    continue
+
+                pt = PieceType(s.get_raw_piece_type(i))
+
+                if pt == KING:
+                    owner = Turn(i & 1)
+                else:
+                    owner = Turn(rnd.randint(0, 1))
+
+                if pt != KING and rnd.random() < 0.2:  # randomly in hand
+                    ps = HAND
+                else:
+                    if rnd.random() < 0.2:  # randomly promote
+                        pt = pt.promoted()
+                    used = s.board
+                    if pt == PAWN or pt == LANCE:
+                        used |= BitBoard.rank1.flip_by_turn(owner.value)
+                    if pt == KNIGHT:
+                        used |= (BitBoard.rank1 | BitBoard.rank2).flip_by_turn(owner.value)
+                    ps = Pos(rnd.choice((~used).to_list()))
+
+                s.set_piece(owner.value, pt.value, ps.value)
+
+            yield s
 
 
 STR_HIRATE = '\n'.join([

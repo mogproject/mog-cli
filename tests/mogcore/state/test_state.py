@@ -494,3 +494,7 @@ class TestState(unittest.TestCase):
             'P-',
             '-'
         ]))
+
+    def test_from_string_prop(self):
+        for st in gen_state(100):
+            self.assertEqual(State.from_string(str(st)), st, 'st=%r' % st)

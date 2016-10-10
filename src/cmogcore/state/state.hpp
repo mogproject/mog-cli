@@ -87,6 +87,12 @@ struct State {
     return (owner_bits >> slot_id) & 1;
   }
 
+  constexpr int get_raw_piece_type(int slot_id) const {
+    assert(0 <= slot_id && slot_id < NUM_PIECES);
+
+    return __raw_piece_types[slot_id];
+  }
+
   /*
    * Return the piece type of a specified piece.
    */
