@@ -5,21 +5,20 @@ from .gen_piecetype import gen_piecetype
 
 class TestPieceType(unittest.TestCase):
     def test_init(self):
-        self.assertEqual(PieceType(0), KING)
-        self.assertEqual(PieceType(1), ROOK)
-        self.assertEqual(PieceType(2), BISHOP)
+        self.assertEqual(PieceType(0), ROOK)
+        self.assertEqual(PieceType(1), BISHOP)
+        self.assertEqual(PieceType(2), LANCE)
 
     def test_init_invalid(self):
-        self.assertRaises(AssertionError, PieceType, 8)
-        self.assertRaises(AssertionError, PieceType, 12)
-        self.assertRaises(AssertionError, PieceType, 16)
+        self.assertRaises(AssertionError, PieceType, 14)
+        self.assertRaises(AssertionError, PieceType, 15)
         self.assertRaises(AssertionError, PieceType, -1)
         self.assertRaises(AssertionError, PieceType, 'xxx')
 
     def test_value(self):
-        self.assertEqual(KING.value, 0)
-        self.assertEqual(ROOK.value, 1)
-        self.assertEqual(PPAWN.value, 15)
+        self.assertEqual(KING.value, 7)
+        self.assertEqual(ROOK.value, 0)
+        self.assertEqual(PPAWN.value, 13)
 
     def test_str(self):
         self.assertEqual(str(PAWN), 'FU')

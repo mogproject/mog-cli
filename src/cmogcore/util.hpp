@@ -86,30 +86,30 @@ struct PType {
   static constexpr bool is_promoted = N >> 3;
 };
 
-struct King : PType<0> {};
-struct Rook : PType<1> {};
-struct Bishop : PType<2> {};
-struct Lance : PType<3> {};
-struct Gold : PType<4> {};
-struct Silver : PType<5> {};
-struct Knight : PType<6> {};
-struct Pawn : PType<7> {};
+struct Rook : PType<0> {};
+struct Bishop : PType<1> {};
+struct Lance : PType<2> {};
+struct Silver : PType<3> {};
+struct Knight : PType<4> {};
+struct Pawn : PType<5> {};
+struct Gold : PType<6> {};
+struct King : PType<7> {};
 
-int const KING = 0;
-int const ROOK = 1;
-int const BISHOP = 2;
-int const LANCE = 3;
-int const GOLD = 4;
-int const SILVER = 5;
-int const KNIGHT = 6;
-int const PAWN = 7;
+int const ROOK = 0;
+int const BISHOP = 1;
+int const LANCE = 2;
+int const SILVER = 3;
+int const KNIGHT = 4;
+int const PAWN = 5;
+int const GOLD = 6;
+int const KING = 7;
 
-int const PROOK = 9;
-int const PBISHOP = 10;
-int const PLANCE = 11;
-int const PSILVER = 13;
-int const PKNIGHT = 14;
-int const PPAWN = 15;
+int const PROOK = 8;
+int const PBISHOP = 9;
+int const PLANCE = 10;
+int const PSILVER = 11;
+int const PKNIGHT = 12;
+int const PPAWN = 13;
 
 inline constexpr bool is_ranged(int ptype) { return (ROOK <= ptype && ptype <= LANCE) || ptype == PROOK || ptype == PBISHOP; }
 

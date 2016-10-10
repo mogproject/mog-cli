@@ -19,46 +19,55 @@ class TestState(unittest.TestCase):
         self.assertEqual(s.turn, WHITE)
 
     def test_constructor_error(self):
-        self.assertRaisesRegexp(ValueError, '^position must have 5 elements', State,
-                                BLACK, 0, 0, 0, 0x000000ffffffffff, BitBoard(), [])
-        self.assertRaisesRegexp(ValueError, '^invalid state: conflict between owner bits and unused bits',
-                                State, BLACK, 1, 0, 0, 0x000000ffffffffff, BitBoard())
-        self.assertRaisesRegexp(ValueError, '^invalid state: conflict between hand bits and unused bits',
-                                State, BLACK, 0, 1, 0, 0x000000ffffffffff, BitBoard())
-        self.assertRaisesRegexp(ValueError, '^invalid state: conflict between promoted bits and unused bits',
-                                State, BLACK, 0, 0, 1, 0x000000ffffffffff, BitBoard())
-        self.assertRaisesRegexp(ValueError, '^invalid state: conflict between hand bits and promoted bits',
-                                State, BLACK, 0, 1, 1, 0x000000fffffffffe, BitBoard(1, 0), [
-                                    0xffffffffffffff00, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff
-                                ])
-        self.assertRaisesRegexp(ValueError, '^invalid state: position must be in hand or unused',
-                                State, BLACK, 0, 0, 0, 0x000000fffffffffe, BitBoard(1, 0), [
-                                    0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff
-                                ])
-        self.assertRaisesRegexp(ValueError, '^invalid state: position must not be in hand or unused',
-                                State, BLACK, 0, 1, 0, 0x000000fffffffffe, BitBoard(1, 0), [
-                                    0xffffffffffffff00, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff
-                                ])
-        self.assertRaisesRegexp(ValueError, '^invalid state: position must not be in hand or unused',
-                                State, BLACK, 0, 0, 0, 0x000000ffffffffff, BitBoard(1, 0), [
-                                    0xffffffffffffff00, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff
-                                ])
-        self.assertRaisesRegexp(ValueError, '^invalid state: invalid position value',
-                                State, BLACK, 0, 0, 0, 0x000000fffffffffe, BitBoard(1, 0), [
-                                    0xffffffffffffff51, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff
-                                ])
-        self.assertRaisesRegexp(ValueError, '^invalid state: invalid position value',
-                                State, BLACK, 0, 0, 0, 0x000000fffffffffe, BitBoard(1, 0), [
-                                    0xfffffffffffffffe, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff
-                                ])
-        self.assertRaisesRegexp(ValueError, '^invalid state: position already taken',
-                                State, BLACK, 0, 0, 0, 0x000000fffffffffc, BitBoard(1, 0), [
-                                    0xffffffffffff0000, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff
-                                ])
-        self.assertRaisesRegexp(ValueError, '^invalid state: inconsistent board bitboard',
-                                State, BLACK, 0, 0, 0, 0x000000fffffffffe, BitBoard(1, 0), [
-                                    0xffffffffffffff01, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff
-                                ])
+        self.assertRaisesRegex(ValueError, '^position must have 5 elements', State,
+                               BLACK, 0, 0, 0, 0x000000ffffffffff, BitBoard(), [])
+        self.assertRaisesRegex(ValueError, '^invalid state: conflict between owner bits and unused bits',
+                               State, BLACK, 1, 0, 0, 0x000000ffffffffff, BitBoard())
+        self.assertRaisesRegex(ValueError, '^invalid state: conflict between hand bits and unused bits',
+                               State, BLACK, 0, 1, 0, 0x000000ffffffffff, BitBoard())
+        self.assertRaisesRegex(ValueError, '^invalid state: conflict between promoted bits and unused bits',
+                               State, BLACK, 0, 0, 1, 0x000000ffffffffff, BitBoard())
+        self.assertRaisesRegex(ValueError, '^invalid state: conflict between hand bits and promoted bits',
+                               State, BLACK, 0, 1, 1, 0x000000fffffffffe, BitBoard(1, 0), [
+                                   0xffffffffffffff00, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff
+                               ])
+        self.assertRaisesRegex(ValueError, '^invalid state: position must be in hand or unused',
+                               State, BLACK, 0, 0, 0, 0x000000fffffffffe, BitBoard(1, 0), [
+                                   0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff
+                               ])
+        self.assertRaisesRegex(ValueError, '^invalid state: position must not be in hand or unused',
+                               State, BLACK, 0, 1, 0, 0x000000fffffffffe, BitBoard(1, 0), [
+                                   0xffffffffffffff00, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff
+                               ])
+        self.assertRaisesRegex(ValueError, '^invalid state: position must not be in hand or unused',
+                               State, BLACK, 0, 0, 0, 0x000000ffffffffff, BitBoard(1, 0), [
+                                   0xffffffffffffff00, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff
+                               ])
+        self.assertRaisesRegex(ValueError, '^invalid state: invalid position value',
+                               State, BLACK, 0, 0, 0, 0x000000fffffffffe, BitBoard(1, 0), [
+                                   0xffffffffffffff51, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff
+                               ])
+        self.assertRaisesRegex(ValueError, '^invalid state: invalid position value',
+                               State, BLACK, 0, 0, 0, 0x000000fffffffffe, BitBoard(1, 0), [
+                                   0xfffffffffffffffe, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff
+                               ])
+        self.assertRaisesRegex(ValueError, '^invalid state: position already taken',
+                               State, BLACK, 0, 0, 0, 0x000000fffffffffc, BitBoard(1, 0), [
+                                   0xffffffffffff0000, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff
+                               ])
+        self.assertRaisesRegex(ValueError, '^invalid state: inconsistent board bitboard',
+                               State, BLACK, 0, 0, 0, 0x000000fffffffffe, BitBoard(1, 0), [
+                                   0xffffffffffffff01, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff
+                               ])
+
+    def test_repr(self):
+        expect = ''.join([
+            'State(turn=Turn(value=0), ',
+            'owner_bits=0x0000000000000000, hand_bits=0x0000000000000000, promoted_bits=0x0000000000000000, ',
+            'unused_bits=0x000000ffffffffff, board=BitBoard(000.000.000,000.000.000,000.000.000), ',
+            'position=[0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff])'
+        ])
+        self.assertEqual(repr(State()), expect)
 
     def test_set_turn(self):
         self.assertEqual(State().set_turn(WHITE.value), State(WHITE))
@@ -302,10 +311,10 @@ class TestState(unittest.TestCase):
         self.assertEqual(str(State.from_string(STR_MAX_LEGAL_MOVES)), STR_MAX_LEGAL_MOVES)
 
     def test_from_string_error(self):
-        self.assertRaisesRegexp(ValueError, '^Mal-formed state string', State.from_string, '')
-        self.assertRaisesRegexp(ValueError, '^Mal-formed CSA string for Turn', State.from_string, 'PI')
-        self.assertRaisesRegexp(ValueError, '^Mal-formed bundle expression', State.from_string, 'P1\n+')
-        self.assertRaisesRegexp(ValueError, '^Mal-formed bundle expression', State.from_string, '\n'.join([
+        self.assertRaisesRegex(ValueError, '^Mal-formed state string', State.from_string, '')
+        self.assertRaisesRegex(ValueError, '^Mal-formed CSA string for Turn', State.from_string, 'PI')
+        self.assertRaisesRegex(ValueError, '^Mal-formed bundle expression', State.from_string, 'P1\n+')
+        self.assertRaisesRegex(ValueError, '^Mal-formed bundle expression', State.from_string, '\n'.join([
             'P1 *  *  *  *  *  *  *  *  * ',
             'P2 *  *  *  *  *  *  *  *  * ',
             'P3 *  *  *  *  *  *  *  *  * ',
@@ -317,7 +326,7 @@ class TestState(unittest.TestCase):
             'P9 *  *  *  *  *  *  *  *  *',
             'P+',
             '+']))
-        self.assertRaisesRegexp(ValueError, '^Mal-formed bundle expression', State.from_string, '\n'.join([
+        self.assertRaisesRegex(ValueError, '^Mal-formed bundle expression', State.from_string, '\n'.join([
             'P1 *  *  *  *  *  *  *  *  * ',
             'P2 *  *  *  *  *  *  *  *  * ',
             'P3 *  *  *  *  *  *  *  *  * ',
@@ -329,32 +338,32 @@ class TestState(unittest.TestCase):
             'P8 *  *  *  *  *  *  *  *  * ',
             'P+',
             '+']))
-        self.assertRaisesRegexp(ValueError, '^Unmatched piece type in initiated expression',
-                                State.from_string, 'PI82KA\n+')
-        self.assertRaisesRegexp(ValueError, '^Position to remove is already empty', State.from_string, 'PI82HI82HI\n+')
-        self.assertRaisesRegexp(ValueError, '^Position to remove is already empty',
-                                State.from_string, 'PI55KA\nP-00AL55KA\n+')
-        self.assertRaisesRegexp(ValueError, '^Position to remove is already empty',
-                                State.from_string, 'PI55KA\nP-00AL\nP-55KA\n+')
+        self.assertRaisesRegex(ValueError, '^Unmatched piece type in initiated expression',
+                               State.from_string, 'PI82KA\n+')
+        self.assertRaisesRegex(ValueError, '^Position to remove is already empty', State.from_string, 'PI82HI82HI\n+')
+        self.assertRaisesRegex(ValueError, '^Position to remove is already empty',
+                               State.from_string, 'PI55KA\nP-00AL55KA\n+')
+        self.assertRaisesRegex(ValueError, '^Position to remove is already empty',
+                               State.from_string, 'PI55KA\nP-00AL\nP-55KA\n+')
 
-        self.assertRaisesRegexp(ValueError, '^Mal-formed CSA string for Pos', State.from_string, 'PI8\n+')
-        self.assertRaisesRegexp(ValueError, '^Mal-formed CSA string for PieceType', State.from_string, 'PI82\n+')
-        self.assertRaisesRegexp(ValueError, '^Mal-formed CSA string for PieceType', State.from_string, 'PI82H\n+')
-        self.assertRaisesRegexp(ValueError, '^Mal-formed CSA string for PieceType',
-                                State.from_string, 'P+00AL\nP-00AL\n+')
+        self.assertRaisesRegex(ValueError, '^Mal-formed CSA string for Pos', State.from_string, 'PI8\n+')
+        self.assertRaisesRegex(ValueError, '^Mal-formed CSA string for PieceType', State.from_string, 'PI82\n+')
+        self.assertRaisesRegex(ValueError, '^Mal-formed CSA string for PieceType', State.from_string, 'PI82H\n+')
+        self.assertRaisesRegex(ValueError, '^Mal-formed CSA string for PieceType',
+                               State.from_string, 'P+00AL\nP-00AL\n+')
 
         # C++ errors
-        self.assertRaisesRegexp(ValueError, '^no left for the piece', State.from_string, 'P+11OU12OU\n+')
-        self.assertRaisesRegexp(ValueError, '^king in hand', State.from_string, 'P+00OU\n+')
-        self.assertRaisesRegexp(ValueError, '^promoted piece in hand', State.from_string, 'P+00TO\n+')
-        self.assertRaisesRegexp(ValueError, '^position already taken', State.from_string, 'P+55FU55KA\n+')
-        self.assertRaisesRegexp(ValueError, '^two pawns in the same file', State.from_string, 'P+12FU13FU\n+')
-        self.assertRaisesRegexp(ValueError, '^unmovable piece', State.from_string, 'P+11FU\n+')
-        self.assertRaisesRegexp(ValueError, '^unmovable piece', State.from_string, 'P+11KY\n+')
-        self.assertRaisesRegexp(ValueError, '^unmovable piece', State.from_string, 'P+12KE\n+')
-        self.assertRaisesRegexp(ValueError, '^unmovable piece', State.from_string, 'P-19FU\n+')
-        self.assertRaisesRegexp(ValueError, '^unmovable piece', State.from_string, 'P-19KY\n+')
-        self.assertRaisesRegexp(ValueError, '^unmovable piece', State.from_string, 'P-18KE\n+')
+        self.assertRaisesRegex(ValueError, '^no left for the piece', State.from_string, 'P+11OU12OU\n+')
+        self.assertRaisesRegex(ValueError, '^king in hand', State.from_string, 'P+00OU\n+')
+        self.assertRaisesRegex(ValueError, '^promoted piece in hand', State.from_string, 'P+00TO\n+')
+        self.assertRaisesRegex(ValueError, '^position already taken', State.from_string, 'P+55FU55KA\n+')
+        self.assertRaisesRegex(ValueError, '^two pawns in the same file', State.from_string, 'P+12FU13FU\n+')
+        self.assertRaisesRegex(ValueError, '^unmovable piece', State.from_string, 'P+11FU\n+')
+        self.assertRaisesRegex(ValueError, '^unmovable piece', State.from_string, 'P+11KY\n+')
+        self.assertRaisesRegex(ValueError, '^unmovable piece', State.from_string, 'P+12KE\n+')
+        self.assertRaisesRegex(ValueError, '^unmovable piece', State.from_string, 'P-19FU\n+')
+        self.assertRaisesRegex(ValueError, '^unmovable piece', State.from_string, 'P-19KY\n+')
+        self.assertRaisesRegex(ValueError, '^unmovable piece', State.from_string, 'P-18KE\n+')
 
     def test_move(self):
         t = {}

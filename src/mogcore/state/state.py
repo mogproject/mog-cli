@@ -65,7 +65,8 @@ class State(cmogcore.State):
         return 'State(turn=%r, %s, board=%r, position=[%s])' % (turn, flags, board, p)
 
     def __repr__(self):
-        return __repr_string(self.turn, self.owner_bits, self.hand_bits, self.promoted_bits, self.unused_bits, self.board, self.position)
+        return self.__repr_string(
+            self.turn, self.owner_bits, self.hand_bits, self.promoted_bits, self.unused_bits, self.board, self.position)
 
     @classmethod
     def from_string(cls, s):

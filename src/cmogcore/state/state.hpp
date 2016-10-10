@@ -237,17 +237,19 @@ struct State {
   }
 
  private:
+ // todo: create in the compile time?
   static constexpr util::Array<u64, 8> __piece_masks = {{
-      0xc000000000ULL,  // king
       0x0000000003ULL,  // rook
       0x000000000cULL,  // bishop
       0x00000000f0ULL,  // lance
-      0x3c00000000ULL,  // gold
       0x0000000f00ULL,  // silver
       0x000000f000ULL,  // knight
       0x03ffff0000ULL,  // pawn
+      0x3c00000000ULL,  // gold
+      0xc000000000ULL,  // king
   }};
 
+  // todo: create in the compile time?
   static constexpr util::Array<u64, NUM_PIECES> __raw_piece_types = {
       {ptype::ROOK,   ptype::ROOK,   ptype::BISHOP, ptype::BISHOP, ptype::LANCE,  ptype::LANCE,  ptype::LANCE,  ptype::LANCE,
        ptype::SILVER, ptype::SILVER, ptype::SILVER, ptype::SILVER, ptype::KNIGHT, ptype::KNIGHT, ptype::KNIGHT, ptype::KNIGHT,

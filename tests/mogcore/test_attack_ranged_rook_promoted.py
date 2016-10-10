@@ -1,5 +1,5 @@
 import unittest
-from mogcore import Attack, BitBoard, BLACK, WHITE
+from mogcore import Attack, BitBoard, BLACK, WHITE, PROOK
 from .gen_bitboard import gen_bitboard, gen_index
 from .util.bitboard_util import bitboards_from_string
 
@@ -8,7 +8,7 @@ empty = BitBoard.EMPTY
 
 
 class TestAttackRangedRookPromoted(unittest.TestCase):
-    ptype = 9
+    ptype = PROOK
 
     def test_get_attack_rook_promoted(self):
         ss = [

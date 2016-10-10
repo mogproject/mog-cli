@@ -40,7 +40,7 @@ setup(
             library_dirs=['/usr/lib', '/usr/local/lib'],
             libraries=['boost_python3'],
             extra_compile_args=['-std=c++1y', '-pthread', '-Wall', '-O3', '-fconstexpr-steps=2147483647'],
-            extra_link_args=['-pthread'],
+            extra_link_args=[],
         )
     ],
 )

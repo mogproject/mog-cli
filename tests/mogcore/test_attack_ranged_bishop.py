@@ -1,5 +1,5 @@
 import unittest
-from mogcore import Attack, BitBoard, BLACK, WHITE
+from mogcore import Attack, BitBoard, BLACK, WHITE, BISHOP
 from .gen_bitboard import gen_bitboard, gen_index
 from .util.bitboard_util import bitboards_from_string
 
@@ -8,7 +8,7 @@ empty = BitBoard.EMPTY
 
 
 class TestAttackRangedBishop(unittest.TestCase):
-    ptype = 2
+    ptype = BISHOP
 
     def test_get_attack_bishop(self):
         ss = [

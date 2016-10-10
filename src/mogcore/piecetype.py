@@ -3,11 +3,11 @@ from .atomiccsatype import AtomicCsaType
 
 
 class PieceType(AtomicCsaType):
-    table = ['OU', 'HI', 'KA', 'KY', 'KI', 'GI', 'KE', 'FU',
-             None, 'RY', 'UM', 'NY', None, 'NG', 'NK', 'TO']
+    table = ['HI', 'KA', 'KY', 'GI', 'KE', 'FU', 'KI', 'OU',
+             'RY', 'UM', 'NY', 'NG', 'NK', 'TO']
 
     # max number of each pieces
-    capacity = [2, 2, 2, 4, 4, 4, 4, 18]
+    capacity = [2, 2, 4, 4, 4, 18, 4, 2]
 
     def __init__(self, value):
         super(PieceType, self).__init__(value)
@@ -39,9 +39,9 @@ class PieceType(AtomicCsaType):
 
 # define piece types
 (
-    KING, ROOK, BISHOP, LANCE, GOLD, SILVER, KNIGHT, PAWN,
+    ROOK, BISHOP, LANCE, SILVER, KNIGHT, PAWN, GOLD, KING,
     PROOK, PBISHOP, PLANCE, PSILVER, PKNIGHT, PPAWN
-) = (PieceType(i) for i in range(16) if i not in [8, 12])
+) = (PieceType(i) for i in range(14))
 
 # List of hand-available piece types (ordered)
 PIECE_TYPE_HANDS = [ROOK, BISHOP, GOLD, SILVER, KNIGHT, LANCE, PAWN]

@@ -18,9 +18,9 @@ namespace mog {
         constexpr auto full = bitboard::FULL;
 
         constexpr BitBoard bb_table_aerial_mask[] = {
-          // king rook bishop lance  gold   silver knight  pawn
-          full, empty, empty, rank1, empty, empty, rank12, rank1,
-          full, full,  full,  full,  full,  full,  full,   full,
+          // rook bishop lance silver knight  pawn   gold,  king
+          empty, empty, rank1, empty, rank12, rank1, empty, full,
+          full,  full,  full,  full,  full,   full,  full,  full,
         };
 
         inline constexpr BitBoard make_attack_bb(int const owner, int const ptype) {
