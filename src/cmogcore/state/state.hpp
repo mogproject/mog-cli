@@ -62,42 +62,28 @@ struct State {
    *
    * Note: the order of pieces does not matters
    */
-  // constexpr bool operator==(State const &rhs) const {
-  bool operator==(State const &rhs) const {
-    typedef util::Array<util::Array<BitBoard, 14>, 2> B;
-    typedef util::Array<util::Array<int, 7>, 2> H;
+  constexpr bool operator==(State const &rhs) const {
+    return turn == rhs.turn && __equals_helper(*this) == __equals_helper(rhs);
+  }
 
-    B lbbs, rbbs;
-    H lhands, rhands;
+  static constexpr std::pair<util::Array<util::Array<BitBoard, 14>, 2>, util::Array<util::Array<int, 7>, 2>> __equals_helper(State const& s) {
+    util::Array<util::Array<BitBoard, 14>, 2> bbs;
+    util::Array<util::Array<int, 7>, 2> hands = {{}}; 
 
-    // todo: refactor to eliminate this duplicate code
     for (auto slot_id = 0; slot_id < NUM_PIECES; ++slot_id) {
-      if (!is_used(slot_id)) continue;
-      auto owner = get_owner(slot_id);
-      auto piece_type = get_piece_type(slot_id);
-      auto pos = get_position(slot_id);
+      if (!s.is_used(slot_id)) continue;
+      auto owner = s.get_owner(slot_id);
+      auto piece_type = s.get_piece_type(slot_id);
+      auto pos = s.get_position(slot_id);
 
       if (pos == pos::HAND) {
-        lhands[owner][piece_type] += 1;
+        hands[owner][piece_type] += 1;
       } else {
-        lbbs[owner][piece_type] = lbbs[owner][piece_type].set(pos);
+        bbs[owner][piece_type] = bbs[owner][piece_type].set(pos);
       }
     }
 
-    for (auto slot_id = 0; slot_id < NUM_PIECES; ++slot_id) {
-      if (!rhs.is_used(slot_id)) continue;
-      auto owner = rhs.get_owner(slot_id);
-      auto piece_type = rhs.get_piece_type(slot_id);
-      auto pos = rhs.get_position(slot_id);
-
-      if (pos == pos::HAND) {
-        lhands[owner][piece_type] += 1;
-      } else {
-        rbbs[owner][piece_type] = rbbs[owner][piece_type].set(pos);
-      }
-    }
-
-    return turn == rhs.turn && lbbs == rbbs && lhands == rhands;
+    return std::move(std::make_pair(bbs, hands));
   }
 
   constexpr bool operator!=(State const &rhs) const { return !this->operator==(rhs); }
