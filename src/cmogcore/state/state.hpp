@@ -248,7 +248,7 @@ struct State {
 
     // check board
     BitBoard bb;
-    for (int i = 0; i < 40; ++i) {
+    for (int i = 0; i < NUM_PIECES; ++i) {
       int pos = __get_position(i);
 
       if (pos == 0xff) {

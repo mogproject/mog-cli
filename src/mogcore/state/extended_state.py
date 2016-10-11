@@ -34,5 +34,5 @@ class ExtendedState(cmogcore.ExtendedState):
                     ret.extend([Move(o, pos, Pos(to), pt) for to in lm[j].to_list()])
         return ret
 
-    def move_next(move: Move) -> None:
-        self.move(move.turn, move.from_, move.to, move.piece_type)
+    def move(self, move: Move) -> None:
+        cmogcore.ExtendedState.move(self, move.turn.value, move.from_.value, move.to.value, move.piece_type.value)

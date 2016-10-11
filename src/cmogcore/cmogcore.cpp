@@ -152,8 +152,7 @@ BOOST_PYTHON_MODULE(cmogcore) {
       .def_readonly("state", &state::ExtendedState::state)
       .def("get_attack_bb", &state::ExtendedState::get_attack_bb)
       .def("get_legal_moves", &state::ExtendedState::get_legal_moves)
-      .def("move", static_cast<void (state::ExtendedState::*)(int, int, bool)>(&state::ExtendedState::move))
-      .def("move", static_cast<void (state::ExtendedState::*)(int, int, int, bool)>(&state::ExtendedState::move));
+      .def("move", &state::ExtendedState::move);
 
   class_<Attack>("Attack")
       .def("get_attack", static_cast<BitBoard (*)(int, int, int)>(&attack::get_attack))

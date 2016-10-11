@@ -109,29 +109,33 @@ struct ExtendedState {
   /*
    * Make one move.
    */
-  void move(int slot_id, int to_pos, bool promote) {
-    assert(0 <= slot_id && slot_id < State::NUM_PIECES);
+  void move(int turn, int from_pos, int to_pos, int to_ptype) {
+    // todo: assertion
+    if (turn != state.turn) throw RuntimeError("invalid turn");
+
+    bool from_hand = from_pos == pos::HAND;
+    auto slot_id = from_hand ? __get_hand_slot(turn, to_ptype) : board_table[from_pos];
+    auto from_ptype = from_hand ? to_ptype : state.get_piece_type(slot_id);
+    bool promote = from_ptype != to_ptype;
 
     auto captured_slot_id = -1;
 
     // captured piece
     if (board_table[to_pos] != EMPTY_CELL) {
       captured_slot_id = board_table[to_pos];
-      occ[state.turn ^ 1] = occ[state.turn ^ 1].reset(to_pos);
-      if (state.get_piece_type(captured_slot_id) == ptype::PAWN) occ_pawn[state.turn ^ 1] = occ_pawn[state.turn ^ 1].reset(to_pos);
+      occ[turn ^ 1] = occ[turn ^ 1].reset(to_pos);
+      if (state.get_piece_type(captured_slot_id) == ptype::PAWN) occ_pawn[turn ^ 1] = occ_pawn[state.turn ^ 1].reset(to_pos);
     }
 
     // moved piece
-    auto from_ptype = state.get_piece_type(slot_id);
-    auto to_ptype = from_ptype | (promote ? 8 : 0);
-    auto from_pos = state.get_position(slot_id);
+    if (!from_hand) {
+      occ[turn] = occ[turn].reset(from_pos);
+      if (from_ptype == ptype::PAWN) occ_pawn[turn] = occ_pawn[turn].reset(from_pos);
+      board_table[from_pos] = EMPTY_CELL;
+    }
 
-    occ[state.turn] = occ[state.turn].reset(from_pos);
-    occ[state.turn] = occ[state.turn].set(to_pos);
-
-    if (from_ptype == ptype::PAWN) occ_pawn[state.turn] = occ_pawn[state.turn].reset(from_pos);
-    if (to_ptype == ptype::PAWN) occ_pawn[state.turn] = occ[state.turn].set(to_pos);
-
+    occ[turn] = occ[turn].set(to_pos);
+    if (to_ptype == ptype::PAWN) occ_pawn[turn] = occ[turn].set(to_pos);
     board_table[to_pos] = slot_id;
 
     // update state
@@ -142,7 +146,8 @@ struct ExtendedState {
         ptype::is_ranged(to_ptype) ? attack::get_attack(to_ptype, to_pos, state.board) : attack::get_attack(to_ptype, to_ptype, to_pos);
 
     // on-board ranged pieces (can be affected by this move)
-    BitBoard from_and_to = BitBoard().set(from_pos).set(to_pos);
+    BitBoard from_and_to = BitBoard().set(to_pos);
+    if (!from_hand) from_and_to.set(from_pos);
 
     u64 mask = ~(state.unused_bits | state.hand_bits | (state.piece_masks[ptype::LANCE] & state.promoted_bits));
     for (auto i = 0; i < 8; ++i) {  // slot id: ROOK, BISHOP, LANCE
@@ -152,15 +157,11 @@ struct ExtendedState {
       auto piece_type = state.get_piece_type(i);
       auto pos = state.get_position(i);
 
-      if (((mask >> i) & 1) && (attack_bbs[i] & from_and_to).is_defined()) attack_bbs[i] = attack::get_attack(owner, piece_type, pos, state.board);
+      if (((mask >> i) & 1) && (attack_bbs[i] & from_and_to).is_defined())
+        attack_bbs[i] = attack::get_attack(owner, piece_type, pos, state.board);
     }
   }
 
-  void move(int turn, int from_pos, int to_pos, bool promote) {
-    // todo; check turn and throw error
-    move(board_table[from_pos], to_pos, promote);
-  }
-  
   /** get attack bitboards */
   BitBoard get_attack_bb(size_t index) const { return index < State::NUM_PIECES ? attack_bbs[index] : bitboard::EMPTY; }
 
@@ -177,6 +178,11 @@ struct ExtendedState {
     } else {
       return bitboard::FULL;
     }
+  }
+
+  constexpr int __get_hand_slot(int owner, int piece_type) const {
+    u64 mask = state.piece_masks[piece_type] & (owner ? state.owner_bits : ~state.owner_bits) & state.hand_bits;
+    return ntz(mask);
   }
 };
 }
