@@ -2,6 +2,7 @@
 #include "bitboard.hpp"
 #include "attack.hpp"
 #include "state/state.hpp"
+#include "state/extended_state.hpp"
 #include "state/simplestate.hpp"
 #include "state/parsedstate.hpp"
 
@@ -52,13 +53,11 @@ void expose_pylist_to_array() {
 }
 
 // exceptions
-void translateRuntimeError(mog::core::RuntimeError const& e) {
-  PyErr_SetString(PyExc_RuntimeError, e.what());
-}
+void translateRuntimeError(mog::core::RuntimeError const& e) { PyErr_SetString(PyExc_RuntimeError, e.what()); }
 }  // namespace cmogcore
 
 // constants
-constexpr mog::core::util::Array<mog::core::u64, 8> mog::core::state::State::__piece_masks;
+constexpr mog::core::util::Array<mog::core::u64, 8> mog::core::state::State::piece_masks;
 constexpr mog::core::util::Array<mog::core::u64, mog::core::state::State::NUM_PIECES> mog::core::state::State::__raw_piece_types;
 
 BOOST_PYTHON_MODULE(cmogcore) {
@@ -162,6 +161,13 @@ BOOST_PYTHON_MODULE(cmogcore) {
       .def("get_attack_bb", &state::ParsedState::get_attack_bb)
       .def("get_legal_moves", &state::ParsedState::get_legal_moves)
       .def("move_next", &state::ParsedState::move_next);
+
+  class_<state::ExtendedState>("ExtendedState", init<state::State>())
+      .def_readonly("state", &state::ExtendedState::state)
+      .def("get_attack_bb", &state::ExtendedState::get_attack_bb)
+      .def("get_legal_moves", &state::ExtendedState::get_legal_moves)
+      .def("move", static_cast<void (state::ExtendedState::*)(int, int, bool)>(&state::ExtendedState::move))
+      .def("move", static_cast<void (state::ExtendedState::*)(int, int, int, bool)>(&state::ExtendedState::move));
 
   class_<Attack>("Attack")
       .def("get_attack", static_cast<BitBoard (*)(int, int, int)>(&attack::get_attack))

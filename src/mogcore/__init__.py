@@ -5,5 +5,6 @@ from .pos import *
 from .move import Move
 from .attack import Attack
 from .state.state import State
+from .state.extended_state import ExtendedState
 from .state.simplestate import SimpleState
 from .state.parsedstate import ParsedState

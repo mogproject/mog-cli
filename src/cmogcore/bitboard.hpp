@@ -30,6 +30,9 @@ namespace mog {
       constexpr BitBoard operator^(BitBoard const& rhs) const { return BitBoard(lo ^ rhs.lo, hi ^ rhs.hi); }
       constexpr BitBoard operator~() const { return BitBoard(~lo, ~hi); }
 
+      constexpr bool is_defined() const { return lo || hi; }
+      constexpr bool is_empty() const { return !is_defined(); }
+
       constexpr bool get(int const index) const {
         return (rshift(lo, index) | rshift(hi, index - 54)) & 1ULL;
       }

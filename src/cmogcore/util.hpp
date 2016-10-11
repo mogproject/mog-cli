@@ -75,6 +75,7 @@ namespace turn {
 
 int const BLACK = 0;
 int const WHITE = 1;
+int const NUM_TURNS = 2;
 }
 
 // Piece Type
@@ -125,6 +126,7 @@ inline constexpr bool can_promote(int ptype) { return ptype != KING && ptype != 
 // Position
 namespace pos {
 int const HAND = 81;
+int const NUM_CELLS = 81;
 
 inline constexpr int make_pos(int const file, int const rank) {
   return (1 <= file && file <= 9 && 1 <= rank && rank <= 9) ? rank * 9 + file - 10 : -1;

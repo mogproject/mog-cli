@@ -62,13 +62,12 @@ struct State {
    *
    * Note: the order of pieces does not matters
    */
-  constexpr bool operator==(State const &rhs) const {
-    return turn == rhs.turn && __equals_helper(*this) == __equals_helper(rhs);
-  }
+  constexpr bool operator==(State const &rhs) const { return turn == rhs.turn && __equals_helper(*this) == __equals_helper(rhs); }
 
-  static constexpr std::pair<util::Array<util::Array<BitBoard, 14>, 2>, util::Array<util::Array<int, 7>, 2>> __equals_helper(State const& s) {
+  static constexpr std::pair<util::Array<util::Array<BitBoard, 14>, 2>, util::Array<util::Array<int, 7>, 2>> __equals_helper(
+      State const &s) {
     util::Array<util::Array<BitBoard, 14>, 2> bbs;
-    util::Array<util::Array<int, 7>, 2> hands = {{}}; 
+    util::Array<util::Array<int, 7>, 2> hands = {{}};
 
     for (auto slot_id = 0; slot_id < NUM_PIECES; ++slot_id) {
       if (!s.is_used(slot_id)) continue;
@@ -264,9 +263,8 @@ struct State {
     if (bb != board) throw RuntimeError("inconsistent board bitboard");
   }
 
- private:
   // todo: create in the compile time?
-  static constexpr util::Array<u64, 8> __piece_masks = {{
+  static constexpr util::Array<u64, 8> piece_masks = {{
       0x0000000003ULL,  // rook
       0x000000000cULL,  // bishop
       0x00000000f0ULL,  // lance
@@ -277,6 +275,7 @@ struct State {
       0xc000000000ULL,  // king
   }};
 
+ private:
   // todo: create in the compile time?
   static constexpr util::Array<u64, NUM_PIECES> __raw_piece_types = {
       {ptype::ROOK,   ptype::ROOK,   ptype::BISHOP, ptype::BISHOP, ptype::LANCE,  ptype::LANCE,  ptype::LANCE,  ptype::LANCE,
@@ -293,7 +292,7 @@ struct State {
     if (piece_type == ptype::KING) {
       return unused_bits & (1ULL << (38 + owner_bit)) ? 38 + owner_bit : 64;  // 38=king's offset
     } else {
-      return ntz(unused_bits & __piece_masks[ptype::demoted(piece_type)]);
+      return ntz(unused_bits & piece_masks[ptype::demoted(piece_type)]);
     }
   }
 
