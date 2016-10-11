@@ -3,8 +3,6 @@
 #include "attack.hpp"
 #include "state/state.hpp"
 #include "state/extended_state.hpp"
-#include "state/simplestate.hpp"
-#include "state/parsedstate.hpp"
 
 namespace cmogcore {
 namespace py = boost::python;
@@ -70,8 +68,8 @@ BOOST_PYTHON_MODULE(cmogcore) {
 
   // expose converters
   expose_seq_to_list<std::vector<int>>();
-  expose_seq_to_list<state::ParsedState::LegalMoveList>();
   expose_seq_to_list<state::State::PositionList>();
+  expose_seq_to_list<state::ExtendedState::LegalMoveList>();
   expose_pylist_to_array<u64, 5>();
 
   // expose classes
@@ -149,18 +147,6 @@ BOOST_PYTHON_MODULE(cmogcore) {
       .def("set_all_hand", &state::State::set_all_hand)
       .def("move", &state::State::move)
       .def(self == self);
-
-  class_<state::SimpleState>("SimpleState", init<int, list>())
-      .def_readonly("turn", &state::SimpleState::turn)
-      .def("get_piece", &state::SimpleState::get_piece)
-      .def(self == self);
-
-  class_<state::ParsedState>("ParsedState", init<state::SimpleState>())
-      .def_readonly("turn", &state::ParsedState::turn)
-      .def("get_piece", &state::ParsedState::get_piece)
-      .def("get_attack_bb", &state::ParsedState::get_attack_bb)
-      .def("get_legal_moves", &state::ParsedState::get_legal_moves)
-      .def("move_next", &state::ParsedState::move_next);
 
   class_<state::ExtendedState>("ExtendedState", init<state::State>())
       .def_readonly("state", &state::ExtendedState::state)
