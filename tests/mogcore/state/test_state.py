@@ -60,6 +60,33 @@ class TestState(unittest.TestCase):
                                    0xffffffffffffff01, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff
                                ])
 
+    def test_equals(self):
+        x = State.from_string(
+            'P1 *  *  *  *  *  *  *  *  * \n' +
+            'P2 *  *  *  *  *  *  *  *  * \n' +
+            'P3 *  *  *  *  *  *  *  *  * \n' +
+            'P4 *  *  *  * +TO+FU *  *  * \n' +
+            'P5 *  *  *  *  *  *  *  *  * \n' +
+            'P6 *  *  *  *  *  *  *  *  * \n' +
+            'P7 *  *  *  *  *  *  *  *  * \n' +
+            'P8 *  *  *  *  *  *  *  *  * \n' +
+            'P9 *  *  *  *  *  *  *  *  * \n' +
+            '+'
+        )
+        y = State.from_string(
+            'P1 *  *  *  *  *  *  *  *  * \n' +
+            'P2 *  *  *  *  *  *  *  *  * \n' +
+            'P3 *  *  *  *  *  *  *  *  * \n' +
+            'P4 *  *  *  * +FU+TO *  *  * \n' +
+            'P5 *  *  *  *  *  *  *  *  * \n' +
+            'P6 *  *  *  *  *  *  *  *  * \n' +
+            'P7 *  *  *  *  *  *  *  *  * \n' +
+            'P8 *  *  *  *  *  *  *  *  * \n' +
+            'P9 *  *  *  *  *  *  *  *  * \n' +
+            '+'
+        )
+        self.assertFalse(x == y)
+
     def test_repr(self):
         expect = ''.join([
             'State(turn=Turn(value=0), ',
@@ -171,6 +198,31 @@ class TestState(unittest.TestCase):
             'P7+FU+FU+FU+FU+FU+FU+FU+FU+FU\n' +
             'P8 * +KA *  *  *  *  * +HI * \n' +
             'P9+KY+KE+GI+KI+OU+KI+GI+KE+KY\n' +
+            'P+\n' +
+            'P-\n' +
+            '+')
+
+        self.assertEqual(str(State.from_string(
+            'P1-TO *  *  *  *  *  *  * +TO\n' +
+            'P2+TO *  *  *  *  *  *  * +FU\n' +
+            'P3+TO *  *  *  *  *  *  * +TO\n' +
+            'P4+TO *  *  *  *  *  *  * +TO\n' +
+            'P5+TO *  *  *  *  *  *  * +TO\n' +
+            'P6+TO *  *  *  *  *  *  * +TO\n' +
+            'P7+TO *  *  *  *  *  *  * +TO\n' +
+            'P8-FU *  *  *  *  *  *  * +TO\n' +
+            'P9-TO *  *  *  *  *  *  * +TO\n' +
+            '+'
+        )),
+            'P1-TO *  *  *  *  *  *  * +TO\n' +
+            'P2+TO *  *  *  *  *  *  * +FU\n' +
+            'P3+TO *  *  *  *  *  *  * +TO\n' +
+            'P4+TO *  *  *  *  *  *  * +TO\n' +
+            'P5+TO *  *  *  *  *  *  * +TO\n' +
+            'P6+TO *  *  *  *  *  *  * +TO\n' +
+            'P7+TO *  *  *  *  *  *  * +TO\n' +
+            'P8-FU *  *  *  *  *  *  * +TO\n' +
+            'P9-TO *  *  *  *  *  *  * +TO\n' +
             'P+\n' +
             'P-\n' +
             '+')
@@ -496,5 +548,7 @@ class TestState(unittest.TestCase):
         ]))
 
     def test_from_string_prop(self):
+        self.maxDiff = None
         for st in gen_state(100):
-            self.assertEqual(State.from_string(str(st)), st, 'st=%r' % st)
+            result = State.from_string(str(st))
+            self.assertEqual(result, st, '====\n%s\n==== is not equal to ====\n%s\n====' % (result, st))

@@ -7,16 +7,20 @@ namespace mog {
   namespace core {
     namespace util {
 
-      template <typename T, int N>
+      template <typename T, size_t N>
       struct Array {
         typedef T* iterator;
         typedef T const* const_iterator;
 
         T elems[N];
 
-        constexpr bool operator==(Array<T, N> rhs) const {
-          for (auto i = 0; i < N; ++i) if (elems[i] != rhs.elems[i]) return false;
+        constexpr bool operator==(Array<T, N> const& rhs) const {
+          for (size_t i = 0; i < N; ++i) if (elems[i] != rhs.elems[i]) return false;
           return true;
+        }
+
+        constexpr bool operator!=(Array<T, N> const& rhs) const {
+          return !operator==(rhs);
         }
 
         constexpr T& operator[](size_t n){ return elems[n]; }

@@ -15,9 +15,8 @@ def gen_state(n):
         if num == 2:
             yield STATE_TSUME_BLACK
         else:
-            s = State()
-
-            s.set_turn(rnd.randint(0, 1))
+            pawns = [BitBoard(), BitBoard()]
+            s = State().set_turn(rnd.randint(0, 1))
 
             for i in range(40):
                 if rnd.random() < 0.004:  # randomely set unused
@@ -35,16 +34,30 @@ def gen_state(n):
                 else:
                     if rnd.random() < 0.2:  # randomly promote
                         pt = pt.promoted()
-                    used = s.board
+
+                    used = s._board
+
+                    # exclude unmovable pieces
                     if pt == PAWN or pt == LANCE:
                         used |= BitBoard.rank1.flip_by_turn(owner.value)
                     if pt == KNIGHT:
                         used |= (BitBoard.rank1 | BitBoard.rank2).flip_by_turn(owner.value)
+
+                    # exclude two pawns in the same file
+                    if pt == PAWN:
+                        used |= pawns[owner.value]
+                        if used == BitBoard.FULL:
+                            pt = pt.promoted()
+                            used = s._board
+
                     ps = Pos(rnd.choice((~used).to_list()))
 
-                s.set_piece(owner.value, pt.value, ps.value)
+                    if pt == PAWN:
+                        pawns[owner.value] |= BitBoard.ident(ps.value).spread_all_file()
 
-            yield s
+                s = s.set_piece(owner.value, pt.value, ps.value)
+
+            yield State.wrap(s)
 
 
 STR_HIRATE = '\n'.join([

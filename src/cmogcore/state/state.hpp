@@ -59,10 +59,45 @@ struct State {
 
   /**
    * Compare two objects
+   *
+   * Note: the order of pieces does not matters
    */
-  constexpr bool operator==(State const &rhs) const {
-    return turn == rhs.turn && owner_bits == rhs.owner_bits && hand_bits == rhs.hand_bits && promoted_bits == rhs.promoted_bits &&
-           unused_bits == rhs.unused_bits && position == rhs.position;
+  // constexpr bool operator==(State const &rhs) const {
+  bool operator==(State const &rhs) const {
+    typedef util::Array<util::Array<BitBoard, 14>, 2> B;
+    typedef util::Array<util::Array<int, 7>, 2> H;
+
+    B lbbs, rbbs;
+    H lhands, rhands;
+
+    // todo: refactor to eliminate this duplicate code
+    for (auto slot_id = 0; slot_id < NUM_PIECES; ++slot_id) {
+      if (!is_used(slot_id)) continue;
+      auto owner = get_owner(slot_id);
+      auto piece_type = get_piece_type(slot_id);
+      auto pos = get_position(slot_id);
+
+      if (pos == pos::HAND) {
+        lhands[owner][piece_type] += 1;
+      } else {
+        lbbs[owner][piece_type] = lbbs[owner][piece_type].set(pos);
+      }
+    }
+
+    for (auto slot_id = 0; slot_id < NUM_PIECES; ++slot_id) {
+      if (!rhs.is_used(slot_id)) continue;
+      auto owner = rhs.get_owner(slot_id);
+      auto piece_type = rhs.get_piece_type(slot_id);
+      auto pos = rhs.get_position(slot_id);
+
+      if (pos == pos::HAND) {
+        lhands[owner][piece_type] += 1;
+      } else {
+        rbbs[owner][piece_type] = rbbs[owner][piece_type].set(pos);
+      }
+    }
+
+    return turn == rhs.turn && lbbs == rbbs && lhands == rhands;
   }
 
   constexpr bool operator!=(State const &rhs) const { return !this->operator==(rhs); }
@@ -149,7 +184,8 @@ struct State {
 
       // check pawn files
       if (piece_type == ptype::PAWN) {
-        auto m = ~(unused_bits | hand_bits | (owner ? ~owner_bits : owner_bits));
+        // exclude unused, in-hand, promoted, and opponent's pieces
+        auto m = ~(unused_bits | hand_bits | promoted_bits | (owner ? ~owner_bits : owner_bits));
         for (int i = 16; i < 34; ++i) {
           if (((m >> i) & 1) && pos % 9 == __get_position(i) % 9) throw RuntimeError("two pawns in the same file");
         }
@@ -243,7 +279,7 @@ struct State {
   }
 
  private:
- // todo: create in the compile time?
+  // todo: create in the compile time?
   static constexpr util::Array<u64, 8> __piece_masks = {{
       0x0000000003ULL,  // rook
       0x000000000cULL,  // bishop
