@@ -1,5 +1,5 @@
-#ifndef MOG_CORE_STATE_EXTENDED_DSTATE_HPP_INCLUDED
-#define MOG_CORE_STATE_EXTENDED_DSTATE_HPP_INCLUDED
+#ifndef MOG_CORE_STATE_EXTENDED_STATE_HPP_INCLUDED
+#define MOG_CORE_STATE_EXTENDED_STATE_HPP_INCLUDED
 
 #include <cassert>
 #include <algorithm>
@@ -16,17 +16,24 @@ namespace state {
  */
 struct ExtendedState {
   typedef util::Array<BitBoard, State::NUM_PIECES * 2> LegalMoveList;
+  typedef util::Array<BitBoard, State::NUM_PIECES> AttackBBList;
+  typedef util::Array<int, pos::NUM_CELLS> BoardTable;
+  typedef util::Array<BitBoard, turn::NUM_TURNS> OccBBList;
+
   int const EMPTY_CELL = -1;
 
   State state;
-  util::Array<BitBoard, State::NUM_PIECES> attack_bbs;
-  util::Array<int, pos::NUM_CELLS> board_table;  // pos -> slot_id
-
-  BitBoard occ[turn::NUM_TURNS];
-  BitBoard occ_pawn[turn::NUM_TURNS];
+  AttackBBList attack_bbs = {{}};
+  BoardTable board_table = {{}};  // pos -> slot_id
+  OccBBList occ = {{}};
+  OccBBList occ_pawn = {{}};
 
   // todo: refactor to be a constexpr class?
-  ExtendedState(State const& s) : state(s) {
+
+  constexpr ExtendedState(State const& s, AttackBBList const& attack_bbs, BoardTable board_table, OccBBList occ, OccBBList occ_pawn)
+      : state(s), attack_bbs(attack_bbs), board_table(board_table), occ(occ), occ_pawn(occ_pawn) {}
+
+  constexpr ExtendedState(State const& s) : state(s) {
     std::fill(board_table.begin(), board_table.end(), EMPTY_CELL);
 
     // prepare occupancy bitboards and initialize boards array
@@ -56,7 +63,7 @@ struct ExtendedState {
    * index 0-39: raw moves
    * index 40-79: promoted moves
    */
-  LegalMoveList get_legal_moves() {
+  constexpr LegalMoveList get_legal_moves() const {
     LegalMoveList ret;
 
     int hand_used = 0;
@@ -103,15 +110,19 @@ struct ExtendedState {
         }
       }
     }
-    return ret;
+    return std::move(ret);
   }
 
   /*
    * Make one move.
    */
-  void move(int turn, int from_pos, int to_pos, int to_ptype) {
-    // todo: assertion
+  constexpr ExtendedState move(Move const& m) const {
+    auto turn = m.turn;
     if (turn != state.turn) throw RuntimeError("invalid turn");
+
+    auto from_pos = m.from;
+    auto to_pos = m.to;
+    auto to_ptype = m.piece_type;
 
     bool from_hand = from_pos == pos::HAND;
     auto slot_id = from_hand ? __get_hand_slot(turn, to_ptype) : board_table[from_pos];
@@ -120,50 +131,58 @@ struct ExtendedState {
 
     auto captured_slot_id = -1;
 
+    auto new_attack_bbs = attack_bbs;
+    auto new_board_table = board_table;
+    auto new_occ = occ;
+    auto new_occ_pawn = occ_pawn;
+
     // captured piece
     if (board_table[to_pos] != EMPTY_CELL) {
       captured_slot_id = board_table[to_pos];
-      occ[turn ^ 1] = occ[turn ^ 1].reset(to_pos);
-      if (state.get_piece_type(captured_slot_id) == ptype::PAWN) occ_pawn[turn ^ 1] = occ_pawn[state.turn ^ 1].reset(to_pos);
+      new_occ[turn ^ 1] = new_occ[turn ^ 1].reset(to_pos);
+      if (state.get_piece_type(captured_slot_id) == ptype::PAWN) new_occ_pawn[turn ^ 1] = new_occ_pawn[turn ^ 1].reset(to_pos);
     }
 
     // moved piece
     if (!from_hand) {
-      occ[turn] = occ[turn].reset(from_pos);
-      if (from_ptype == ptype::PAWN) occ_pawn[turn] = occ_pawn[turn].reset(from_pos);
-      board_table[from_pos] = EMPTY_CELL;
+      new_occ[turn] = new_occ[turn].reset(from_pos);
+      if (from_ptype == ptype::PAWN) new_occ_pawn[turn] = new_occ_pawn[turn].reset(from_pos);
+      new_board_table[from_pos] = EMPTY_CELL;
     }
 
-    occ[turn] = occ[turn].set(to_pos);
-    if (to_ptype == ptype::PAWN) occ_pawn[turn] = occ[turn].set(to_pos);
-    board_table[to_pos] = slot_id;
+    new_occ[turn] = new_occ[turn].set(to_pos);
+    if (to_ptype == ptype::PAWN) new_occ_pawn[turn] = new_occ[turn].set(to_pos);
+    new_board_table[to_pos] = slot_id;
 
     // update state
-    state = state.move(slot_id, to_pos, promote, captured_slot_id);
+    auto new_state = state.move(slot_id, to_pos, promote, captured_slot_id);
 
     // update attack bbs
-    attack_bbs[slot_id] =
-        ptype::is_ranged(to_ptype) ? attack::get_attack(to_ptype, to_pos, state.board) : attack::get_attack(to_ptype, to_ptype, to_pos);
+    new_attack_bbs[slot_id] =
+        ptype::is_ranged(to_ptype) ? attack::get_attack(to_ptype, to_pos, new_state.board) : attack::get_attack(to_ptype, to_ptype, to_pos);
 
     // on-board ranged pieces (can be affected by this move)
     BitBoard from_and_to = BitBoard().set(to_pos);
     if (!from_hand) from_and_to.set(from_pos);
 
-    u64 mask = ~(state.unused_bits | state.hand_bits | (state.piece_masks[ptype::LANCE] & state.promoted_bits));
+    u64 mask = ~(new_state.unused_bits | new_state.hand_bits | (new_state.piece_masks[ptype::LANCE] & new_state.promoted_bits));
     for (auto i = 0; i < 8; ++i) {  // slot id: ROOK, BISHOP, LANCE
       if (i == slot_id) continue;
 
-      auto owner = state.get_owner(i);
-      auto piece_type = state.get_piece_type(i);
-      auto pos = state.get_position(i);
+      auto owner = new_state.get_owner(i);
+      auto piece_type = new_state.get_piece_type(i);
+      auto pos = new_state.get_position(i);
 
       if (((mask >> i) & 1) && (attack_bbs[i] & from_and_to).is_defined())
-        attack_bbs[i] = attack::get_attack(owner, piece_type, pos, state.board);
+        new_attack_bbs[i] = attack::get_attack(owner, piece_type, pos, new_state.board);
     }
+
+    return ExtendedState(std::move(new_state), std::move(new_attack_bbs), std::move(new_board_table), std::move(new_occ),
+                         std::move(new_occ_pawn));
   }
 
   /** get attack bitboards */
-  BitBoard get_attack_bb(size_t index) const { return index < State::NUM_PIECES ? attack_bbs[index] : bitboard::EMPTY; }
+  constexpr BitBoard get_attack_bb(size_t index) const { return index < State::NUM_PIECES ? attack_bbs[index] : bitboard::EMPTY; }
 
  private:
   inline constexpr static BitBoard __get_promotion_zone(int const owner) {
@@ -189,4 +208,4 @@ struct ExtendedState {
 }
 }
 
-#endif  // MOG_CORE_STATE_EXTENDED_DSTATE_HPP_INCLUDED
+#endif  // MOG_CORE_STATE_EXTENDED_STATE_HPP_INCLUDED

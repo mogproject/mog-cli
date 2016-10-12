@@ -10,7 +10,11 @@ class ExtendedState(cmogcore.ExtendedState):
         return State.wrap(self.state).__str__()
 
     def __repr__(self):
-        return 'ExtendedState(state=%r)' % (self.state)
+        return 'ExtendedState(state=%r)' % (State.wrap(self.state))
+
+    @classmethod
+    def wrap(cls, st: cmogcore.ExtendedState):
+        return cls(st.state, st.attack_bbs, st.board_table, st.occ, st.occ_pawn)
 
     @classmethod
     def from_string(cls, s):
@@ -34,5 +38,5 @@ class ExtendedState(cmogcore.ExtendedState):
                     ret.extend([Move(o, pos, Pos(to), pt) for to in lm[j].to_list()])
         return ret
 
-    def move(self, move: Move) -> None:
-        cmogcore.ExtendedState.move(self, move.turn.value, move.from_.value, move.to.value, move.piece_type.value)
+    def move(self, m: Move):
+        return self.wrap(cmogcore.ExtendedState.move(self, m))

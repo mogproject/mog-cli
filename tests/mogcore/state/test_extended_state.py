@@ -227,7 +227,7 @@ class TestExtendedState(unittest.TestCase):
         ]]
         self.assertEqual(p1.legal_moves(), e1)
 
-        p1.move(f('+7776FU'))
+        p2 = p1.move(f('+7776FU'))
         e2 = [f(x) for x in [
             '-8232HI', '-8242HI', '-8252HI', '-8262HI', '-8272HI', '-8292HI',
             '-1112KY', '-9192KY',
@@ -235,9 +235,9 @@ class TestExtendedState(unittest.TestCase):
             '-1314FU', '-2324FU', '-3334FU', '-4344FU', '-5354FU', '-6364FU', '-7374FU', '-8384FU', '-9394FU',
             '-4132KI', '-4142KI', '-4152KI', '-6152KI', '-6162KI', '-6172KI',
             '-5142OU', '-5152OU', '-5162OU']]
-        self.assertEqual(p1.legal_moves(), e2)
+        self.assertEqual(p2.legal_moves(), e2)
 
-        p1.move(f('-3334FU'))
+        p3 = p2.move(f('-3334FU'))
         e3 = [f(x) for x in [
             '+2818HI', '+2838HI', '+2848HI', '+2858HI', '+2868HI', '+2878HI',
             '+8822KA', '+8833KA', '+8844KA', '+8855KA', '+8866KA', '+8877KA',
@@ -249,9 +249,9 @@ class TestExtendedState(unittest.TestCase):
             '+4938KI', '+4948KI', '+4958KI', '+6958KI', '+6968KI', '+6978KI',
             '+5948OU', '+5958OU', '+5968OU'
         ]]
-        self.assertEqual(p1.legal_moves(), e3)
+        self.assertEqual(p3.legal_moves(), e3)
 
-        p1.move(f('+8822UM'))
+        p4 = p3.move(f('+8822UM'))
         e4 = [f(x) for x in [
             '-8222HI', '-8232HI', '-8242HI', '-8252HI', '-8262HI', '-8272HI', '-8292HI',
             '-1112KY', '-9192KY',
@@ -261,9 +261,9 @@ class TestExtendedState(unittest.TestCase):
             '-4132KI', '-4142KI', '-4152KI', '-6152KI', '-6162KI', '-6172KI',
             '-5142OU', '-5152OU', '-5162OU'
         ]]
-        self.assertEqual(p1.legal_moves(), e4)
+        self.assertEqual(p4.legal_moves(), e4)
 
-        p1.move(f('-8222HI'))
+        p5 = p4.move(f('-8222HI'))
         e5 = [f(x) for x in [
             '+2818HI', '+2838HI', '+2848HI', '+2858HI', '+2868HI', '+2878HI', '+2888HI', '+2898HI',
             '+0012KA', '+0032KA', '+0042KA', '+0052KA', '+0062KA', '+0072KA', '+0082KA', '+0092KA',
@@ -279,9 +279,9 @@ class TestExtendedState(unittest.TestCase):
             '+4938KI', '+4948KI', '+4958KI', '+6958KI', '+6968KI', '+6978KI',
             '+5948OU', '+5958OU', '+5968OU'
         ]]
-        self.assertEqual(p1.legal_moves(), e5)
+        self.assertEqual(p5.legal_moves(), e5)
 
-        p1.move(f('+0033KA'))
+        p6 = p5.move(f('+0033KA'))
         e6 = [f(x) for x in [
             '-2212HI', '-2232HI', '-2242HI', '-2252HI', '-2262HI', '-2272HI', '-2282HI', '-2292HI',
             '-0012KA', '-0032KA', '-0042KA', '-0052KA', '-0062KA', '-0072KA', '-0082KA', '-0092KA',
@@ -297,9 +297,9 @@ class TestExtendedState(unittest.TestCase):
             '-4132KI', '-4142KI', '-4152KI', '-6152KI', '-6162KI', '-6172KI',
             '-5142OU', '-5152OU', '-5162OU'
         ]]
-        self.assertEqual(p1.legal_moves(), e6)
+        self.assertEqual(p6.legal_moves(), e6)
 
-        p1.move(f('-0095KA'))
+        p7 = p6.move(f('-0095KA'))
         e7 = [f(x) for x in [
             '+2818HI', '+2838HI', '+2848HI', '+2858HI', '+2868HI', '+2878HI', '+2888HI', '+2898HI',
             '+3351KA', '+3322KA', '+3342KA', '+3324KA', '+3344KA', '+3315KA', '+3355KA', '+3366KA',
@@ -312,9 +312,9 @@ class TestExtendedState(unittest.TestCase):
             '+4938KI', '+4948KI', '+4958KI', '+6958KI', '+6968KI', '+6978KI',
             '+5948OU', '+5958OU', '+5968OU'
         ]]
-        self.assertEqual(p1.legal_moves(), e7)
+        self.assertEqual(p7.legal_moves(), e7)
 
-        p1.move(f('+3351UM'))
+        p8 = p7.move(f('+3351UM'))
         e8 = [f(x) for x in [
             '-2212HI', '-2232HI', '-2242HI', '-2252HI', '-2262HI', '-2272HI', '-2282HI', '-2292HI',
             '-9584KA', '-9586KA', '-9577KA', '-9568KA', '-9559KA', '-9577UM', '-9568UM', '-9559UM',
@@ -324,4 +324,4 @@ class TestExtendedState(unittest.TestCase):
             '-1314FU', '-2324FU', '-3435FU', '-4344FU', '-5354FU', '-6364FU', '-7374FU', '-8384FU', '-9394FU',
             '-4151KI', '-4132KI', '-4142KI', '-4152KI', '-6151KI', '-6152KI', '-6162KI', '-6172KI'
         ]]
-        self.assertEqual(p1.legal_moves(), e8)
+        self.assertEqual(p8.legal_moves(), e8)

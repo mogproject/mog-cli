@@ -1,6 +1,7 @@
 #include <boost/python.hpp>
 #include "bitboard.hpp"
 #include "attack.hpp"
+#include "state/move.hpp"
 #include "state/state.hpp"
 #include "state/extended_state.hpp"
 
@@ -70,7 +71,14 @@ BOOST_PYTHON_MODULE(cmogcore) {
   expose_seq_to_list<std::vector<int>>();
   expose_seq_to_list<state::State::PositionList>();
   expose_seq_to_list<state::ExtendedState::LegalMoveList>();
+  expose_seq_to_list<state::ExtendedState::AttackBBList>();
+  expose_seq_to_list<state::ExtendedState::BoardTable>();
+  expose_seq_to_list<util::Array<int, 81>>();
+  expose_seq_to_list<state::ExtendedState::OccBBList>();
   expose_pylist_to_array<u64, 5>();
+  expose_pylist_to_array<BitBoard, 40>();  // state::ExtendedState::AttackBBList
+  expose_pylist_to_array<int, 81>();  // state::ExtendedState::BoardTable
+  expose_pylist_to_array<BitBoard, 2>();  // state::ExtendedState::OccBBList
 
   // expose classes
   class_<BitBoard>("BitBoard")
@@ -128,6 +136,12 @@ BOOST_PYTHON_MODULE(cmogcore) {
       .def("ident", &bitboard::ident)
       .staticmethod("ident");
 
+  class_<state::Move>("Move", init<int, int, int, int>())
+      .def_readonly("_turn", &state::Move::turn)
+      .def_readonly("_from", &state::Move::from)
+      .def_readonly("_to", &state::Move::to)
+      .def_readonly("_piece_type", &state::Move::piece_type);
+
   class_<state::State>("State", init<int, u64, u64, u64, u64, BitBoard, state::State::PositionList>())
       .def_readonly("_turn", &state::State::turn)
       .def_readonly("owner_bits", &state::State::owner_bits)
@@ -149,7 +163,14 @@ BOOST_PYTHON_MODULE(cmogcore) {
       .def(self == self);
 
   class_<state::ExtendedState>("ExtendedState", init<state::State>())
+      .def(init<state::State>())
+      .def(init<state::State, state::ExtendedState::AttackBBList, state::ExtendedState::BoardTable, state::ExtendedState::OccBBList,
+                state::ExtendedState::OccBBList>())
       .def_readonly("state", &state::ExtendedState::state)
+      .add_property("attack_bbs", py::make_getter(&state::ExtendedState::attack_bbs, py::return_value_policy<py::return_by_value>()))
+      .add_property("board_table", py::make_getter(&state::ExtendedState::board_table, py::return_value_policy<py::return_by_value>()))
+      .add_property("occ", py::make_getter(&state::ExtendedState::occ, py::return_value_policy<py::return_by_value>()))
+      .add_property("occ_pawn", py::make_getter(&state::ExtendedState::occ_pawn, py::return_value_policy<py::return_by_value>()))
       .def("get_attack_bb", &state::ExtendedState::get_attack_bb)
       .def("get_legal_moves", &state::ExtendedState::get_legal_moves)
       .def("move", &state::ExtendedState::move);
