@@ -3,5 +3,5 @@
     // "editor.detectIndentation": false,
     // "editor.tabSize": 2,
     "editor.insertSpaces": true,
-    "mog.ext.cmd_1": "make clean && make test"
+    "mog.ext.cmd_1": "time make clean && make test"
 }

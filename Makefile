@@ -9,17 +9,13 @@ endif
 PYTHON = python3.5
 
 build:
-	@@time( \
-		CC=$(CC) CXX=$(CXX) $(PYTHON) setup.py build \
-	)
+	CC=$(CC) CXX=$(CXX) $(PYTHON) setup.py build
 
 install:
 	CC=$(CC) CXX=$(CXX) $(PYTHON) setup.py install
 
 test: pep8
-	@@time( \
-		CC=$(CC) CXX=$(CXX) $(PYTHON) setup.py test \
-	)
+	CC=$(CC) CXX=$(CXX) $(PYTHON) setup.py test
 
 coverage:
 	CC=$(CC) CXX=$(CXX) coverage run --source=src setup.py test
