@@ -1,7 +1,9 @@
 #ifndef MOG_CORE_UTIL_HPP_INCLUDED
 #define MOG_CORE_UTIL_HPP_INCLUDED
 
+#include <iostream>
 #include "util/array.hpp"
+#include "util/random.hpp"
 
 namespace mog {
 namespace core {
@@ -53,6 +55,21 @@ struct RuntimeError : std::runtime_error {
   RuntimeError(std::string const& msg) : std::runtime_error(msg.c_str()) {}
 };
 
+/*
+ * for debug
+ */
+
+#define debug(a) std::cout << __LINE__ << ": " << #a << "=" << (a) << std::endl
+#define debug2(a, b) std::cout << __LINE__ << ": " << #a << "=" << (a) << ", " << #b << "=" << (b) << std::endl
+#define debug3(a, b, c) \
+  std::cout << __LINE__ << ": " << #a << "=" << (a) << ", " << #b << "=" << (b) << ", " << #c << "=" << (c) << std::endl
+#define debug4(a, b, c, d)                                                                                                              \
+  std::cout << __LINE__ << ": " << #a << "=" << (a) << ", " << #b << "=" << (b) << ", " << #c << "=" << (c) << ", " << #d << "=" << (d) \
+            << std::endl
+#define debug5(a, b, c, d, e)                                                                                          \
+  std::cout << __LINE__ << ": " << #a << "=" << (a) << ", " << #b << "=" << (b) << ", " << #c << "=" << (c) << ", " << #d << "=" << (d) \
+            << ", " << #e << "=" << e) << std::endl
+
 namespace util {
 template <typename T>
 inline constexpr T min(T const& a, T const& b) {
@@ -80,6 +97,11 @@ int const NUM_TURNS = 2;
 
 // Piece Type
 namespace ptype {
+
+int const NUM_PIECE_TYPES = 14;
+int const NUM_HAND_TYPES = 7;
+int const NUM_PAWNS = 18;
+
 template <int N>
 struct PType {
   static constexpr int value = N;

@@ -325,3 +325,139 @@ class TestExtendedState(unittest.TestCase):
             '-4151KI', '-4132KI', '-4142KI', '-4152KI', '-6151KI', '-6152KI', '-6162KI', '-6172KI'
         ]]
         self.assertEqual(p8.legal_moves(), e8)
+
+    def test_hash_value(self):
+        self.maxDiff = None
+        f = lambda s: Move.from_string(s)
+
+        self.assertEqual(ExtendedState(State()).hash_value, 0)
+
+        self.assertNotEqual(ExtendedState(State().set_turn(WHITE.value)).hash_value, 0)
+
+        self.assertEqual(ExtendedState(State().set_turn(WHITE.value).set_turn(BLACK.value)).hash_value, 0)
+
+        self.assertNotEqual(ExtendedState(STATE_TSUME_BLACK).hash_value, ExtendedState(STATE_TSUME_WHITE).hash_value)
+
+        s1 = [
+            ExtendedState.from_string(
+                'P1 *  *  *  *  *  *  *  *  * \n' +
+                'P2 *  *  *  *  *  *  *  *  * \n' +
+                'P3 *  *  *  *  *  *  *  *  * \n' +
+                'P4 *  *  *  *  *  *  *  *  * \n' +
+                'P5 *  *  *  *  *  *  *  *  * \n' +
+                'P6 *  *  *  *  *  *  *  *  * \n' +
+                'P7 *  *  *  *  *  *  *  *  * \n' +
+                'P8 *  *  *  *  *  *  *  *  * \n' +
+                'P9 *  *  *  *  *  *  *  *  * \n' +
+                '-').hash_value,
+            ExtendedState.from_string(
+                'P1 *  *  *  *  *  *  *  * +HI\n' +
+                'P2 *  *  *  *  *  *  *  *  * \n' +
+                'P3 *  *  *  *  *  *  *  *  * \n' +
+                'P4 *  *  *  *  *  *  *  *  * \n' +
+                'P5 *  *  *  *  *  *  *  *  * \n' +
+                'P6 *  *  *  *  *  *  *  *  * \n' +
+                'P7 *  *  *  *  *  *  *  *  * \n' +
+                'P8 *  *  *  *  *  *  *  *  * \n' +
+                'P9 *  *  *  *  *  *  *  *  * \n' +
+                '+').hash_value,
+            ExtendedState.from_string(
+                'P1 *  *  *  *  *  *  *  *  * \n' +
+                'P2 *  *  *  *  *  *  *  *  * \n' +
+                'P3 *  *  *  *  *  *  *  *  * \n' +
+                'P4 *  *  *  *  *  *  *  *  * \n' +
+                'P5 *  *  *  *  *  *  *  *  * \n' +
+                'P6 *  *  *  *  *  *  *  *  * \n' +
+                'P7 *  *  *  *  *  *  *  *  * \n' +
+                'P8 *  *  *  *  *  *  *  *  * \n' +
+                'P9 *  *  *  *  *  *  *  *  * \n' +
+                'P+00HI\n'
+                '+').hash_value,
+        ]
+        self.assertEqual(len(set(s1)), 3)
+
+        p1 = ExtendedState.from_string(
+            'P1 *  *  *  *  *  *  *  *  * \n' +
+            'P2 *  *  *  *  *  *  *  *  * \n' +
+            'P3 *  *  *  * -KI *  *  *  * \n' +
+            'P4 *  *  *  * -KI *  *  *  * \n' +
+            'P5 *  *  *  * +KI *  *  *  * \n' +
+            'P6 *  *  *  *  *  *  *  *  * \n' +
+            'P7 *  *  *  *  *  *  *  *  * \n' +
+            'P8 *  *  *  *  *  *  *  *  * \n' +
+            'P9 *  *  *  *  *  *  *  *  * \n' +
+            '+')
+        p2 = p1.move(f('+5554KI')).move(f('-5354KI')).move(f('+0055KI')).move(f('-0053KI'))
+
+        self.assertEqual(p1, p2)
+        self.assertEqual(p1.hash_value, p2.hash_value)
+
+        p3 = ExtendedState.from_string(
+            'P1 *  *  *  *  *  *  *  *  * \n' +
+            'P2 *  *  *  *  *  *  *  *  * \n' +
+            'P3 *  *  *  *  *  *  *  *  * \n' +
+            'P4 *  *  *  *  *  *  *  *  * \n' +
+            'P5 *  *  *  *  *  *  *  *  * \n' +
+            'P6 *  *  *  *  *  *  *  *  * \n' +
+            'P7 *  *  *  *  *  *  *  *  * \n' +
+            'P8 *  *  *  *  *  *  *  *  * \n' +
+            'P9 *  *  *  *  *  *  *  *  * \n' +
+            'P+00FU\n'
+            '+')
+
+        p4 = ExtendedState.from_string(
+            'P1 *  *  *  *  *  *  *  *  * \n' +
+            'P2 *  *  *  *  *  *  *  *  * \n' +
+            'P3 *  *  *  *  *  *  *  *  * \n' +
+            'P4 *  *  *  *  *  *  *  *  * \n' +
+            'P5 *  *  *  *  *  *  *  *  * \n' +
+            'P6 *  *  *  *  *  *  *  *  * \n' +
+            'P7 *  *  *  *  *  *  *  *  * \n' +
+            'P8 *  *  *  *  *  *  *  *  * \n' +
+            'P9 *  *  *  *  *  *  *  *  * \n' +
+            'P-00FU\n'
+            '+')
+        self.assertNotEqual(p3.hash_value, p4.hash_value)
+
+        p5 = (ExtendedState.from_string(
+            'P1+TO+TO+TO+TO+TO+TO+TO+TO+TO\n' +
+            'P2+TO+TO+TO+TO+TO+TO+TO+TO+TO\n' +
+            'P3 *  *  *  *  *  *  *  *  * \n' +
+            'P4 *  *  *  *  *  *  *  *  * \n' +
+            'P5 *  *  *  *  *  *  *  *  * \n' +
+            'P6 *  *  *  *  *  *  *  *  * \n' +
+            'P7 *  *  *  *  *  *  *  *  * \n' +
+            'P8 *  *  *  *  *  *  *  *  * \n' +
+            'P9-HI *  *  *  *  *  *  * +OU\n' +
+            '-')
+            .move(f('-9992HI')).move(f('+1918OU')).move(f('-9291HI')).move(f('+1819OU'))
+            .move(f('-9182HI')).move(f('+1918OU')).move(f('-8281HI')).move(f('+1819OU'))
+            .move(f('-8172HI')).move(f('+1918OU')).move(f('-7271HI')).move(f('+1819OU'))
+            .move(f('-7162HI')).move(f('+1918OU')).move(f('-6261HI')).move(f('+1819OU'))
+            .move(f('-6152HI')).move(f('+1918OU')).move(f('-5251HI')).move(f('+1819OU'))
+            .move(f('-5142HI')).move(f('+1918OU')).move(f('-4241HI')).move(f('+1819OU'))
+            .move(f('-4132HI')).move(f('+1918OU')).move(f('-3231HI')).move(f('+1819OU'))
+            .move(f('-3122HI')).move(f('+1918OU')).move(f('-2221HI')).move(f('+1819OU'))
+            .move(f('-2112HI')).move(f('+1918OU')).move(f('-1211HI')).move(f('+1819OU'))
+        )
+
+        p6 = ExtendedState.from_string(
+            'P1 *  *  *  *  *  *  *  * -HI\n' +
+            'P2 *  *  *  *  *  *  *  *  * \n' +
+            'P3 *  *  *  *  *  *  *  *  * \n' +
+            'P4 *  *  *  *  *  *  *  *  * \n' +
+            'P5 *  *  *  *  *  *  *  *  * \n' +
+            'P6 *  *  *  *  *  *  *  *  * \n' +
+            'P7 *  *  *  *  *  *  *  *  * \n' +
+            'P8 *  *  *  *  *  *  *  *  * \n' +
+            'P9 *  *  *  *  *  *  *  * +OU\n' +
+            'P-00FU00FU00FU00FU00FU00FU00FU00FU00FU00FU00FU00FU00FU00FU00FU00FU00FU00FU\n'
+            '-')
+        self.assertEqual(p5.hash_value, p6.hash_value)
+
+        s = []
+        for st in gen_state(100):
+            s.append(ExtendedState(st).hash_value)
+
+        self.assertEqual(len(s), 100)
+        self.assertEqual(len(set(s)), 100)

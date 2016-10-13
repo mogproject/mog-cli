@@ -10,9 +10,9 @@ def gen_state(n):
     for num in range(n):
         if num == 0:
             yield State()
-        if num == 1:
+        elif num == 1:
             yield STATE_HIRATE
-        if num == 2:
+        elif num == 2:
             yield STATE_TSUME_BLACK
         else:
             pawns = [BitBoard(), BitBoard()]

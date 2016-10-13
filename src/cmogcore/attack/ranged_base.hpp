@@ -122,7 +122,7 @@ namespace mog {
               }
             }
 
-            return table;
+            return std::move(table);
           }
 
         };

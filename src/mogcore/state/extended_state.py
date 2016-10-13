@@ -14,7 +14,7 @@ class ExtendedState(cmogcore.ExtendedState):
 
     @classmethod
     def wrap(cls, st: cmogcore.ExtendedState):
-        return cls(st.state, st.attack_bbs, st.board_table, st.occ, st.occ_pawn)
+        return cls(st.state, st.attack_bbs, st.board_table, st.occ, st.occ_pawn, st.hash_value)
 
     @classmethod
     def from_string(cls, s):

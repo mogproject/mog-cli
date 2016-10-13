@@ -552,3 +552,16 @@ class TestState(unittest.TestCase):
         for st in gen_state(100):
             result = State.from_string(str(st))
             self.assertEqual(result, st, '====\n%s\n==== is not equal to ====\n%s\n====' % (result, st))
+
+    def test_get_num_hand(self):
+        result1 = [STATE_HIRATE.get_num_hand(i, j) for i in range(2) for j in range(7)]
+        self.assertEqual(result1, [0] * 14)
+
+        result2 = [STATE_TSUME_BLACK.get_num_hand(i, j) for i in range(2) for j in range(7)]
+        self.assertEqual(result2, [2, 2, 4, 4, 4, 18, 4] + [0] * 7)
+
+        result3 = [STATE_TSUME_WHITE.get_num_hand(i, j) for i in range(2) for j in range(7)]
+        self.assertEqual(result3, [0] * 7 + [2, 2, 4, 4, 4, 18, 4])
+
+        result4 = [STATE_MAX_LEGAL_MOVES.get_num_hand(i, j) for i in range(2) for j in range(7)]
+        self.assertEqual(result4, [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 3, 17, 3])

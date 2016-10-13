@@ -136,6 +136,15 @@ struct State {
   }
 
   /*
+   * Return the number of hand pieces.
+   */
+  inline constexpr int get_num_hand(int owner, int piece_type) const {
+    assert(0 <= piece_type && piece_type < 8);
+
+    return pop_ct(hand_bits & (owner ? owner_bits : ~owner_bits) & piece_masks[piece_type]);
+  }
+
+  /*
    * Return a new instance with a specified turn.
    */
   constexpr State set_turn(int new_turn) const {
@@ -263,6 +272,16 @@ struct State {
     if (bb != board) throw RuntimeError("inconsistent board bitboard");
   }
 
+  /*
+   * -------- -------- -------- -------- -------- -------- -------- ------** rook
+   * -------- -------- -------- -------- -------- -------- -------- ----**-- bishop
+   * -------- -------- -------- -------- -------- -------- -------- ****---- lance
+   * -------- -------- -------- -------- -------- -------- ----**** -------- silver
+   * -------- -------- -------- -------- -------- -------- ****---- -------- knight
+   * -------- -------- -------- ------** ******** ******** -------- -------- pawn
+   * -------- -------- -------- --****-- -------- -------- -------- -------- gold
+   * -------- -------- -------- **------ -------- -------- -------- -------- king
+   */
   // todo: create in the compile time?
   static constexpr util::Array<u64, 8> piece_masks = {{
       0x0000000003ULL,  // rook
@@ -276,7 +295,6 @@ struct State {
   }};
 
  private:
-  // todo: create in the compile time?
   static constexpr util::Array<u64, NUM_PIECES> __raw_piece_types = {
       {ptype::ROOK,   ptype::ROOK,   ptype::BISHOP, ptype::BISHOP, ptype::LANCE,  ptype::LANCE,  ptype::LANCE,  ptype::LANCE,
        ptype::SILVER, ptype::SILVER, ptype::SILVER, ptype::SILVER, ptype::KNIGHT, ptype::KNIGHT, ptype::KNIGHT, ptype::KNIGHT,
@@ -284,13 +302,16 @@ struct State {
        ptype::PAWN,   ptype::PAWN,   ptype::PAWN,   ptype::PAWN,   ptype::PAWN,   ptype::PAWN,   ptype::PAWN,   ptype::PAWN,
        ptype::PAWN,   ptype::PAWN,   ptype::GOLD,   ptype::GOLD,   ptype::GOLD,   ptype::GOLD,   ptype::KING,   ptype::KING}};
 
+  // todo: create in the compile time?
+  static constexpr util::Array<int, 8> __piece_offsets = {{0, 2, 4, 8, 12, 16, 34, 38}};
+
   /*
    * Return one unused slot number.
    * If there is no slot, returns 64.
    */
   constexpr int __get_unused_slot(int owner_bit, int piece_type) const {
     if (piece_type == ptype::KING) {
-      return unused_bits & (1ULL << (38 + owner_bit)) ? 38 + owner_bit : 64;  // 38=king's offset
+      return unused_bits & (1ULL << (__piece_offsets[ptype::KING] + owner_bit)) ? __piece_offsets[ptype::KING] + owner_bit : 64;
     } else {
       return ntz(unused_bits & piece_masks[ptype::demoted(piece_type)]);
     }
