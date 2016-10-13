@@ -64,3 +64,6 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints/
 *.ipynb
+
+# Magic bitboard data
+src/data/

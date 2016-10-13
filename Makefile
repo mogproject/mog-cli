@@ -35,5 +35,11 @@ upload:
 pep8:
 	pep8 --max-line-length 140 src tests
 
-.PHONY: build install test coverage clean run console upload pep8
+save_variation_tables: clean test
+	cd src && mkdir -p data && $(PYTHON) -c 'import cmogcore; cmogcore.save_variation_tables()'
+
+clear_variation_tables:
+	rm -f src/data/*.dat
+
+.PHONY: build install test coverage clean run console upload pep8 save_variation_tables clear_variation_tables
 

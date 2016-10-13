@@ -84,6 +84,9 @@ BOOST_PYTHON_MODULE(cmogcore) {
   expose_pylist_to_array<int, 81>();       // state::ExtendedState::BoardTable
   expose_pylist_to_array<BitBoard, 2>();   // state::ExtendedState::OccBBList
 
+  // expose functions
+  def("save_variation_tables", &attack::ranged::save_variation_tables);
+
   // expose classes
   class_<BitBoard>("BitBoard")
       .def(init<u64, u64>())

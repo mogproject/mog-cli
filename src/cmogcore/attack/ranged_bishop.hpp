@@ -137,6 +137,11 @@ namespace mog {
             }
           }
 
+          static void save_table(std::string const& path) {
+            constexpr auto table = make_table();
+            Base::Base::save_variation_table(path, table);
+          }
+
           /**
            * Return attack bitboard from occupancy bitboard.
            */
@@ -151,13 +156,25 @@ namespace mog {
         //
         // Generate array of function pointers to each index.
         //
-
         template <bool Promoted>
         struct BishopAttackGenerator {
           template <int... Is>
           static constexpr auto generate(util::seq<Is...>)
             -> util::Array<decltype(&BishopAttack<false, 0>::get_attack), sizeof...(Is)> {
             return {{ &BishopAttack<Promoted, Is>::get_attack... }};
+          }
+
+          static constexpr auto generate() {
+            return generate(util::gen_seq<81>{});
+          }
+        };
+
+        template <bool Promoted>
+        struct BishopAttackSaverGenerator {
+          template <int... Is>
+          static constexpr auto generate(util::seq<Is...>)
+            -> util::Array<decltype(&BishopAttack<false, 0>::save_table), sizeof...(Is)> {
+            return {{ &BishopAttack<Promoted, Is>::save_table... }};
           }
 
           static constexpr auto generate() {

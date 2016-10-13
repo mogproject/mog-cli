@@ -36,6 +36,25 @@ constexpr util::Array<util::Array<MagicCalculator, 81>, 32> bb_table_ranged = {{
     rook,  bishop,  wlance, empty, empty, empty, empty, empty,  //
     prook, pbishop, empty,  empty, empty, empty, empty, empty,  //
 }};
+
+void save_variation_tables() {
+  auto rook = RookAttackSaverGenerator<false>::generate();
+  auto prook = RookAttackSaverGenerator<true>::generate();
+  auto bishop = BishopAttackSaverGenerator<false>::generate();
+  auto pbishop = BishopAttackSaverGenerator<true>::generate();
+  auto blance = LanceAttackSaverGenerator<turn::BLACK>::generate();
+  auto wlance = LanceAttackSaverGenerator<turn::WHITE>::generate();
+
+  for (int i = 0; i < 81; ++i) {
+    rook[i]("data/magic_rook_" + std::to_string(i) + ".dat");
+    prook[i]("data/magic_prook_" + std::to_string(i) + ".dat");
+    bishop[i]("data/magic_bishop_" + std::to_string(i) + ".dat");
+    pbishop[i]("data/magic_pbishop_" + std::to_string(i) + ".dat");
+    blance[i]("data/magic_blance_" + std::to_string(i) + ".dat");
+    wlance[i]("data/magic_wlance_" + std::to_string(i) + ".dat");
+  }
+  std::cout << "Saved variation tables: data/magic_*.data" << std::endl;
+}
 }
 
 constexpr auto bb_table_ranged = ranged::bb_table_ranged;

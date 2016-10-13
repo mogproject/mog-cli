@@ -196,6 +196,11 @@ namespace mog {
             return util::array::iterate<Base::variation_size>(&__make_attack);
           }
 
+          static void save_table(std::string const& path) {
+            constexpr auto table = make_table();
+            Base::save_variation_table(path, table);
+          }
+
           /**
            * Return attack bitboard from occupancy bitboard.
            */
@@ -225,6 +230,18 @@ namespace mog {
           }
         };
 
+        template <bool Promoted>
+        struct LanceAttackSaverGenerator {
+          template <int... Is>
+          static constexpr auto generate(util::seq<Is...>)
+            -> util::Array<decltype(&LanceAttack<false, 0>::save_table), sizeof...(Is)> {
+            return {{ &LanceAttack<Promoted, Is>::save_table... }};
+          }
+
+          static constexpr auto generate() {
+            return generate(util::gen_seq<81>{});
+          }
+        };
       }
     }
   }
