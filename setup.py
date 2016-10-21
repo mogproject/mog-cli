@@ -1,5 +1,6 @@
 from setuptools import setup, find_packages, Extension
 import sys
+import os
 import platform
 
 SRC_DIR = 'src'
@@ -12,6 +13,11 @@ def get_version():
 
 source_files = ['src/cmogcore/%s.cpp' % s for s in ['cmogcore']]
 
+compile_args = []
+if 'SAVE_ATTACK_TABLE' in os.environ.keys():
+    compile_args.append('-DSAVE_ATTACK_TABLE')
+elif 'LOAD_ATTACK_TABLE' in os.environ.keys():
+    compile_args.append('-DLOAD_ATTACK_TABLE')
 
 setup(
     name='mog-cli',
@@ -39,7 +45,8 @@ setup(
             include_dirs=['/usr/local/include/boost'],
             library_dirs=['/usr/lib', '/usr/local/lib'],
             libraries=['boost_python3'],
-            extra_compile_args=['-std=c++1y', '-pthread', '-Wall', '-O3', '-fconstexpr-steps=2147483647'],
+            extra_compile_args=['-std=c++1y', '-pthread', '-Wall',
+                                '-O3', '-fconstexpr-steps=2147483647'] + compile_args,
             extra_link_args=[],
         )
     ],

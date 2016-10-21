@@ -1,6 +1,8 @@
 #ifndef MOG_CORE_ATTACK_RANGED_HPP_INCLUDED
 #define MOG_CORE_ATTACK_RANGED_HPP_INCLUDED
 
+#include <iostream>
+#include <fstream>
 #include "ranged_lance.hpp"
 #include "ranged_bishop.hpp"
 #include "ranged_rook.hpp"
@@ -37,24 +39,50 @@ constexpr util::Array<util::Array<MagicCalculator, 81>, 32> bb_table_ranged = {{
     prook, pbishop, empty,  empty, empty, empty, empty, empty,  //
 }};
 
-void save_variation_tables() {
-  auto rook = RookAttackSaverGenerator<false>::generate();
-  auto prook = RookAttackSaverGenerator<true>::generate();
-  auto bishop = BishopAttackSaverGenerator<false>::generate();
-  auto pbishop = BishopAttackSaverGenerator<true>::generate();
-  auto blance = LanceAttackSaverGenerator<turn::BLACK>::generate();
-  auto wlance = LanceAttackSaverGenerator<turn::WHITE>::generate();
+#ifdef SAVE_ATTACK_TABLE
+/**
+ * Generate C++ code including all the variation tables.
+ */
+void save_attack_tables(std::string const& path) {
+  util::Array<util::Array<decltype(&LanceAttack<false, 0>::get_variation), 81>, 4> tables = {{
+    LanceAttackTableGenerator<turn::BLACK>::generate(),
+    LanceAttackTableGenerator<turn::WHITE>::generate(),
+    BishopAttackTableGenerator<false>::generate(),
+    RookAttackTableGenerator<false>::generate()
+  }};
 
-  for (int i = 0; i < 81; ++i) {
-    rook[i]("data/magic_rook_" + std::to_string(i) + ".dat");
-    prook[i]("data/magic_prook_" + std::to_string(i) + ".dat");
-    bishop[i]("data/magic_bishop_" + std::to_string(i) + ".dat");
-    pbishop[i]("data/magic_pbishop_" + std::to_string(i) + ".dat");
-    blance[i]("data/magic_blance_" + std::to_string(i) + ".dat");
-    wlance[i]("data/magic_wlance_" + std::to_string(i) + ".dat");
+  std::ofstream f(path, std::ios::out);
+  if (f.is_open()) {
+    f << "#ifndef MOG_CORE_ATTACK_DATA_PRESET_DATAL_HPP_INCLUDED" << std::endl;
+    f << "#define MOG_CORE_ATTACK_DATA_PRESET_DATAL_HPP_INCLUDED" << std::endl;
+    f << "#include \"../../util.hpp\"" << std::endl;
+    f << "namespace mog{namespace core{namespace attack{namespace ranged{namespace data{" << std::endl;
+    f << "template <int Index, int MagicType> struct PresetData {};" << std::endl;
+
+    for (int mtype = 0; mtype < 4; ++mtype) {
+      for (int i = 0; i < 81; ++i) {
+        auto xs = tables[mtype][i]();
+        auto sz = xs.size();
+        f << "template <> struct PresetData<" << i << "," << mtype << "> {" << std::endl;
+        f << "static constexpr util::Array<BitBoard," << sz << "> variation_table={{" << std::endl;
+        for (size_t j = 0; j < sz; ++j) {
+          if (j != 0) f << ",";
+          f << "BitBoard(" << xs[j].lo << "ULL," << xs[j].hi << "ULL)";
+        }
+        f << "}};" << std::endl << "};" << std::endl;
+      }
+    }
+
+    f << "}}}}}" << std::endl;
+    f << "#endif  // MOG_CORE_ATTACK_DATA_PRESET_DATAL_HPP_INCLUDED" << std::endl;
+    f.close();
+  } else {
+    throw RuntimeError("Failed to save the variation table.");
   }
-  std::cout << "Saved variation tables: data/magic_*.data" << std::endl;
+
+  std::cout << "Saved attack tables: " << path << std::endl;
 }
+#endif
 }
 
 constexpr auto bb_table_ranged = ranged::bb_table_ranged;

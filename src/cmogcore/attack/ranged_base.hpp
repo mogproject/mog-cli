@@ -5,7 +5,11 @@
 #include <fstream>
 #include "../util.hpp"
 #include "../bitboard.hpp"
-#include "ranged_magic.hpp"
+#include "./ranged_magic.hpp"
+
+#ifdef LOAD_ATTACK_TABLE
+#include "./data/preset_data.hpp"
+#endif
 
 namespace mog {
 namespace core {
@@ -88,6 +92,10 @@ class RangedBase {
    * Make variation table
    */
   static constexpr auto make_variation_table(Magic const& magic) {
+#ifdef LOAD_ATTACK_TABLE
+    // load preset data
+    return mog::core::attack::ranged::data::PresetData<Index, MagicType>::variation_table;
+#else
     util::Array<BitBoard, variation_size> table = {{}};
 
     // max length
@@ -128,24 +136,9 @@ class RangedBase {
         }
       }
     }
-
     return std::move(table);
-  }
 
-  /**
-   * Save variation table to a file
-   */
-  static void save_variation_table(std::string const& path, util::Array<BitBoard, variation_size> const& table) {
-    std::ofstream f(path, std::ios::out | std::ios::binary);
-    if (f.is_open()) {
-      for (size_t i = 0; i < variation_size; ++i) {
-        f.write((char*)&table[i].lo, sizeof(u64));
-        f.write((char*)&table[i].hi, sizeof(u64));
-      }
-      f.close();
-    } else {
-      throw RuntimeError("Failed to save the variation table.");
-    }
+#endif  // FLAG_USE_PRESET_DATA
   }
 };
 }
