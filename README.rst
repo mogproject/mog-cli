@@ -45,3 +45,16 @@ Running on Jupyter
     pip3 install jupyter
     jupyter notebook
 
+-----------
+Development
+-----------
+
+::
+
+    make clean save_attack_tables
+    
+    # The file "src/cmogcore/attack/data/preset_data.hpp" will be created.
+    # This process shortens compile time while development.
+    
+    make clean test_quick
+
