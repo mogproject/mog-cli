@@ -27,6 +27,11 @@ class TestMove(unittest.TestCase):
         self.assertRaises(AssertionError, Move, BLACK, P77, P77, PAWN)
         self.assertRaises(AssertionError, Move, BLACK, P77, HAND, PAWN)
 
+    def test_eq(self):
+        self.assertEqual(Move(BLACK, P77, P76, PAWN) == 1, False)
+        self.assertEqual(Move(BLACK, P77, P76, PAWN) == Move(WHITE, P77, P76, PAWN), False)
+        self.assertEqual(Move(BLACK, P77, P76, PAWN) == Move(BLACK, P77, P76, PAWN), True)
+
     def test_str(self):
         self.assertEqual(str(Move(BLACK, P77, P76, PAWN)), '+7776FU')
 
