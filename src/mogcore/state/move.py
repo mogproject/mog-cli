@@ -34,7 +34,7 @@ class Move(cmogcore.Move):
 
     @classmethod
     def wrap(cls, m: cmogcore.Move):
-        return cls(Turn(m.turn), Pos(m.from_), Pos(m.to), PieceType(m.piece_type))
+        return cls(Turn(m._turn), Pos(m._from), Pos(m._to), PieceType(m._piece_type))
 
     @classmethod
     def from_string(cls, s: str):

@@ -1,8 +1,10 @@
 import unittest
 from mogcore import *
+import cmogcore
 
 
 class TestMove(unittest.TestCase):
+
     def test_init(self):
         m1 = Move(BLACK, P77, P76, PAWN)
         self.assertEqual(m1.turn, BLACK)
@@ -27,6 +29,14 @@ class TestMove(unittest.TestCase):
 
     def test_str(self):
         self.assertEqual(str(Move(BLACK, P77, P76, PAWN)), '+7776FU')
+
+    def test_repr(self):
+        exp = 'Move(turn=Turn(value=0), from_=Pos(value=60), to=Pos(value=51), piece_type=PieceType(value=5))'
+        self.assertEqual(repr(Move(BLACK, P77, P76, PAWN)), exp)
+
+    def test_wrap(self):
+        self.assertEqual(Move.wrap(cmogcore.Move(0, 60, 51, 5)), Move(BLACK, P77, P76, PAWN))
+        self.assertEqual(Move.wrap(Move(BLACK, P77, P76, PAWN)), Move(BLACK, P77, P76, PAWN))
 
     def test_from_string(self):
         self.assertEqual(Move.from_string('+7776FU'), Move(BLACK, P77, P76, PAWN))
