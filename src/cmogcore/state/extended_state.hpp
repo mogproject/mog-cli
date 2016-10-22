@@ -231,6 +231,23 @@ struct ExtendedState {
   /** get attack bitboards */
   constexpr BitBoard get_attack_bb(size_t index) const { return index < State::NUM_PIECES ? attack_bbs[index] : bitboard::EMPTY; }
 
+  /*
+   * Return true if the player's king is checked by the opponent's piece(s)
+   */
+  bool is_checked() const {
+    auto bb = BitBoard();
+    auto mask = state.get_board_mask(state.turn ^ 1);
+    for (int i = 0; i < State::NUM_PIECES; ++i) {
+      if (mask & (1ULL << i)) bb = bb | attack_bbs[i];
+    }
+    return bb.get(state.get_king_position(state.turn));
+  }
+
+  /*
+   * Test king's existance on the board
+   */
+  bool is_king_alive(int owner) const { return state.get_king_position(owner) != pos::HAND; }
+
  private:
   static constexpr u64 __hash_seed_turn = __make_hash_seed<1>(0UL)[0];
   static constexpr auto __hash_seed_board = __make_hash_seed<HASH_SEED_BOARD_SIZE>(1UL);

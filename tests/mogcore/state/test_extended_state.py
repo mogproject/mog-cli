@@ -461,3 +461,54 @@ class TestExtendedState(unittest.TestCase):
 
         self.assertEqual(len(s), 100)
         self.assertEqual(len(set(s)), 100)
+
+    def test_is_checked(self):
+        self.assertFalse(ExtendedState(STATE_HIRATE).is_checked())
+        s1 = ExtendedState.from_string(
+            'P1 *  *  *  *  *  *  *  * -OU\n' +
+            'P2 *  *  *  *  *  *  *  *  * \n' +
+            'P3 *  *  *  *  *  *  *  *  * \n' +
+            'P4 *  *  *  *  *  *  *  *  * \n' +
+            'P5 *  *  *  *  *  *  *  *  * \n' +
+            'P6 *  *  *  *  *  *  *  *  * \n' +
+            'P7 *  *  *  *  *  *  *  *  * \n' +
+            'P8 *  *  *  *  *  *  *  *  * \n' +
+            'P9+KA *  *  *  *  *  *  *  * \n' +
+            '+')
+        self.assertFalse(s1.is_checked())
+
+        s2 = ExtendedState.from_string(
+            'P1 *  *  *  *  *  *  *  * -OU\n' +
+            'P2 *  *  *  *  *  *  *  *  * \n' +
+            'P3 *  *  *  *  *  *  *  *  * \n' +
+            'P4 *  *  *  *  *  *  *  *  * \n' +
+            'P5 *  *  *  *  *  *  *  *  * \n' +
+            'P6 *  *  *  *  *  *  *  *  * \n' +
+            'P7 *  *  *  *  *  *  *  *  * \n' +
+            'P8 *  *  *  *  *  *  *  *  * \n' +
+            'P9+KA *  *  *  *  *  *  *  * \n' +
+            '-')
+        self.assertTrue(s2.is_checked())
+
+        s3 = ExtendedState.from_string(
+            'P1 *  *  *  *  *  *  *  * -OU\n' +
+            'P2 *  *  *  * +HI *  *  *  * \n' +
+            'P3 *  *  *  *  *  *  *  *  * \n' +
+            'P4 *  *  *  * -KY+FU *  *  * \n' +
+            'P5 *  *  *  *  *  *  *  *  * \n' +
+            'P6 *  *  *  *  *  *  *  *  * \n' +
+            'P7 *  *  * -KE *  *  *  *  * \n' +
+            'P8 *  *  *  *  *  *  *  *  * \n' +
+            'P9+KA *  *  * +OU *  *  *  * \n' +
+            '+')
+        self.assertTrue(s3.is_checked())
+
+    def test_is_king_alive(self):
+        self.assertFalse(ExtendedState(State()).is_king_alive(BLACK.value))
+        self.assertFalse(ExtendedState(State()).is_king_alive(WHITE.value))
+        self.assertTrue(ExtendedState(STATE_HIRATE).is_king_alive(BLACK.value))
+        self.assertTrue(ExtendedState(STATE_HIRATE).is_king_alive(WHITE.value))
+        self.assertFalse(ExtendedState(STATE_TSUME_BLACK).is_king_alive(BLACK.value))
+        self.assertTrue(ExtendedState(STATE_TSUME_BLACK).is_king_alive(WHITE.value))
+        self.assertTrue(ExtendedState(STATE_TSUME_WHITE).is_king_alive(BLACK.value))
+        self.assertFalse(ExtendedState(STATE_TSUME_WHITE).is_king_alive(WHITE.value))

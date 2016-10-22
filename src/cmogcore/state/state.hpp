@@ -126,7 +126,7 @@ struct State {
   /*
    * Return the position of a specified piece.
    *
-   * Return 81 if the piece is in hand or unused.
+   * Return pos::HAND if the piece is in hand or unused.
    */
   constexpr int get_position(int slot_id) const {
     assert(0 <= slot_id && slot_id < NUM_PIECES);
@@ -270,6 +270,36 @@ struct State {
       }
     }
     if (bb != board) throw RuntimeError("inconsistent board bitboard");
+  }
+
+  /*
+   * Return 64-bit mask of the onboard pieces.
+   */
+  inline constexpr u64 get_board_mask() const {
+    return ~(hand_bits | unused_bits);
+  }
+
+  /*
+   * Return 64-bit mask of the specific side's onboard pieces.
+   */
+  inline constexpr u64 get_board_mask(int owner) const {
+    return ~(hand_bits | unused_bits | (owner ? ~owner_bits : owner_bits));
+  }
+
+  /*
+   * Return the slot number of a king.
+   */
+  inline static constexpr int get_king_slot(int owner) {
+    assert(owner == 0 || owner == 1);
+    return 38 + owner;
+  }
+
+  /*
+   * Return the position of a king.
+   * If the king is not on board, return pos::HAND.
+   */
+  inline constexpr int get_king_position(int owner) const {
+    return get_position(get_king_slot(owner));
   }
 
   /*

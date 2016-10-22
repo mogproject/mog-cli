@@ -182,6 +182,8 @@ BOOST_PYTHON_MODULE(cmogcore) {
       .add_property("occ", py::make_getter(&state::ExtendedState::occ, py::return_value_policy<py::return_by_value>()))
       .add_property("occ_pawn", py::make_getter(&state::ExtendedState::occ_pawn, py::return_value_policy<py::return_by_value>()))
       .def_readonly("hash_value", &state::ExtendedState::hash_value)
+      .def("is_checked", &state::ExtendedState::is_checked)
+      .def("is_king_alive", &state::ExtendedState::is_king_alive)
       .def("get_attack_bb", &state::ExtendedState::get_attack_bb)
       .def("get_legal_moves", &state::ExtendedState::get_legal_moves)
       .def("move", &state::ExtendedState::move)
