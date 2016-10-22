@@ -466,14 +466,14 @@ class TestExtendedState(unittest.TestCase):
         self.assertFalse(ExtendedState(STATE_HIRATE).is_checked())
         s1 = ExtendedState.from_string(
             'P1 *  *  *  *  *  *  *  * -OU\n' +
-            'P2 *  *  *  *  *  *  *  *  * \n' +
+            'P2+RY *  *  *  *  *  *  *  * \n' +
             'P3 *  *  *  *  *  *  *  *  * \n' +
             'P4 *  *  *  *  *  *  *  *  * \n' +
             'P5 *  *  *  *  *  *  *  *  * \n' +
-            'P6 *  *  *  *  *  *  *  *  * \n' +
+            'P6 *  * +UM *  *  *  *  *  * \n' +
             'P7 *  *  *  *  *  *  *  *  * \n' +
             'P8 *  *  *  *  *  *  *  *  * \n' +
-            'P9+KA *  *  *  *  *  *  *  * \n' +
+            'P9+UM *  *  *  *  *  * +RY * \n' +
             '+')
         self.assertFalse(s1.is_checked())
 

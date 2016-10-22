@@ -1,9 +1,5 @@
 #include <boost/python.hpp>
-#include "bitboard.hpp"
-#include "attack.hpp"
-#include "state/move.hpp"
-#include "state/state.hpp"
-#include "state/extended_state.hpp"
+#include "game.hpp"
 
 namespace cmogcore {
 namespace py = boost::python;
@@ -151,6 +147,40 @@ BOOST_PYTHON_MODULE(cmogcore) {
       .def_readonly("_to", &state::Move::to)
       .def_readonly("_piece_type", &state::Move::piece_type);
 
+  class_<state::ExtendedMove>("ExtendedMove", init<int, int, int, int, int, int, int>())
+      .def_readonly("_turn", &state::ExtendedMove::turn)
+      .def_readonly("_from", &state::ExtendedMove::from)
+      .def_readonly("_to", &state::ExtendedMove::to)
+      .def_readonly("_piece_type", &state::ExtendedMove::piece_type)
+      .def_readonly("elapsed_time", &state::ExtendedMove::elapsed_time)
+      .def_readonly("move_type", &state::ExtendedMove::move_type)
+      .def_readonly("judge", &state::ExtendedMove::judge)
+      .def(self == self);
+
+  class_<state::Resign>("Resign", init<int>())
+      .def_readonly("elapsed_time", &state::Resign::elapsed_time)
+      .def(self == self);
+
+  class_<state::TimeUp>("TimeUp", init<int>())
+      .def_readonly("elapsed_time", &state::TimeUp::elapsed_time)
+      .def(self == self);
+
+  class_<state::IllegalMove>("IllegalMove", init<int>())
+      .def_readonly("elapsed_time", &state::IllegalMove::elapsed_time)
+      .def(self == self);
+
+  class_<state::PerpetualCheck>("PerpetualCheck", init<>())
+      .def_readonly("elapsed_time", &state::PerpetualCheck::elapsed_time)
+      .def(self == self);
+
+  class_<state::DeclareWin>("DeclareWin", init<int>())
+      .def_readonly("elapsed_time", &state::DeclareWin::elapsed_time)
+      .def(self == self);
+
+  class_<state::ThreefoldRepetition>("ThreefoldRepetition", init<>())
+      .def_readonly("elapsed_time", &state::ThreefoldRepetition::elapsed_time)
+      .def(self == self);
+
   class_<state::State>("State", init<int, u64, u64, u64, u64, BitBoard, state::State::PositionList>())
       .def_readonly("_turn", &state::State::turn)
       .def_readonly("owner_bits", &state::State::owner_bits)
@@ -172,6 +202,12 @@ BOOST_PYTHON_MODULE(cmogcore) {
       .def("move", &state::State::move)
       .def(self == self);
 
+  class_<Attack>("Attack")
+      .def("get_attack", static_cast<BitBoard (*)(int, int, int)>(&attack::get_attack))
+      .def("get_attack", static_cast<BitBoard (*)(int, int, int, BitBoard const&)>(&attack::get_attack))
+      .def("get_attack", static_cast<BitBoard (*)(int, BitBoard const&, BitBoard const&)>(&attack::get_attack))
+      .def("get_attack", static_cast<BitBoard (*)(int, int, BitBoard const&)>(&attack::get_attack));
+
   class_<state::ExtendedState>("ExtendedState", init<state::State>())
       .def(init<state::State>())
       .def(init<state::State, state::ExtendedState::AttackBBList, state::ExtendedState::BoardTable, state::ExtendedState::OccBBList,
@@ -189,9 +225,7 @@ BOOST_PYTHON_MODULE(cmogcore) {
       .def("move", &state::ExtendedState::move)
       .def(self == self);
 
-  class_<Attack>("Attack")
-      .def("get_attack", static_cast<BitBoard (*)(int, int, int)>(&attack::get_attack))
-      .def("get_attack", static_cast<BitBoard (*)(int, int, int, BitBoard const&)>(&attack::get_attack))
-      .def("get_attack", static_cast<BitBoard (*)(int, BitBoard const&, BitBoard const&)>(&attack::get_attack))
-      .def("get_attack", static_cast<BitBoard (*)(int, int, BitBoard const&)>(&attack::get_attack));
+  class_<Game>("Game", init<state::State>())
+      .def("move", &Game::move)
+      .def("is_finished", &Game::is_finished);
 }

@@ -7,6 +7,7 @@
 #include "../bitboard.hpp"
 #include "../attack.hpp"
 #include "./state.hpp"
+#include "./move.hpp"
 
 namespace mog {
 namespace core {
@@ -241,6 +242,19 @@ struct ExtendedState {
       if (mask & (1ULL << i)) bb = bb | attack_bbs[i];
     }
     return bb.get(state.get_king_position(state.turn));
+  }
+
+  bool is_mated() const {
+    // todo
+    return false;
+  }
+
+  /*
+   * Return true if the player can satisfy the conditions of declaring win.
+   */
+  bool can_declare_win(int min_point=24) const {
+    // todo
+    return false;
   }
 
   /*
