@@ -7,3 +7,4 @@ from .attack import Attack
 from .state.state import State
 from .state.extended_state import ExtendedState
 from .state.extended_move import ExtendedMove, Resign, TimeUp, IllegalMove, PerpetualCheck, DeclareWin, ThreefoldRepetition
+from .game import Game

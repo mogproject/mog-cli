@@ -35,6 +35,23 @@ class ExtendedMove(cmogcore.ExtendedMove, TimedMove):
         return 'ExtendedMove()'
 
     @classmethod
+    def wrap(cls, m: cmogcore.ExtendedMove):
+        if m.move_type == 0:
+            return ExtendedMove(Turn(m._turn), Pos(m._from), Pos(m._to), PieceType(m._piece_type), m.elapsed_time)
+        elif m.move_type == 1:
+            return Resign(m.elapsed_time)
+        elif m.move_type == 2:
+            return TimeUp(m.elapsed_time)
+        elif m.move_type == 3:
+            return IllegalMove(m.elapsed_time)
+        elif m.move_type == 4:
+            return PerpetualCheck(m.elapsed_time)
+        elif m.move_type == 5:
+            return DeclareWin(m.elapsed_time)
+        elif m.move_type == 6:
+            return ThreefoldRepetition(m.elapsed_time)
+
+    @classmethod
     def from_string(cls, s):
         """Build ExtendedMove object from CSA-formatted string"""
         # todo

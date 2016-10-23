@@ -13,8 +13,11 @@ namespace core {
  */
 struct Game {
  public:
-  std::vector<state::ExtendedState> states;
-  std::vector<state::ExtendedMove> moves;
+  typedef std::vector<state::ExtendedState> StateList;
+  typedef std::vector<state::ExtendedMove> MoveList;
+
+  StateList states;
+  MoveList moves;
 
   Game(state::State const& initial_state) { states.push_back(state::ExtendedState(initial_state)); }
 
@@ -61,10 +64,13 @@ struct Game {
     return 0;
   }
 
+  template <typename T>
+  int move_(T const& m) { return move(static_cast<state::ExtendedMove>(m)); }
+
   /*
    * Return true if the game is finished.
    */
-  bool is_finished() const { return moves.back().is_special(); }
+  bool is_finished() const { return !moves.empty() && moves.back().is_special(); }
 
   /*
    * Return true if it is a perpetual check

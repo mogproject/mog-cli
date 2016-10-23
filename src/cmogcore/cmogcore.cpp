@@ -75,6 +75,8 @@ BOOST_PYTHON_MODULE(cmogcore) {
   expose_seq_to_list<state::ExtendedState::AttackBBList>();
   expose_seq_to_list<state::ExtendedState::BoardTable>();
   expose_seq_to_list<state::ExtendedState::OccBBList>();
+  expose_seq_to_list<Game::StateList>();
+  expose_seq_to_list<Game::MoveList>();
   expose_pylist_to_array<u64, 5>();
   expose_pylist_to_array<BitBoard, 40>();  // state::ExtendedState::AttackBBList
   expose_pylist_to_array<int, 81>();       // state::ExtendedState::BoardTable
@@ -227,5 +229,13 @@ BOOST_PYTHON_MODULE(cmogcore) {
 
   class_<Game>("Game", init<state::State>())
       .def("move", &Game::move)
+      .def("move", &Game::move_<state::Resign>)
+      .def("move", &Game::move_<state::TimeUp>)
+      .def("move", &Game::move_<state::IllegalMove>)
+      .def("move", &Game::move_<state::PerpetualCheck>)
+      .def("move", &Game::move_<state::DeclareWin>)
+      .def("move", &Game::move_<state::ThreefoldRepetition>)
+      .add_property("states", py::make_getter(&Game::states, py::return_value_policy<py::return_by_value>()))
+      .add_property("moves", py::make_getter(&Game::moves, py::return_value_policy<py::return_by_value>()))
       .def("is_finished", &Game::is_finished);
 }
