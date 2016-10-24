@@ -1,368 +1,299 @@
 #ifndef MOG_CORE_STATE_STATE_HPP_INCLUDED
 #define MOG_CORE_STATE_STATE_HPP_INCLUDED
 
+#include <cassert>
+#include <algorithm>
 #include "../util.hpp"
 #include "../bitboard.hpp"
+#include "../attack.hpp"
+#include "./simple_state.hpp"
+#include "./move.hpp"
 
 namespace mog {
 namespace core {
 namespace state {
 
 /*
- * Immutable state structure
- *
- * This class is an atomic class for the state of the board and hands.
- * In this model, a state is described by the player's turn and the state of
- * each piece (there should be 40 pieces).
- *
- * @param turn 0 -> black, 1 -> white
- * @param owner_bits a 64-bit bitmask which describes that N-th smallest bit is ON when piece N's owner is white.
- * @param hand_bits a 64-bit bitmask which describes that N-th smallest bit is ON when piece N is in hands.
- * @param promoted_bits a 64-bit bitmask which describes that N-th smallest bit is ON when piece N is promoted.
- * @param unused_bits a 64-bit bitmask which describes that N-th smallest bit is ON when piece N is unused (neither on board nor in hands).
- * @param board a bitboard which denotes bits on board where a piece is set.
- * @param position a fixed-size array which contains position information of each of the 40 pieces.
- *
- * Slot id:
- *    0- 1: rook
- *    2- 3: bishop
- *    4- 7: lance
- *    8-11: silver
- *   12-15: knight
- *   16-33: pawn
- *   34-37: gold
- *   38   : black king
- *   39   : white king
+  * Create random hash seed by using linear congruential generator(LCG).
+  */
+template <size_t N>
+constexpr auto __make_hash_seed(uint32_t random_seed) {
+  util::Array<u64, N> seeds = {{}};
+
+  for (size_t i = 0; i < N; ++i) {
+    uint32_t lo = util::lcg_parkmiller(random_seed);
+    uint32_t hi = util::lcg_parkmiller(lo);
+    random_seed = hi;
+    seeds[i] = static_cast<u64>(hi) << 32 | lo;
+  }
+  return std::move(seeds);
+}
+
+/*
+ * State class with calculated attack bitboards
  */
 struct State {
-  static constexpr int NUM_PIECES = 40;
-  static constexpr int NUM_POSITION_LIST = 5;
+  typedef util::Array<BitBoard, SimpleState::NUM_PIECES * 2> LegalMoveList;
+  typedef util::Array<BitBoard, SimpleState::NUM_PIECES> AttackBBList;
+  typedef util::Array<int, pos::NUM_CELLS> BoardTable;
+  typedef util::Array<BitBoard, turn::NUM_TURNS> OccBBList;
 
-  int turn;
-  u64 owner_bits;
-  u64 hand_bits;
-  u64 promoted_bits;
-  u64 unused_bits;
-  BitBoard board;
-  typedef util::Array<u64, NUM_POSITION_LIST> PositionList;
-  PositionList position;
+  int const EMPTY_CELL = -1;
+  static constexpr size_t HASH_SEED_BOARD_SIZE = turn::NUM_TURNS * ptype::NUM_PIECE_TYPES * pos::NUM_CELLS;
+  static constexpr size_t HASH_SEED_HAND_SIZE = turn::NUM_TURNS * ptype::NUM_HAND_TYPES * ptype::NUM_PAWNS;
 
-  constexpr State(int turn = turn::BLACK, u64 owner_bits = 0ULL, u64 hand_bits = 0ULL, u64 promoted_bits = 0ULL, u64 unused_bits = MASK40,
-                  BitBoard board = BitBoard(0ULL, 0ULL), PositionList const &position = {{MASK64, MASK64, MASK64, MASK64, MASK64}})
-      : turn(turn),
-        owner_bits(owner_bits),
-        hand_bits(hand_bits),
-        promoted_bits(promoted_bits),
-        unused_bits(unused_bits),
-        board(board),
-        position(position) {}
+  SimpleState state;
+  AttackBBList attack_bbs = {{}};
+  BoardTable board_table = {{}};  // pos -> slot_id
+  OccBBList occ = {{}};
+  OccBBList occ_pawn = {{}};
+  u64 hash_value = 0ULL;  // 64 bit hash
 
-  /**
-   * Compare two objects
-   *
-   * Note: the order of pieces does not matters
+  // todo: refactor to be a constexpr class?
+
+  constexpr State(SimpleState const& s, AttackBBList const& attack_bbs, BoardTable board_table, OccBBList occ, OccBBList occ_pawn, u64 hash_value)
+      : state(s), attack_bbs(attack_bbs), board_table(board_table), occ(occ), occ_pawn(occ_pawn), hash_value(hash_value) {}
+
+  constexpr State(SimpleState const& s) : state(s) {
+    std::fill(board_table.begin(), board_table.end(), EMPTY_CELL);
+    hash_value = s.turn ? __hash_seed_turn : 0ULL;
+
+    // prepare occupancy bitboards and initialize boards array
+    for (size_t slot_id = 0; slot_id < SimpleState::NUM_PIECES; ++slot_id) {
+      if (!state.is_used(slot_id)) continue;
+
+      auto pos = state.get_position(slot_id);
+      if (pos == pos::HAND) continue;
+
+      auto owner = state.get_owner(slot_id);
+      auto piece_type = state.get_piece_type(slot_id);
+
+      // prepare occupancy bitboards
+      occ[owner] = occ[owner].set(pos);
+      if (piece_type == ptype::PAWN) occ_pawn[owner] = occ_pawn[owner].set(pos);
+
+      // initialize board table
+      board_table[pos] = slot_id;
+
+      // set attack bbs
+      attack_bbs[slot_id] = ptype::is_ranged(piece_type) ? attack::get_attack(owner, piece_type, pos, state.board)
+                                                         : attack::get_attack(owner, piece_type, pos);
+
+      // initialize hash value for board
+      hash_value ^= __get_hash_seed_board(owner, piece_type, pos);
+    }
+
+    // initialize hash value for hands
+    for (int owner = 0; owner < turn::NUM_TURNS; ++owner)
+      for (int pt = 0; pt < ptype::NUM_HAND_TYPES; ++pt) {
+        auto cnt = s.get_num_hand(owner, pt);
+        for (int i = 0; i < cnt; ++i) hash_value ^= __get_hash_seed_hand(owner, pt, i);
+      }
+  }
+
+  constexpr bool operator==(State const& rhs) const { return state == rhs.state; }
+
+  /*
+   * index 0-39: raw moves
+   * index 40-79: promoted moves
    */
-  constexpr bool operator==(State const &rhs) const { return turn == rhs.turn && __equals_helper(*this) == __equals_helper(rhs); }
+  constexpr LegalMoveList get_legal_moves() const {
+    LegalMoveList ret;
 
-  static constexpr std::pair<util::Array<util::Array<BitBoard, 14>, 2>, util::Array<util::Array<int, 7>, 2>> __equals_helper(
-      State const &s) {
-    util::Array<util::Array<BitBoard, 14>, 2> bbs;
-    util::Array<util::Array<int, 7>, 2> hands = {{}};
+    int hand_used = 0;
 
-    for (auto slot_id = 0; slot_id < NUM_PIECES; ++slot_id) {
-      if (!s.is_used(slot_id)) continue;
-      auto owner = s.get_owner(slot_id);
-      auto piece_type = s.get_piece_type(slot_id);
-      auto pos = s.get_position(slot_id);
+    for (size_t slot_id = 0; slot_id < SimpleState::NUM_PIECES; ++slot_id) {
+      if (!state.is_used(slot_id)) continue;
+
+      auto owner = state.get_owner(slot_id);
+      if (owner != state.turn) continue;
+
+      auto pos = state.get_position(slot_id);
+      auto piece_type = state.get_piece_type(slot_id);
 
       if (pos == pos::HAND) {
-        hands[owner][piece_type] += 1;
-      } else {
-        bbs[owner][piece_type] = bbs[owner][piece_type].set(pos);
-      }
-    }
+        auto mask = 1 << state.get_raw_piece_type(slot_id);
+        if (!(hand_used & mask)) {
+          if (piece_type == ptype::PAWN) {
+            ret[slot_id] = attack::get_attack(owner, state.board, occ_pawn[state.turn]);
+          } else {
+            ret[slot_id] = attack::get_attack(owner, piece_type, state.board);
+          }
+          hand_used |= mask;
+        }
+      } else {  // board
+        auto base = ((ptype::is_ranged(piece_type)) ? attack::get_attack(owner, piece_type, pos, state.board)
+                                                    : attack::get_attack(owner, piece_type, pos)) &
+                    ~occ[state.turn];
 
-    return std::move(std::make_pair(bbs, hands));
-  }
+        if (ptype::is_promoted(piece_type)) {  // already promoted
+          ret[slot_id + SimpleState::NUM_PIECES] = base;
+        } else if (!ptype::can_promote(piece_type)) {  // cannot promote
+          ret[slot_id] = base;
+        } else {
+          auto promo_zone = __get_promotion_zone(owner);
+          auto restriction = __get_restriction(owner, piece_type);
 
-  constexpr bool operator!=(State const &rhs) const { return !this->operator==(rhs); }
-
-  /*
-   * Return true if a specified piece is in use.
-   */
-  constexpr bool is_used(int slot_id) const {
-    assert(0 <= slot_id && slot_id < NUM_PIECES);
-
-    return ~(unused_bits >> slot_id) & 1;
-  }
-
-  /*
-   * Return the owner of a specified piece.
-   *
-   * Return 0 if the owner is BLACK or the piece is unused, and return 1 if the owner is WHITE
-   */
-  constexpr int get_owner(int slot_id) const {
-    assert(0 <= slot_id && slot_id < NUM_PIECES);
-
-    return (owner_bits >> slot_id) & 1;
-  }
-
-  constexpr int get_raw_piece_type(int slot_id) const {
-    assert(0 <= slot_id && slot_id < NUM_PIECES);
-
-    return __raw_piece_types[slot_id];
-  }
-
-  /*
-   * Return the piece type of a specified piece.
-   */
-  constexpr int get_piece_type(int slot_id) const {
-    assert(0 <= slot_id && slot_id < NUM_PIECES);
-
-    auto raw_type = __raw_piece_types[slot_id];
-    return (((promoted_bits >> slot_id) & 1) << 3) | raw_type;
-  }
-
-  /*
-   * Return the position of a specified piece.
-   *
-   * Return pos::HAND if the piece is in hand or unused.
-   */
-  constexpr int get_position(int slot_id) const {
-    assert(0 <= slot_id && slot_id < NUM_PIECES);
-
-    auto x = __get_position(slot_id);
-    return x == 0xff ? pos::HAND : x;
-  }
-
-  /*
-   * Return the number of hand pieces.
-   */
-  inline constexpr int get_num_hand(int owner, int piece_type) const {
-    assert(0 <= piece_type && piece_type < 8);
-
-    return pop_ct(hand_bits & (owner ? owner_bits : ~owner_bits) & piece_masks[piece_type]);
-  }
-
-  /*
-   * Return a new instance with a specified turn.
-   */
-  constexpr State set_turn(int new_turn) const {
-    return State(new_turn, owner_bits, hand_bits, promoted_bits, unused_bits, board, position);
-  }
-
-  /*
-   * Return a new instance with which an unused piece is set to the board or hands.
-   */
-  constexpr State set_piece(int owner, int piece_type, int pos) const {
-    int slot_id = __get_unused_slot(owner, piece_type);
-    if (slot_id == 64) throw RuntimeError("no left for the piece");
-
-    auto mask = 1ULL << slot_id;
-
-    // update flags
-    auto new_unused_bits = unused_bits ^ mask;
-    auto new_owner_bits = owner_bits | (static_cast<u64>(owner) << slot_id);
-    auto new_promoted_bits = promoted_bits | (static_cast<u64>(ptype::is_promoted(piece_type)) << slot_id);
-
-    if (pos == pos::HAND) {
-      // check piece type
-      if (piece_type == ptype::KING) throw RuntimeError("king in hand");
-      if (ptype::is_promoted(piece_type)) throw RuntimeError("promoted piece in hand");
-
-      auto new_hand_bits = hand_bits | mask;
-      return std::move(State(turn, new_owner_bits, new_hand_bits, new_promoted_bits, new_unused_bits, board, position));
-    } else {
-      // check board
-      if (board.get(pos)) throw RuntimeError("position already taken");
-
-      // check pawn files
-      if (piece_type == ptype::PAWN) {
-        // exclude unused, in-hand, promoted, and opponent's pieces
-        auto m = ~(unused_bits | hand_bits | promoted_bits | (owner ? ~owner_bits : owner_bits));
-        for (int i = 16; i < 34; ++i) {
-          if (((m >> i) & 1) && pos % 9 == __get_position(i) % 9) throw RuntimeError("two pawns in the same file");
+          if (promo_zone.get(pos)) {  // in the promotion zone
+            ret[slot_id] = base & restriction;
+            ret[slot_id + SimpleState::NUM_PIECES] = base;
+          } else {
+            ret[slot_id] = base & restriction;
+            ret[slot_id + SimpleState::NUM_PIECES] = base & promo_zone;
+          }
         }
       }
-
-      // check unmovable pieces
-      if (piece_type == ptype::PAWN || piece_type == ptype::LANCE || piece_type == ptype::KNIGHT) {
-        auto bb = (piece_type == ptype::KNIGHT ? (bitboard::rank1 | bitboard::rank2) : bitboard::rank1).flip_by_turn(owner);
-        if (bb.get(pos)) throw RuntimeError("unmovable piece");
-      }
-
-      auto new_board = board.set(pos);
-
-      // set position
-      auto new_position = __set_position(slot_id, pos);
-      return std::move(
-          State(turn, new_owner_bits, hand_bits, new_promoted_bits, new_unused_bits, std::move(new_board), std::move(new_position)));
     }
+    return std::move(ret);
   }
 
   /*
-   * Return a new instance where all unused pieces are set to one side's hand.
+   * Make one move.
    */
-  constexpr State set_all_hand(int owner) const {
-    auto target = unused_bits & 0x0000007fffffffffULL;  // except kings
-    auto new_owner_bits = owner == turn::WHITE ? owner_bits | target : owner_bits;
-    return std::move(State(turn, new_owner_bits, hand_bits | target, promoted_bits, unused_bits ^ target, board, position));
-  }
+  constexpr State move(SimpleMove const& m) const {
+    auto turn = m.turn;
+    if (turn != state.turn) throw RuntimeError("invalid turn");
 
-  constexpr State move(int slot_id, int to_pos, bool promote, int captured_slot_id = -1) const {
-    assert(slot_id >= 0 && slot_id < 40);                     // Invalid slot id
-    assert(to_pos >= 0 && to_pos < 81);                       // Invalid to position
-    assert(captured_slot_id >= -1 && captured_slot_id < 40);  // Invalid slot id
-    assert(captured_slot_id == -1 && !board.get(to));         // There must be captured piece
+    auto from_pos = m.from;
+    auto to_pos = m.to;
+    auto to_ptype = m.piece_type;
 
-    // move
-    auto new_owner_bits = owner_bits;
-    auto new_hand_bits = hand_bits & ~(1ULL << slot_id);
-    auto new_promoted_bits = promoted_bits | (static_cast<u64>(promote) << slot_id);
-    auto new_unused_bits = unused_bits;
-    auto new_board = board.reset(__get_position(slot_id)).set(to_pos);
-    PositionList new_position = position;
+    bool from_hand = from_pos == pos::HAND;
+    auto slot_id = from_hand ? __get_hand_slot(turn, to_ptype) : board_table[from_pos];
+    auto from_ptype = from_hand ? to_ptype : state.get_piece_type(slot_id);
+    bool promote = from_ptype != to_ptype;
 
-    __set_position(new_position, slot_id, to_pos);
+    auto captured_slot_id = -1;
 
-    // capture
-    if (captured_slot_id != -1) {
-      auto mask = 1ULL << captured_slot_id;
-      if (captured_slot_id >= 38) {  // king is captured
-        new_owner_bits &= ~mask;
-        new_unused_bits |= mask;
-      } else {
-        new_owner_bits ^= mask;
-        new_hand_bits ^= mask;
-        new_promoted_bits &= ~mask;  // reset promoted bit
+    auto new_attack_bbs = attack_bbs;
+    auto new_board_table = board_table;
+    auto new_occ = occ;
+    auto new_occ_pawn = occ_pawn;
+    auto new_hash_value = hash_value ^ __hash_seed_turn;
+
+    // captured piece
+    if (board_table[to_pos] != EMPTY_CELL) {
+      captured_slot_id = board_table[to_pos];
+      auto captured_ptype = state.get_piece_type(captured_slot_id);
+      auto captured_raw_ptype = state.get_raw_piece_type(captured_slot_id);
+      auto new_turn = turn ^ 1;
+
+      new_occ[new_turn] = new_occ[new_turn].reset(to_pos);
+      if (state.get_piece_type(captured_slot_id) == ptype::PAWN) {
+        new_occ_pawn[new_turn] = new_occ_pawn[new_turn].reset(to_pos);
       }
-
-      __reset_position(new_position, captured_slot_id);
+      new_hash_value ^= __get_hash_seed_board(new_turn, captured_ptype, to_pos);
+      new_hash_value ^= __get_hash_seed_hand(turn, captured_raw_ptype, state.get_num_hand(turn, captured_raw_ptype));
     }
 
-    return std::move(
-        State(turn ^ 1, new_owner_bits, new_hand_bits, new_promoted_bits, new_unused_bits, std::move(new_board), std::move(new_position)));
-  }
+    // update state
+    auto new_state = state.move(slot_id, to_pos, promote, captured_slot_id);
 
-  /*
-   * Check the validity of the state
-   *
-   * This does not check legal moves
-   */
-  constexpr void validate() const {
-    if (owner_bits & unused_bits) throw RuntimeError("conflict between owner bits and unused bits");
-    if (hand_bits & unused_bits) throw RuntimeError("conflict between hand bits and unused bits");
-    if (promoted_bits & unused_bits) throw RuntimeError("conflict between promoted bits and unused bits");
-    if (hand_bits & promoted_bits) throw RuntimeError("conflict between hand bits and promoted bits");
-
-    // check board
-    BitBoard bb;
-    for (int i = 0; i < NUM_PIECES; ++i) {
-      int pos = __get_position(i);
-
-      if (pos == 0xff) {
-        if (!(((hand_bits | unused_bits) >> i) & 1)) throw RuntimeError("position must be in hand or unused");
-      } else {
-        if (((hand_bits | unused_bits) >> i) & 1) throw RuntimeError("position must not be in hand or unused");
-        if (pos >= 81) throw RuntimeError("invalid position value");
-        if (bb.get(pos)) throw RuntimeError("position already taken");
-        bb = bb.set(pos);
-      }
+    // moved piece
+    if (from_hand) {
+      new_hash_value ^= __get_hash_seed_hand(turn, from_ptype, new_state.get_num_hand(turn, from_ptype));
+    } else {
+      new_occ[turn] = new_occ[turn].reset(from_pos);
+      if (from_ptype == ptype::PAWN) new_occ_pawn[turn] = new_occ_pawn[turn].reset(from_pos);
+      new_board_table[from_pos] = EMPTY_CELL;
+      new_hash_value ^= __get_hash_seed_board(turn, from_ptype, from_pos);
     }
-    if (bb != board) throw RuntimeError("inconsistent board bitboard");
+
+    new_occ[turn] = new_occ[turn].set(to_pos);
+    if (to_ptype == ptype::PAWN) new_occ_pawn[turn] = new_occ[turn].set(to_pos);
+    new_board_table[to_pos] = slot_id;
+    new_hash_value ^= __get_hash_seed_board(turn, to_ptype, to_pos);
+
+    // update attack bbs
+    new_attack_bbs[slot_id] =
+        ptype::is_ranged(to_ptype) ? attack::get_attack(to_ptype, to_pos, new_state.board) : attack::get_attack(to_ptype, to_ptype, to_pos);
+
+    // on-board ranged pieces (can be affected by this move)
+    BitBoard from_and_to = BitBoard().set(to_pos);
+    if (!from_hand) from_and_to.set(from_pos);
+
+    u64 mask = ~(new_state.unused_bits | new_state.hand_bits | (new_state.piece_masks[ptype::LANCE] & new_state.promoted_bits));
+    for (auto i = 0; i < 8; ++i) {  // slot id: ROOK, BISHOP, LANCE
+      if (i == slot_id) continue;
+
+      auto owner = new_state.get_owner(i);
+      auto piece_type = new_state.get_piece_type(i);
+      auto pos = new_state.get_position(i);
+
+      if (((mask >> i) & 1) && (attack_bbs[i] & from_and_to).is_defined())
+        new_attack_bbs[i] = attack::get_attack(owner, piece_type, pos, new_state.board);
+    }
+
+    return State(std::move(new_state), std::move(new_attack_bbs), std::move(new_board_table), std::move(new_occ), std::move(new_occ_pawn),
+                 new_hash_value);
+  }
+
+  /** get attack bitboards */
+  constexpr BitBoard get_attack_bb(size_t index) const { return index < SimpleState::NUM_PIECES ? attack_bbs[index] : bitboard::EMPTY; }
+
+  /*
+   * Return true if the player's king is checked by the opponent's piece(s)
+   */
+  bool is_checked() const {
+    auto bb = BitBoard();
+    auto mask = state.get_board_mask(state.turn ^ 1);
+    for (int i = 0; i < SimpleState::NUM_PIECES; ++i) {
+      if (mask & (1ULL << i)) bb = bb | attack_bbs[i];
+    }
+    return bb.get(state.get_king_position(state.turn));
+  }
+
+  bool is_mated() const {
+    // todo
+    return false;
   }
 
   /*
-   * Return 64-bit mask of the onboard pieces.
+   * Return true if the player can satisfy the conditions of declaring win.
    */
-  inline constexpr u64 get_board_mask() const {
-    return ~(hand_bits | unused_bits);
+  bool can_declare_win(int min_point = 24) const {
+    // todo
+    return false;
   }
 
   /*
-   * Return 64-bit mask of the specific side's onboard pieces.
+   * Test king's existance on the board
    */
-  inline constexpr u64 get_board_mask(int owner) const {
-    return ~(hand_bits | unused_bits | (owner ? ~owner_bits : owner_bits));
-  }
-
-  /*
-   * Return the slot number of a king.
-   */
-  inline static constexpr int get_king_slot(int owner) {
-    assert(owner == 0 || owner == 1);
-    return 38 + owner;
-  }
-
-  /*
-   * Return the position of a king.
-   * If the king is not on board, return pos::HAND.
-   */
-  inline constexpr int get_king_position(int owner) const {
-    return get_position(get_king_slot(owner));
-  }
-
-  /*
-   * -------- -------- -------- -------- -------- -------- -------- ------** rook
-   * -------- -------- -------- -------- -------- -------- -------- ----**-- bishop
-   * -------- -------- -------- -------- -------- -------- -------- ****---- lance
-   * -------- -------- -------- -------- -------- -------- ----**** -------- silver
-   * -------- -------- -------- -------- -------- -------- ****---- -------- knight
-   * -------- -------- -------- ------** ******** ******** -------- -------- pawn
-   * -------- -------- -------- --****-- -------- -------- -------- -------- gold
-   * -------- -------- -------- **------ -------- -------- -------- -------- king
-   */
-  // todo: create in the compile time?
-  static constexpr util::Array<u64, 8> piece_masks = {{
-      0x0000000003ULL,  // rook
-      0x000000000cULL,  // bishop
-      0x00000000f0ULL,  // lance
-      0x0000000f00ULL,  // silver
-      0x000000f000ULL,  // knight
-      0x03ffff0000ULL,  // pawn
-      0x3c00000000ULL,  // gold
-      0xc000000000ULL,  // king
-  }};
+  bool is_king_alive(int owner) const { return state.get_king_position(owner) != pos::HAND; }
 
  private:
-  static constexpr util::Array<u64, NUM_PIECES> __raw_piece_types = {
-      {ptype::ROOK,   ptype::ROOK,   ptype::BISHOP, ptype::BISHOP, ptype::LANCE,  ptype::LANCE,  ptype::LANCE,  ptype::LANCE,
-       ptype::SILVER, ptype::SILVER, ptype::SILVER, ptype::SILVER, ptype::KNIGHT, ptype::KNIGHT, ptype::KNIGHT, ptype::KNIGHT,
-       ptype::PAWN,   ptype::PAWN,   ptype::PAWN,   ptype::PAWN,   ptype::PAWN,   ptype::PAWN,   ptype::PAWN,   ptype::PAWN,
-       ptype::PAWN,   ptype::PAWN,   ptype::PAWN,   ptype::PAWN,   ptype::PAWN,   ptype::PAWN,   ptype::PAWN,   ptype::PAWN,
-       ptype::PAWN,   ptype::PAWN,   ptype::GOLD,   ptype::GOLD,   ptype::GOLD,   ptype::GOLD,   ptype::KING,   ptype::KING}};
+  static constexpr u64 __hash_seed_turn = __make_hash_seed<1>(0UL)[0];
+  static constexpr auto __hash_seed_board = __make_hash_seed<HASH_SEED_BOARD_SIZE>(1UL);
+  static constexpr auto __hash_seed_hand = __make_hash_seed<HASH_SEED_HAND_SIZE>(2UL);
 
-  // todo: create in the compile time?
-  static constexpr util::Array<int, 8> __piece_offsets = {{0, 2, 4, 8, 12, 16, 34, 38}};
+  // todo: to be a static table[2]
+  inline constexpr static BitBoard __get_promotion_zone(int const owner) {
+    return (bitboard::rank1 | bitboard::rank2 | bitboard::rank3).flip_by_turn(owner);
+  }
 
-  /*
-   * Return one unused slot number.
-   * If there is no slot, returns 64.
-   */
-  constexpr int __get_unused_slot(int owner_bit, int piece_type) const {
-    if (piece_type == ptype::KING) {
-      return unused_bits & (1ULL << (__piece_offsets[ptype::KING] + owner_bit)) ? __piece_offsets[ptype::KING] + owner_bit : 64;
+  // todo: to be a static table[2][14]
+  inline constexpr static BitBoard __get_restriction(int const owner, int const piece_type) {
+    if (piece_type == ptype::PAWN || piece_type == ptype::LANCE) {
+      return (~bitboard::rank1).flip_by_turn(owner);
+    } else if (piece_type == ptype::KNIGHT) {
+      return (~(bitboard::rank1 | bitboard::rank2)).flip_by_turn(owner);
     } else {
-      return ntz(unused_bits & piece_masks[ptype::demoted(piece_type)]);
+      return bitboard::FULL;
     }
   }
 
-  constexpr int __get_position(int slot_id) const { return (position[slot_id / 8] >> (8 * (slot_id % 8))) & 0xffULL; }
-
-  static inline constexpr void __set_position(PositionList &position_list, int slot_id, int pos) {
-    auto &x = position_list[slot_id / 8];
-    auto y = 8 * (slot_id % 8);
-    x &= ~(0xffULL << y);
-    x |= static_cast<u64>(pos) << y;
+  constexpr int __get_hand_slot(int owner, int piece_type) const {
+    u64 mask = state.piece_masks[piece_type] & (owner ? state.owner_bits : ~state.owner_bits) & state.hand_bits;
+    return ntz(mask);
   }
 
-  constexpr PositionList __set_position(int slot_id, int pos) const {
-    PositionList p = position;
-    __set_position(p, slot_id, pos);
-    return std::move(p);
+  inline static constexpr u64 __get_hash_seed_board(int owner, int piece_type, int pos) {
+    return __hash_seed_board[owner + piece_type * turn::NUM_TURNS + pos * turn::NUM_TURNS * ptype::NUM_PIECE_TYPES];
   }
 
-  static inline constexpr void __reset_position(PositionList &position_list, int slot_id) { __set_position(position_list, slot_id, 0xff); }
+  inline static constexpr u64 __get_hash_seed_hand(int owner, int piece_type, int num) {
+    return __hash_seed_hand[owner + piece_type * turn::NUM_TURNS + num * turn::NUM_TURNS * ptype::NUM_HAND_TYPES];
+  }
 };
 }
 }

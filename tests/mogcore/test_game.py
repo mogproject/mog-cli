@@ -6,7 +6,7 @@ from tests.mogcore.state.gen_state import *
 class TestGame(unittest.TestCase):
 
     def test_str(self):
-        g1 = Game(State())
+        g1 = Game(SimpleState())
         self.assertEqual(str(g1), '\n'.join([
             'P1 *  *  *  *  *  *  *  *  * ',
             'P2 *  *  *  *  *  *  *  *  * ',
@@ -37,8 +37,8 @@ class TestGame(unittest.TestCase):
             'P-',
             '+'
         ]))
-        g2.move(ExtendedMove(BLACK, P77, P76, PAWN, 10))
-        g2.move(ExtendedMove(WHITE, P33, P34, PAWN, 1))
+        g2.move(Move(BLACK, P77, P76, PAWN, 10))
+        g2.move(Move(WHITE, P33, P34, PAWN, 1))
         self.assertEqual(str(g2), '\n'.join([
             'P1-KY-KE-GI-KI-OU-KI-GI-KE-KY',
             'P2 * -HI *  *  *  *  * -KA * ',
@@ -84,6 +84,6 @@ class TestGame(unittest.TestCase):
             '+5958OU', '-5152OU', '+5859OU', '-5251OU',
         ]
         for m in moves:
-            g1.move(ExtendedMove.from_string(m))
+            g1.move(Move.from_string(m))
         self.assertEqual(len(g1.moves), 13)
-        self.assertEqual(ExtendedMove.wrap(g1.moves[-1]), ThreefoldRepetition())
+        self.assertEqual(Move.wrap(g1.moves[-1]), ThreefoldRepetition())

@@ -2,8 +2,7 @@
 #define MOG_CORE_GAME_HPP_INCLUDED
 
 #include <map>
-#include "./state/extended_state.hpp"
-#include "./state/extended_move.hpp"
+#include "./state/state.hpp"
 
 namespace mog {
 namespace core {
@@ -13,14 +12,14 @@ namespace core {
  */
 struct Game {
  public:
-  typedef std::vector<state::ExtendedState> StateList;
-  typedef std::vector<state::ExtendedMove> MoveList;
+  typedef std::vector<state::State> StateList;
+  typedef std::vector<state::Move> MoveList;
 
   StateList states;
   MoveList moves;
 
-  Game(state::State const& initial_state) {
-    auto s = state::ExtendedState(initial_state);
+  Game(state::SimpleState const& initial_state) {
+    auto s = state::State(initial_state);
     states.push_back(s);
     ++__repetitions[s.hash_value];
   }
@@ -28,7 +27,7 @@ struct Game {
   /*
    * @return 0: game continues, 1: draw, 2: win, 3: lose
    */
-  int move(state::ExtendedMove const& move) {
+  int move(state::Move const& move) {
     if (is_finished()) {
       throw RuntimeError("The game is already finished.");
     }
@@ -55,7 +54,7 @@ struct Game {
 
     // repetition
     if (++__repetitions[new_state.hash_value] == 4) {
-      state::ExtendedMove m(0, 0, 0, 0);
+      state::Move m(0, 0, 0, 0);
 
       // examine if this is a perpetual check
       if (is_perpetual_check(new_state.hash_value))
@@ -69,7 +68,7 @@ struct Game {
   }
 
   template <typename T>
-  int move_(T const& m) { return move(static_cast<state::ExtendedMove>(m)); }
+  int move_(T const& m) { return move(static_cast<state::Move>(m)); }
 
   /*
    * Return true if the game is finished.
@@ -92,7 +91,7 @@ struct Game {
  private:
   std::map<u64, int> __repetitions;
 
-  int __insert_special_move(state::ExtendedMove move) {
+  int __insert_special_move(state::Move move) {
     moves.push_back(move);
     return move.judge;
   }

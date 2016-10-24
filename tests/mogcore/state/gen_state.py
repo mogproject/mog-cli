@@ -9,14 +9,14 @@ def gen_state(n):
 
     for num in range(n):
         if num == 0:
-            yield State()
+            yield SimpleState()
         elif num == 1:
             yield STATE_HIRATE
         elif num == 2:
             yield STATE_TSUME_BLACK
         else:
             pawns = [BitBoard(), BitBoard()]
-            s = State().set_turn(rnd.randint(0, 1))
+            s = SimpleState().set_turn(rnd.randint(0, 1))
 
             for i in range(40):
                 if rnd.random() < 0.004:  # randomely set unused
@@ -57,7 +57,7 @@ def gen_state(n):
 
                 s = s.set_piece(owner.value, pt.value, ps.value)
 
-            yield State.wrap(s)
+            yield SimpleState.wrap(s)
 
 
 STR_HIRATE = '\n'.join([
@@ -112,7 +112,7 @@ STR_MAX_LEGAL_MOVES = '\n'.join([
     '+'
 ])
 
-STATE_HIRATE = State.from_string(STR_HIRATE)
-STATE_TSUME_BLACK = State.from_string(STR_TSUME_BLACK)
-STATE_TSUME_WHITE = State.from_string(STR_TSUME_WHITE)
-STATE_MAX_LEGAL_MOVES = State.from_string(STR_MAX_LEGAL_MOVES)
+STATE_HIRATE = SimpleState.from_string(STR_HIRATE)
+STATE_TSUME_BLACK = SimpleState.from_string(STR_TSUME_BLACK)
+STATE_TSUME_WHITE = SimpleState.from_string(STR_TSUME_WHITE)
+STATE_MAX_LEGAL_MOVES = SimpleState.from_string(STR_MAX_LEGAL_MOVES)

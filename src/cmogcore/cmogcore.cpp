@@ -52,13 +52,14 @@ void translateRuntimeError(mog::core::RuntimeError const& e) { PyErr_SetString(P
 }  // namespace cmogcore
 
 // constants
-constexpr mog::core::util::Array<mog::core::u64, 8> mog::core::state::State::piece_masks;
-constexpr mog::core::util::Array<mog::core::u64, mog::core::state::State::NUM_PIECES> mog::core::state::State::__raw_piece_types;
-constexpr mog::core::util::Array<mog::core::u64, mog::core::state::ExtendedState::HASH_SEED_BOARD_SIZE>
-    mog::core::state::ExtendedState::__hash_seed_board;
-constexpr mog::core::util::Array<mog::core::u64, mog::core::state::ExtendedState::HASH_SEED_HAND_SIZE>
-    mog::core::state::ExtendedState::__hash_seed_hand;
-constexpr mog::core::util::Array<int, 8> mog::core::state::State::__piece_offsets;
+constexpr mog::core::util::Array<mog::core::u64, 8> mog::core::state::SimpleState::piece_masks;
+constexpr mog::core::util::Array<mog::core::u64, mog::core::state::SimpleState::NUM_PIECES>
+    mog::core::state::SimpleState::__raw_piece_types;
+constexpr mog::core::util::Array<mog::core::u64, mog::core::state::State::HASH_SEED_BOARD_SIZE>
+    mog::core::state::State::__hash_seed_board;
+constexpr mog::core::util::Array<mog::core::u64, mog::core::state::State::HASH_SEED_HAND_SIZE>
+    mog::core::state::State::__hash_seed_hand;
+constexpr mog::core::util::Array<int, 8> mog::core::state::SimpleState::__piece_offsets;
 
 BOOST_PYTHON_MODULE(cmogcore) {
   using namespace boost::python;
@@ -70,17 +71,17 @@ BOOST_PYTHON_MODULE(cmogcore) {
 
   // expose converters
   expose_seq_to_list<std::vector<int>>();
-  expose_seq_to_list<state::State::PositionList>();
-  expose_seq_to_list<state::ExtendedState::LegalMoveList>();
-  expose_seq_to_list<state::ExtendedState::AttackBBList>();
-  expose_seq_to_list<state::ExtendedState::BoardTable>();
-  expose_seq_to_list<state::ExtendedState::OccBBList>();
+  expose_seq_to_list<state::SimpleState::PositionList>();
+  expose_seq_to_list<state::State::LegalMoveList>();
+  expose_seq_to_list<state::State::AttackBBList>();
+  expose_seq_to_list<state::State::BoardTable>();
+  expose_seq_to_list<state::State::OccBBList>();
   expose_seq_to_list<Game::StateList>();
   expose_seq_to_list<Game::MoveList>();
   expose_pylist_to_array<u64, 5>();
-  expose_pylist_to_array<BitBoard, 40>();  // state::ExtendedState::AttackBBList
-  expose_pylist_to_array<int, 81>();       // state::ExtendedState::BoardTable
-  expose_pylist_to_array<BitBoard, 2>();   // state::ExtendedState::OccBBList
+  expose_pylist_to_array<BitBoard, 40>();  // state::State::AttackBBList
+  expose_pylist_to_array<int, 81>();       // state::State::BoardTable
+  expose_pylist_to_array<BitBoard, 2>();   // state::State::OccBBList
 
 // expose functions
 #ifdef SAVE_ATTACK_TABLE
@@ -143,20 +144,20 @@ BOOST_PYTHON_MODULE(cmogcore) {
       .def("ident", &bitboard::ident)
       .staticmethod("ident");
 
-  class_<state::Move>("Move", init<int, int, int, int>())
+  class_<state::SimpleMove>("SimpleMove", init<int, int, int, int>())
+      .def_readonly("_turn", &state::SimpleMove::turn)
+      .def_readonly("_from", &state::SimpleMove::from)
+      .def_readonly("_to", &state::SimpleMove::to)
+      .def_readonly("_piece_type", &state::SimpleMove::piece_type);
+
+  class_<state::Move>("Move", init<int, int, int, int, int, int, int>())
       .def_readonly("_turn", &state::Move::turn)
       .def_readonly("_from", &state::Move::from)
       .def_readonly("_to", &state::Move::to)
-      .def_readonly("_piece_type", &state::Move::piece_type);
-
-  class_<state::ExtendedMove>("ExtendedMove", init<int, int, int, int, int, int, int>())
-      .def_readonly("_turn", &state::ExtendedMove::turn)
-      .def_readonly("_from", &state::ExtendedMove::from)
-      .def_readonly("_to", &state::ExtendedMove::to)
-      .def_readonly("_piece_type", &state::ExtendedMove::piece_type)
-      .def_readonly("elapsed_time", &state::ExtendedMove::elapsed_time)
-      .def_readonly("move_type", &state::ExtendedMove::move_type)
-      .def_readonly("judge", &state::ExtendedMove::judge)
+      .def_readonly("_piece_type", &state::Move::piece_type)
+      .def_readonly("elapsed_time", &state::Move::elapsed_time)
+      .def_readonly("move_type", &state::Move::move_type)
+      .def_readonly("judge", &state::Move::judge)
       .def(self == self);
 
   class_<state::Resign>("Resign", init<int>())
@@ -183,25 +184,25 @@ BOOST_PYTHON_MODULE(cmogcore) {
       .def_readonly("elapsed_time", &state::ThreefoldRepetition::elapsed_time)
       .def(self == self);
 
-  class_<state::State>("State", init<int, u64, u64, u64, u64, BitBoard, state::State::PositionList>())
-      .def_readonly("_turn", &state::State::turn)
-      .def_readonly("owner_bits", &state::State::owner_bits)
-      .def_readonly("hand_bits", &state::State::hand_bits)
-      .def_readonly("promoted_bits", &state::State::promoted_bits)
-      .def_readonly("unused_bits", &state::State::unused_bits)
-      .def_readonly("_board", &state::State::board)
-      .add_property("position", py::make_getter(&state::State::position, py::return_value_policy<py::return_by_value>()))
-      .def("validate", &state::State::validate)
-      .def("is_used", &state::State::is_used)
-      .def("get_owner", &state::State::get_owner)
-      .def("get_raw_piece_type", &state::State::get_raw_piece_type)
-      .def("get_piece_type", &state::State::get_piece_type)
-      .def("get_position", &state::State::get_position)
-      .def("get_num_hand", &state::State::get_num_hand)
-      .def("set_turn", &state::State::set_turn)
-      .def("set_piece", &state::State::set_piece)
-      .def("set_all_hand", &state::State::set_all_hand)
-      .def("move", &state::State::move)
+  class_<state::SimpleState>("SimpleState", init<int, u64, u64, u64, u64, BitBoard, state::SimpleState::PositionList>())
+      .def_readonly("_turn", &state::SimpleState::turn)
+      .def_readonly("owner_bits", &state::SimpleState::owner_bits)
+      .def_readonly("hand_bits", &state::SimpleState::hand_bits)
+      .def_readonly("promoted_bits", &state::SimpleState::promoted_bits)
+      .def_readonly("unused_bits", &state::SimpleState::unused_bits)
+      .def_readonly("_board", &state::SimpleState::board)
+      .add_property("position", py::make_getter(&state::SimpleState::position, py::return_value_policy<py::return_by_value>()))
+      .def("validate", &state::SimpleState::validate)
+      .def("is_used", &state::SimpleState::is_used)
+      .def("get_owner", &state::SimpleState::get_owner)
+      .def("get_raw_piece_type", &state::SimpleState::get_raw_piece_type)
+      .def("get_piece_type", &state::SimpleState::get_piece_type)
+      .def("get_position", &state::SimpleState::get_position)
+      .def("get_num_hand", &state::SimpleState::get_num_hand)
+      .def("set_turn", &state::SimpleState::set_turn)
+      .def("set_piece", &state::SimpleState::set_piece)
+      .def("set_all_hand", &state::SimpleState::set_all_hand)
+      .def("move", &state::SimpleState::move)
       .def(self == self);
 
   class_<Attack>("Attack")
@@ -210,24 +211,24 @@ BOOST_PYTHON_MODULE(cmogcore) {
       .def("get_attack", static_cast<BitBoard (*)(int, BitBoard const&, BitBoard const&)>(&attack::get_attack))
       .def("get_attack", static_cast<BitBoard (*)(int, int, BitBoard const&)>(&attack::get_attack));
 
-  class_<state::ExtendedState>("ExtendedState", init<state::State>())
-      .def(init<state::State>())
-      .def(init<state::State, state::ExtendedState::AttackBBList, state::ExtendedState::BoardTable, state::ExtendedState::OccBBList,
-                state::ExtendedState::OccBBList, u64>())
-      .def_readonly("state", &state::ExtendedState::state)
-      .add_property("attack_bbs", py::make_getter(&state::ExtendedState::attack_bbs, py::return_value_policy<py::return_by_value>()))
-      .add_property("board_table", py::make_getter(&state::ExtendedState::board_table, py::return_value_policy<py::return_by_value>()))
-      .add_property("occ", py::make_getter(&state::ExtendedState::occ, py::return_value_policy<py::return_by_value>()))
-      .add_property("occ_pawn", py::make_getter(&state::ExtendedState::occ_pawn, py::return_value_policy<py::return_by_value>()))
-      .def_readonly("hash_value", &state::ExtendedState::hash_value)
-      .def("is_checked", &state::ExtendedState::is_checked)
-      .def("is_king_alive", &state::ExtendedState::is_king_alive)
-      .def("get_attack_bb", &state::ExtendedState::get_attack_bb)
-      .def("get_legal_moves", &state::ExtendedState::get_legal_moves)
-      .def("move", &state::ExtendedState::move)
+  class_<state::State>("State", init<state::SimpleState>())
+      .def(init<state::SimpleState>())
+      .def(init<state::SimpleState, state::State::AttackBBList, state::State::BoardTable, state::State::OccBBList,
+                state::State::OccBBList, u64>())
+      .def_readonly("state", &state::State::state)
+      .add_property("attack_bbs", py::make_getter(&state::State::attack_bbs, py::return_value_policy<py::return_by_value>()))
+      .add_property("board_table", py::make_getter(&state::State::board_table, py::return_value_policy<py::return_by_value>()))
+      .add_property("occ", py::make_getter(&state::State::occ, py::return_value_policy<py::return_by_value>()))
+      .add_property("occ_pawn", py::make_getter(&state::State::occ_pawn, py::return_value_policy<py::return_by_value>()))
+      .def_readonly("hash_value", &state::State::hash_value)
+      .def("is_checked", &state::State::is_checked)
+      .def("is_king_alive", &state::State::is_king_alive)
+      .def("get_attack_bb", &state::State::get_attack_bb)
+      .def("get_legal_moves", &state::State::get_legal_moves)
+      .def("move", &state::State::move)
       .def(self == self);
 
-  class_<Game>("Game", init<state::State>())
+  class_<Game>("Game", init<state::SimpleState>())
       .def("move", &Game::move)
       .def("move", &Game::move_<state::Resign>)
       .def("move", &Game::move_<state::TimeUp>)
