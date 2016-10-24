@@ -7,10 +7,10 @@ import util
 class State(cmogcore.State):
 
     def __str__(self):
-        return State.wrap(self.state).__str__()
+        return SimpleState.wrap(self.state).__str__()
 
     def __repr__(self):
-        return 'State(state=%r)' % (State.wrap(self.state))
+        return 'State(state=%r)' % (SimpleState.wrap(self.state))
 
     @classmethod
     def wrap(cls, st: cmogcore.State):

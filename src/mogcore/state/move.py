@@ -4,6 +4,8 @@ from mogcore import *
 import util
 import re
 
+MOVE_PATTERN = re.compile(r'^([+\-%#][0-9A-Z_]+)(?:,T(\d{1,5}))?$')
+
 
 class TimedMove():
 
@@ -40,7 +42,7 @@ class Move(cmogcore.Move, TimedMove):
     @classmethod
     def wrap(cls, m: cmogcore.Move):
         if m.move_type == 0:
-            return Move(Turn(m._turn), Pos(m._from), Pos(m._to), PieceType(m._piece_type), m.elapsed_time)
+            return Move(Turn(m._turn), Pos(m._from), Pos(m._to), PieceType(m._piece_type), None if m.elapsed_time < 0 else m.elapsed_time)
         elif m.move_type == 1:
             return Resign(m.elapsed_time)
         elif m.move_type == 2:
@@ -57,8 +59,8 @@ class Move(cmogcore.Move, TimedMove):
     @classmethod
     def from_string(cls, s: str):
         """Build Move object from CSA-formatted string"""
-        pattern = re.compile(r'^([+\-%#][0-9A-Z_]+)(?:,T(\d{1,5}))?$')
-        mt = pattern.match(s)
+
+        mt = MOVE_PATTERN.match(s)
         if not mt:
             raise ValueError('Mal-formed CSA string for %s: %s' % (cls.__name__, s))
 

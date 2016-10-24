@@ -12,7 +12,8 @@ class SimpleState(cmogcore.SimpleState):
         if len(position) != 5:
             raise ValueError('position must have 5 elements')
 
-        cmogcore.SimpleState.__init__(self, turn.value, owner_bits, hand_bits, promoted_bits, unused_bits, board, position)
+        cmogcore.SimpleState.__init__(self, turn.value, owner_bits, hand_bits,
+                                      promoted_bits, unused_bits, board, position)
 
         try:
             self.validate()
@@ -186,3 +187,5 @@ HIRATE_PIECES = dict([
 ] + [
     (p, (BLACK, PAWN)) for p in [P17, P27, P37, P47, P57, P67, P77, P87, P97]
 ])
+
+HIRATE = SimpleState.from_string('PI\n+')
