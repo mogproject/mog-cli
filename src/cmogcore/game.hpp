@@ -19,7 +19,11 @@ struct Game {
   StateList states;
   MoveList moves;
 
-  Game(state::State const& initial_state) { states.push_back(state::ExtendedState(initial_state)); }
+  Game(state::State const& initial_state) {
+    auto s = state::ExtendedState(initial_state);
+    states.push_back(s);
+    ++__repetitions[s.hash_value];
+  }
 
   /*
    * @return 0: game continues, 1: draw, 2: win, 3: lose
@@ -50,7 +54,7 @@ struct Game {
     moves.push_back(move);
 
     // repetition
-    if (++__repetitions[new_state.hash_value] == 3) {
+    if (++__repetitions[new_state.hash_value] == 4) {
       state::ExtendedMove m(0, 0, 0, 0);
 
       // examine if this is a perpetual check

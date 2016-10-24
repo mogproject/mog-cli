@@ -73,3 +73,17 @@ class TestGame(unittest.TestCase):
             '-3334FU,T1',
             '%TORYO,T123',
         ]))
+
+    def test_move(self):
+        g1 = Game(STATE_HIRATE)
+        self.assertEqual(len(g1.moves), 0)
+
+        moves = [
+            '+5958OU', '-5152OU', '+5859OU', '-5251OU',
+            '+5958OU', '-5152OU', '+5859OU', '-5251OU',
+            '+5958OU', '-5152OU', '+5859OU', '-5251OU',
+        ]
+        for m in moves:
+            g1.move(ExtendedMove.from_string(m))
+        self.assertEqual(len(g1.moves), 13)
+        self.assertEqual(ExtendedMove.wrap(g1.moves[-1]), ThreefoldRepetition())
